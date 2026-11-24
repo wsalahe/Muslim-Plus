@@ -401,7 +401,7 @@ class _PrayerSettingsState extends State<PrayerSettings> {
         if (msg != null) Padding(padding: const EdgeInsets.all(8), child: Text(msg!, style: const TextStyle(color: Colors.white70))),
         const Padding(
           padding: EdgeInsets.all(8),
-          child: Text('إذا لم يصلك الأذان في وقته: اسمح بالإشعارات والمنبهات الدقيقة، واستثنِ التطبيق من توفير البطارية من إعدادات الهاتف. صوت الأذان من تسجيل الحرم المكي (archive.org، ملك عام).', style: TextStyle(fontSize: 12, color: Colors.white54)),
+          child: Text('إذا لم يصلك الأذان في وقته: اسمح بالإشعارات والمنبهات الدقيقة، واستثنِ التطبيق من توفير البطارية من إعدادات الهاتف. صوت الأذان: تسجيل المسجد النبوي (archive.org).', style: TextStyle(fontSize: 12, color: Colors.white54)),
         ),
       ]),
     );

@@ -272,113 +272,192 @@ class _HomeTabState extends State<HomeTab> {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final times = PrayerService.five(PrayerService.timesFor(now));
+    final pt = PrayerService.timesFor(now);
     final (ni, nt) = PrayerService.next();
     final left = nt.difference(now);
-    final h12 = now.hour % 12 == 0 ? 12 : now.hour % 12;
-    final features = <(IconData, String, Widget)>[
-      (Icons.headphones, 'التلاوات', const RecitersTab()),
-      (Icons.menu_book, 'المصحف', const MushafTab()),
-      (Icons.favorite_border, 'الأذكار', const AdhkarTab()),
-      (Icons.explore, 'القبلة', const QiblaTab()),
-      (Icons.radio_button_checked, 'التسبيح', const TasbihPage()),
-      (Icons.access_time, 'الساعة', const ClockPage()),
-      (Icons.auto_awesome, 'اسأل', const AiTab()),
-      (Icons.calculate, 'حاسبة الزكاة', const ZakatPage()),
-      (Icons.flag, 'ختمة القرآن', const KhatmaPage()),
-      (Icons.shield_moon, 'حصن المسلم', const AdhkarTab()),
-      (Icons.notifications_active, 'الأذان والمواقيت', const PrayerSettings()),
+    final surf = Theme.of(context).colorScheme.surface;
+    final onSurf = Theme.of(context).colorScheme.onSurface;
+    final night = now.isBefore(pt.fajr) ? PrayerService.timesFor(now.subtract(const Duration(days: 1))) : pt;
+    final sunna = SunnahTimes(night);
+    String two(int v) => arabicDigits(v).padLeft(2, '٠');
+    final cd = '${two(left.inHours)}:${two(left.inMinutes % 60)}:${two(left.inSeconds % 60)}';
+    const colors = [Color(0xFF5C6BC0), Color(0xFFFFB300), Color(0xFF29B6F6), Color(0xFFFF7043), Color(0xFF7E57C2)];
+    final features = <(IconData, String, Color, Widget)>[
+      (Icons.menu_book, 'المصحف', const Color(0xFF2E9E5B), const MushafTab()),
+      (Icons.favorite, 'الأذكار', const Color(0xFF1E88E5), const AdhkarTab()),
+      (Icons.radio_button_checked, 'السبحة', const Color(0xFF6A1B9A), const TasbihPage()),
+      (Icons.explore, 'القبلة', const Color(0xFF26A69A), const QiblaTab()),
+      (Icons.back_hand, 'الأدعية', const Color(0xFF0288D1), const AdhkarTab()),
+      (Icons.calculate, 'حاسبة الزكاة', const Color(0xFFF9A825), const ZakatPage()),
+      (Icons.flag, 'الختمة', const Color(0xFFEF6C00), const KhatmaPage()),
+      (Icons.headphones, 'التلاوات', const Color(0xFF00897B), const RecitersTab()),
+      (Icons.access_time, 'الساعة', const Color(0xFF5E35B1), const ClockPage()),
+      (Icons.auto_awesome, 'اسأل', const Color(0xFFD81B60), const AiTab()),
+      (Icons.notifications_active, 'الأذان', const Color(0xFFE53935), const PrayerSettings()),
+      (Icons.settings, 'الإعدادات', const Color(0xFF546E7A), const Settings()),
     ];
+    Widget pill(String label, DateTime t) => Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+          decoration: BoxDecoration(color: mint.withValues(alpha: .14), borderRadius: BorderRadius.circular(20)),
+          child: Text('$label : ${hm(t)}', style: TextStyle(color: onSurf, fontSize: 13, fontWeight: FontWeight.w600)),
+        );
     return Scaffold(
-      backgroundColor: tealB,
-      body: Column(children: [
-        Container(
-          decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [tealA, tealB])),
-          padding: EdgeInsets.fromLTRB(16, MediaQuery.of(context).padding.top + 8, 16, 14),
-          child: Column(children: [
-            Row(children: [
-              Icon(Icons.location_on, color: Colors.white70, size: 16),
-              const SizedBox(width: 4),
-              Expanded(child: Text(PrayerService.located ? 'موقعك الحالي · ${PrayerService.method.name}' : 'القاهرة (افتراضي) · ${PrayerService.method.name}', style: const TextStyle(color: Colors.white70, fontSize: 12), overflow: TextOverflow.ellipsis)),
-              IconButton(icon: const Icon(Icons.settings, color: Colors.white70), onPressed: () => open(const Settings())),
-            ]),
-            Text(hijriNow(), style: const TextStyle(color: gold, fontSize: 15)),
-            const SizedBox(height: 4),
-            Directionality(
-              textDirection: TextDirection.ltr,
-              child: Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.end, children: [
-                Text('${arabicDigits(h12).padLeft(1)}:${arabicDigits(now.minute).padLeft(2, '٠')}', style: const TextStyle(color: Colors.white, fontSize: 56, fontWeight: FontWeight.bold)),
-                Padding(padding: const EdgeInsets.only(bottom: 10, left: 4), child: Text(':${arabicDigits(now.second).padLeft(2, '٠')} ${now.hour < 12 ? 'ص' : 'م'}', style: const TextStyle(color: Colors.white60, fontSize: 18))),
-              ]),
-            ),
-            Text('${prayerNames[ni]} بعد ${hmsLeft(left)}', style: const TextStyle(color: Colors.white, fontSize: 15)),
-            const SizedBox(height: 14),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-              for (var i = 0; i < 5; i++)
-                Column(children: [
-                  Text(prayerNames[i], style: TextStyle(color: i == ni ? gold : Colors.white70, fontSize: 12, fontWeight: i == ni ? FontWeight.bold : FontWeight.normal)),
-                  const SizedBox(height: 4),
-                  Icon(prayerIcons[i], color: i == ni ? gold : Colors.white70, size: 22),
-                  const SizedBox(height: 4),
-                  Text(hm(times[i]).split(' ')[0], style: TextStyle(color: i == ni ? gold : Colors.white, fontSize: 12)),
-                ]),
-            ]),
-          ]),
-        ),
-        Expanded(
-          child: Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(color: Color(0xFFF4F1EA), borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
-            padding: const EdgeInsets.fromLTRB(14, 18, 14, 8),
-            child: SingleChildScrollView(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                const Text('كل المميزات', style: TextStyle(color: Colors.black87, fontSize: 17, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 12),
-                GridView.count(
-                  crossAxisCount: 4,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: 14,
-                  crossAxisSpacing: 8,
-                  childAspectRatio: .85,
-                  children: [
-                    for (var fi = 0; fi < features.length; fi++)
-                      TweenAnimationBuilder<double>(
-                        tween: Tween(begin: 0, end: 1),
-                        duration: Duration(milliseconds: 300 + fi * 70),
-                        curve: Curves.easeOut,
-                        builder: (c, v, child) => Opacity(opacity: v, child: Transform.translate(offset: Offset(0, 14 * (1 - v)), child: child)),
-                        child: Builder(builder: (c) { final f = features[fi]; return InkWell(
-                        borderRadius: BorderRadius.circular(16),
-                        onTap: () => open(f.$3),
-                        child: Column(children: [
-                          Container(width: 56, height: 56, decoration: BoxDecoration(color: mint, borderRadius: BorderRadius.circular(16)), child: Icon(f.$1, color: Colors.white, size: 28)),
-                          const SizedBox(height: 6),
-                          Text(f.$2, textAlign: TextAlign.center, style: const TextStyle(color: Colors.black87, fontSize: 11.5), maxLines: 2),
-                        ]),
-                      ); }),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Card(
-                  color: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  child: ListTile(
-                    leading: const Icon(Icons.favorite, color: mint),
-                    title: const Text('أذكار الصباح والمساء', style: TextStyle(color: Colors.black87)),
-                    subtitle: const Text('اضغط للبدء', style: TextStyle(color: Colors.black45)),
-                    onTap: () => open(const AdhkarTab()),
+      body: SingleChildScrollView(
+        child: Column(children: [
+          SizedBox(
+            height: 300 + MediaQuery.of(context).padding.top,
+            child: Stack(children: [
+              Positioned.fill(child: CustomPaint(painter: SkyPainter(now))),
+              Padding(
+                padding: EdgeInsets.fromLTRB(12, MediaQuery.of(context).padding.top + 6, 12, 0),
+                child: Column(children: [
+                  Row(children: [
+                    IconButton(icon: const Icon(Icons.settings, color: Colors.white), onPressed: () => open(const Settings())),
+                    const Spacer(),
+                    Text(hijriNow(), style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+                  ]),
+                  Text('${prayerNames[ni]} بعد', style: const TextStyle(color: Colors.white, fontSize: 18)),
+                  Directionality(textDirection: TextDirection.ltr, child: Text(cd, style: const TextStyle(color: Colors.white, fontSize: 52, fontWeight: FontWeight.w300, letterSpacing: 1))),
+                  Container(
+                    margin: const EdgeInsets.only(top: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    decoration: BoxDecoration(color: Colors.black38, borderRadius: BorderRadius.circular(18)),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      const Icon(Icons.location_on, color: Colors.orangeAccent, size: 16),
+                      const SizedBox(width: 4),
+                      Text(PrayerService.located ? 'موقعك الحالي · ${PrayerService.method.name}' : 'القاهرة (افتراضي) · ${PrayerService.method.name}', style: const TextStyle(color: Colors.white, fontSize: 12)),
+                    ]),
                   ),
-                ),
+                ]),
+              ),
+            ]),
+          ),
+          Container(
+            color: surf,
+            padding: const EdgeInsets.fromLTRB(8, 14, 8, 10),
+            child: Column(children: [
+              Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+                for (final e in [(0, 'الفجر', pt.fajr, Icons.nights_stay), (-1, 'الشروق', pt.sunrise, Icons.wb_twilight), (1, 'الظهر', pt.dhuhr, Icons.wb_sunny), (2, 'العصر', pt.asr, Icons.cloud), (3, 'المغرب', pt.maghrib, Icons.wb_twilight), (4, 'العشاء', pt.isha, Icons.nightlight_round)])
+                  Builder(builder: (c) {
+                    final isNext = e.$1 == ni;
+                    final col = e.$1 < 0 ? Colors.orange : colors[e.$1];
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                      decoration: BoxDecoration(color: isNext ? col.withValues(alpha: .15) : null, borderRadius: BorderRadius.circular(14)),
+                      child: Column(children: [
+                        Text(e.$2, style: TextStyle(fontSize: 12, color: onSurf, fontWeight: isNext ? FontWeight.bold : FontWeight.normal)),
+                        const SizedBox(height: 4),
+                        Icon(e.$4, color: col, size: 26),
+                        const SizedBox(height: 4),
+                        Text(hm(e.$3).split(' ')[0], style: TextStyle(fontSize: 12, color: onSurf)),
+                        Text(e.$3.hour < 12 ? 'ص' : 'م', style: TextStyle(fontSize: 10, color: Theme.of(context).hintColor)),
+                      ]),
+                    );
+                  }),
               ]),
+              const SizedBox(height: 10),
+              Wrap(alignment: WrapAlignment.center, spacing: 8, runSpacing: 6, children: [pill('منتصف الليل', sunna.middleOfTheNight), pill('الثلث الأخير', sunna.lastThirdOfTheNight)]),
+            ]),
+          ),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(10, 16, 10, 20),
+            child: GridView.count(
+              crossAxisCount: 4,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 14,
+              crossAxisSpacing: 6,
+              childAspectRatio: .88,
+              children: [
+                for (var fi = 0; fi < features.length; fi++)
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0, end: 1),
+                    duration: Duration(milliseconds: 300 + fi * 60),
+                    curve: Curves.easeOut,
+                    builder: (c, v, child) => Opacity(opacity: v, child: Transform.translate(offset: Offset(0, 14 * (1 - v)), child: child)),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: () => open(features[fi].$4),
+                      child: Column(children: [
+                        Container(width: 58, height: 58, decoration: BoxDecoration(color: features[fi].$3.withValues(alpha: .16), shape: BoxShape.circle, border: Border.all(color: features[fi].$3, width: 2)), child: Icon(features[fi].$1, color: features[fi].$3, size: 28)),
+                        const SizedBox(height: 6),
+                        Text(features[fi].$2, textAlign: TextAlign.center, style: TextStyle(color: onSurf, fontSize: 11.5, fontWeight: FontWeight.w600), maxLines: 2),
+                      ]),
+                    ),
+                  ),
+              ],
             ),
           ),
-        ),
-      ]),
+        ]),
+      ),
     );
   }
+}
+
+/// رسم أصلي: سماء الغروب ومسجد بقبة ومئذنتين (بدون أي شعارات أو رسومات مأخوذة من تطبيقات أخرى)
+class SkyPainter extends CustomPainter {
+  final DateTime t;
+  SkyPainter(this.t);
+  @override
+  void paint(Canvas c, Size s) {
+    final w = s.width, h = s.height;
+    final dayPhase = t.hour >= 6 && t.hour < 17;
+    final top = dayPhase ? const Color(0xFF3B8ED0) : const Color(0xFF3B2A6B);
+    final mid = dayPhase ? const Color(0xFF8CC5EE) : const Color(0xFFB0507A);
+    final low = dayPhase ? const Color(0xFFFFE3B0) : const Color(0xFFFFA45B);
+    c.drawRect(Rect.fromLTWH(0, 0, w, h), Paint()..shader = LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [top, mid, low]).createShader(Rect.fromLTWH(0, 0, w, h)));
+    // شمس/قمر
+    c.drawCircle(Offset(w * .36, h * .58), 26, Paint()..color = (dayPhase ? Colors.yellow : const Color(0xFFFFF3C4)).withValues(alpha: .85));
+    // سحب
+    final cl = Paint()..color = Colors.white.withValues(alpha: .35);
+    for (final o in [Offset(w * .72, h * .36), Offset(w * .3, h * .3)]) {
+      c.drawOval(Rect.fromCenter(center: o, width: 70, height: 18), cl);
+      c.drawOval(Rect.fromCenter(center: o + const Offset(18, -8), width: 40, height: 16), cl);
+    }
+    // تلال
+    final hill = Path()..moveTo(0, h)..lineTo(0, h * .86)..quadraticBezierTo(w * .25, h * .76, w * .5, h * .86)..quadraticBezierTo(w * .8, h * .78, w, h * .86)..lineTo(w, h)..close();
+    c.drawPath(hill, Paint()..color = const Color(0xFF2F6B5B));
+    // المسجد
+    final base = h * .9;
+    final cx = w / 2;
+    final wall = Paint()..color = const Color(0xFFF4EAD8);
+    final dark = Paint()..color = const Color(0xFF4B3F8F);
+    c.drawRect(Rect.fromLTRB(cx - 120, base - 50, cx + 120, base), wall);
+    // قبة مركزية
+    final dome = Path()..moveTo(cx - 50, base - 50)..quadraticBezierTo(cx - 50, base - 120, cx, base - 128)..quadraticBezierTo(cx + 50, base - 120, cx + 50, base - 50)..close();
+    c.drawPath(dome, Paint()..color = const Color(0xFF29A7D9));
+    c.drawRect(Rect.fromLTRB(cx - 50, base - 56, cx + 50, base - 46), wall);
+    c.drawLine(Offset(cx, base - 128), Offset(cx, base - 144), Paint()..color = const Color(0xFFFFD54F)..strokeWidth = 2.5);
+    c.drawCircle(Offset(cx, base - 146), 3.5, Paint()..color = const Color(0xFFFFD54F));
+    // مئذنتان
+    for (final sx in [cx - 150, cx + 150]) {
+      c.drawRect(Rect.fromLTRB(sx - 11, base - 130, sx + 11, base), wall);
+      c.drawRect(Rect.fromLTRB(sx - 15, base - 100, sx + 15, base - 92), Paint()..color = const Color(0xFFD9C9A8));
+      final cap = Path()..moveTo(sx - 12, base - 130)..lineTo(sx, base - 160)..lineTo(sx + 12, base - 130)..close();
+      c.drawPath(cap, Paint()..color = const Color(0xFF29A7D9));
+      c.drawCircle(Offset(sx, base - 163), 3, Paint()..color = const Color(0xFFFFD54F));
+    }
+    // أقواس ونوافذ
+    for (var i = -3; i <= 3; i++) {
+      if (i == 0) continue;
+      final x = cx + i * 30.0;
+      final arch = Path()..moveTo(x - 9, base)..lineTo(x - 9, base - 24)..quadraticBezierTo(x, base - 40, x + 9, base - 24)..lineTo(x + 9, base)..close();
+      c.drawPath(arch, dark);
+    }
+    final door = Path()..moveTo(cx - 14, base)..lineTo(cx - 14, base - 30)..quadraticBezierTo(cx, base - 50, cx + 14, base - 30)..lineTo(cx + 14, base)..close();
+    c.drawPath(door, dark);
+    // شجرتان
+    for (final tx in [w * .08, w * .92]) {
+      c.drawRect(Rect.fromLTWH(tx - 2, base - 22, 4, 24), Paint()..color = const Color(0xFF5D4037));
+      c.drawCircle(Offset(tx, base - 32), 16, Paint()..color = const Color(0xFF1F7A4D));
+    }
+    c.drawRect(Rect.fromLTWH(0, base, w, h - base), Paint()..color = const Color(0xFF245F4C));
+  }
+
+  @override
+  bool shouldRepaint(SkyPainter o) => o.t.hour != t.hour;
 }
 
 // ---------------- إعدادات الأذان ----------------

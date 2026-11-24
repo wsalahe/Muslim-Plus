@@ -8,6 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import 'main.dart';
 import 'prayer.dart';
 import 'extras.dart';
+import 'mushaf.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 
@@ -69,7 +70,7 @@ class _MushafTabState extends State<MushafTab> {
             itemCount: data.length + (last != null ? 1 : 0),
             itemBuilder: (c, i) {
               if (last != null && i == 0) {
-                return Card(child: ListTile(leading: const Icon(Icons.bookmark, color: gold), title: Text('متابعة القراءة: سورة ${surahs[last - 1]} · آية ${arabicDigits(lastAyah + 1)}'), onTap: () => open(SurahReader(data[last - 1], initialAyah: lastAyah))));
+                return Card(child: ListTile(leading: const Icon(Icons.bookmark, color: gold), title: Text('متابعة القراءة: سورة ${surahs[last - 1]} · آية ${arabicDigits(lastAyah + 1)}'), subtitle: const Text('مصحف بالصفحات مع قلب الصفحة'), onTap: () async { await PageData.load(); if (mounted) open(PageReader(initialPage: Store.prefs.getInt('mushaf_page') ?? PageData.pageOf(last, lastAyah + 1))); }));
               }
               final s = data[i - (last != null ? 1 : 0)];
               final n = s['n'] as int;
@@ -77,7 +78,7 @@ class _MushafTabState extends State<MushafTab> {
                 leading: CircleAvatar(backgroundColor: navy, child: Text('$n', style: const TextStyle(color: gold, fontSize: 13))),
                 title: Text('سورة ${surahs[n - 1]}', style: const TextStyle(fontFamily: 'Amiri', fontSize: 20)),
                 subtitle: Text('${(s['a'] as List).length} آية · ${s['t'] == 'Meccan' ? 'مكية' : 'مدنية'}'),
-                onTap: () => open(SurahReader(s)),
+                onTap: () async { await PageData.load(); if (mounted) open(PageReader(initialPage: PageData.pageOf(n, 1))); },
               );
             },
           );

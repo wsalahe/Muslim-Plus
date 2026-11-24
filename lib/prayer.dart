@@ -12,6 +12,7 @@ import 'main.dart';
 import 'features.dart';
 import 'ai.dart';
 import 'extras.dart';
+import 'cities.dart';
 
 const tealA = Color(0xFF0E7C7B);
 const tealB = Color(0xFF0A4F55);
@@ -119,7 +120,8 @@ class PrayerService {
   }
 
   static MethodInfo get method {
-    final id = Store.prefs.getString('pt_method') ?? guessMethod(lat, lon);
+    final cc = Store.prefs.getString('pt_cc');
+    final id = Store.prefs.getString('pt_method') ?? (cc != null ? methodForCountry(cc) : guessMethod(lat, lon));
     return kMethods.firstWhere((m) => m.id == id, orElse: () => kMethods[2]);
   }
 
@@ -160,27 +162,53 @@ class PrayerService {
       lat = p.latitude; lon = p.longitude; located = true;
       await Store.prefs.setDouble('pt_lat', lat);
       await Store.prefs.setDouble('pt_lon', lon);
+      try {
+        final c = CityDb.nearest(await CityDb.load(), lat, lon);
+        if (c != null) {
+          await Store.prefs.setString('pt_city', 'قرب ${c.label}');
+          await Store.prefs.setString('pt_cc', c.cc);
+        } else {
+          await Store.prefs.remove('pt_city');
+          await Store.prefs.remove('pt_cc');
+        }
+      } catch (_) {}
       return true;
     } catch (_) {
       return false;
     }
   }
 
+  /// مدينة اختارها المستخدم يدويا: تحفظ الإحداثيات والدولة وتعيد الطريقة الافتراضية للدولة.
+  static Future<void> setManualCity(City c) async {
+    lat = c.lat;
+    lon = c.lon;
+    located = true;
+    final p = Store.prefs;
+    await p.setDouble('pt_lat', c.lat);
+    await p.setDouble('pt_lon', c.lon);
+    await p.setString('pt_city', c.label);
+    await p.setString('pt_cc', c.cc);
+    await p.remove('pt_method');
+    await schedule();
+  }
+
   static Future<void> init() async {
     if (ready) return;
     tzdata.initializeTimeZones();
-    await plugin.initialize(const InitializationSettings(android: AndroidInitializationSettings('@mipmap/ic_launcher')));
+    await plugin.initialize(const InitializationSettings(android: AndroidInitializationSettings('ic_stat_adhan')));
     final a = plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
     await a?.deleteNotificationChannel('adhan_v1');
+    for (var k = 1; k <= 30; k++) { await a?.deleteNotificationChannel('adhan_m${k.toString().padLeft(2, '0')}'); }
+    for (var k = 0; k <= 20; k++) { await a?.deleteNotificationChannel('adhan_c$k'); }
     for (var i = 0; i < kMuezzins.length; i++) {
       final id = (i + 1).toString().padLeft(2, '0');
-      await a?.createNotificationChannel(AndroidNotificationChannel('adhan_m$id', 'الأذان · ${kMuezzins[i]}',
-          description: 'أذان عند دخول وقت الصلاة', importance: Importance.max, playSound: true, sound: RawResourceAndroidNotificationSound('a$id')));
+      await a?.createNotificationChannel(AndroidNotificationChannel('adhan_n$id', 'الأذان · ${kMuezzins[i]}',
+          description: 'أذان عند دخول وقت الصلاة', importance: Importance.max, playSound: true, audioAttributesUsage: AudioAttributesUsage.alarm, enableVibration: true, sound: RawResourceAndroidNotificationSound('a$id')));
     }
     final cu = customUri;
     if (cu != null) {
-      await a?.createNotificationChannel(AndroidNotificationChannel('adhan_c$customVer', 'الأذان · $customName',
-          description: 'أذان بملف من الجهاز', importance: Importance.max, playSound: true, sound: UriAndroidNotificationSound(cu)));
+      await a?.createNotificationChannel(AndroidNotificationChannel('adhan_k$customVer', 'الأذان · $customName',
+          description: 'أذان بملف من الجهاز', importance: Importance.max, playSound: true, audioAttributesUsage: AudioAttributesUsage.alarm, enableVibration: true, sound: UriAndroidNotificationSound(cu)));
     }
     ready = true;
   }
@@ -200,14 +228,14 @@ class PrayerService {
     final a = plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
     final uri = await nat.invokeMethod<String>('registerSound', {'path': path, 'name': name, 'old': customUri});
     if (uri == null || uri.isEmpty) return false;
-    await a?.deleteNotificationChannel('adhan_c$customVer');
+    await a?.deleteNotificationChannel('adhan_k$customVer');
     final ver = customVer + 1;
     await Store.prefs.setString('cs_uri', uri);
     await Store.prefs.setInt('cs_ver', ver);
     await Store.prefs.setString('cs_name', name);
     await Store.prefs.setString('cs_path', path);
-    await a?.createNotificationChannel(AndroidNotificationChannel('adhan_c$ver', 'الأذان · $name',
-        description: 'أذان بملف من الجهاز', importance: Importance.max, playSound: true, sound: UriAndroidNotificationSound(uri)));
+    await a?.createNotificationChannel(AndroidNotificationChannel('adhan_k$ver', 'الأذان · $name',
+        description: 'أذان بملف من الجهاز', importance: Importance.max, playSound: true, audioAttributesUsage: AudioAttributesUsage.alarm, enableVibration: true, sound: UriAndroidNotificationSound(uri)));
     return true;
   }
 
@@ -274,11 +302,12 @@ class PrayerService {
   static NotificationDetails detailsFor(int m) {
     if (m == customId && hasCustom) {
       return NotificationDetails(
-          android: AndroidNotificationDetails('adhan_c$customVer', 'الأذان · $customName',
+          android: AndroidNotificationDetails('adhan_k$customVer', 'الأذان · $customName',
               channelDescription: 'أذان بملف من الجهاز',
               importance: Importance.max,
               priority: Priority.high,
               playSound: true,
+              audioAttributesUsage: AudioAttributesUsage.alarm,
               sound: UriAndroidNotificationSound(customUri!),
               category: AndroidNotificationCategory.alarm,
               autoCancel: true,
@@ -287,11 +316,12 @@ class PrayerService {
     m = m.clamp(0, kMuezzins.length - 1);
     final id = (m + 1).toString().padLeft(2, '0');
     return NotificationDetails(
-        android: AndroidNotificationDetails('adhan_m$id', 'الأذان · ${kMuezzins[m]}',
+        android: AndroidNotificationDetails('adhan_n$id', 'الأذان · ${kMuezzins[m]}',
             channelDescription: 'أذان عند دخول وقت الصلاة',
             importance: Importance.max,
             priority: Priority.high,
             playSound: true,
+            audioAttributesUsage: AudioAttributesUsage.alarm,
             sound: RawResourceAndroidNotificationSound('a$id'),
             category: AndroidNotificationCategory.alarm,
             autoCancel: true,
@@ -337,27 +367,51 @@ class PrayerService {
     await plugin.show(999, 'تجربة الأذان · ${nameOf(mm)}', 'اسحب الإشعار لإيقاف الصوت', detailsFor(mm));
   }
 
-  /// يجدول أذان الأيام الستة القادمة. يُستدعى عند كل فتح للتطبيق وعند تغيير الإعدادات.
+  /// يجدول أذان الأيام القادمة (٢١ يوما). يُستدعى عند كل فتح للتطبيق وعند تغيير الإعدادات.
+  /// يسجل عدد المجدول وأقرب موعد وآخر خطأ ليعرضها كرت الحالة بصدق.
   static Future<int> schedule() async {
-    await init();
-    await plugin.cancelAll();
+    final p = Store.prefs;
+    await p.setString('sch_err', '');
+    try {
+      await init();
+      await plugin.cancelAll();
+    } catch (e) {
+      await p.setString('sch_err', 'init: $e');
+      return 0;
+    }
     final now = DateTime.now();
     var n = 0;
-    for (var d = 0; d < 6; d++) {
+    DateTime? first;
+    String? firstErr;
+    String? exactErr;
+    for (var d = 0; d < 21; d++) {
       final t = five(timesFor(now.add(Duration(days: d))));
       for (var i = 0; i < 5; i++) {
         if (!adhanOn(i) || !t[i].isAfter(now)) continue;
         final when = tz.TZDateTime.from(t[i], tz.UTC);
+        final m = muezzinFor(i);
+        var ok = false;
         for (final mode in [AndroidScheduleMode.exactAllowWhileIdle, AndroidScheduleMode.inexactAllowWhileIdle]) {
           try {
-            await plugin.zonedSchedule(d * 10 + i, 'حان الآن وقت صلاة ${prayerNames[i]}', '${nameOf(muezzinFor(i))} · ${method.name}', when, detailsFor(muezzinFor(i)),
+            await plugin.zonedSchedule(d * 10 + i, 'حان الآن وقت صلاة ${prayerNames[i]}', '${nameOf(m)} · ${method.name}', when, detailsFor(m),
                 androidScheduleMode: mode, uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime);
-            n++;
+            ok = true;
+            if (mode == AndroidScheduleMode.inexactAllowWhileIdle) exactErr ??= 'exact refused';
             break;
-          } catch (_) {}
+          } catch (e) {
+            firstErr ??= e.toString();
+          }
+        }
+        if (ok) {
+          n++;
+          if (first == null || t[i].isBefore(first)) first = t[i];
         }
       }
     }
+    await p.setInt('sch_n', n);
+    await p.setString('sch_next', first?.toIso8601String() ?? '');
+    await p.setString('sch_exact', exactErr == null ? '1' : '0');
+    if (n == 0 && firstErr != null) await p.setString('sch_err', firstErr);
     return n;
   }
 }
@@ -615,8 +669,8 @@ class _PrayerSettingsState extends State<PrayerSettings> {
         Card(
           child: ListTile(
             leading: const Icon(Icons.my_location, color: gold),
-            title: Text(PrayerService.located ? 'تم تحديد موقعك' : 'الموقع غير محدد (القاهرة افتراضيا)'),
-            subtitle: const Text('الموقع يبقى على جهازك فقط ويُستخدم لحساب المواقيت'),
+            title: Text(PrayerService.located ? 'الموقع: ${Store.prefs.getString('pt_city') ?? 'تم تحديد موقعك'}' : 'الموقع غير محدد (القاهرة افتراضيا)'),
+            subtitle: const Text('اضغط لتحديد موقعك بالـGPS (يبقى على جهازك). أو اختر مدينة يدويا بالأسفل'),
             trailing: busy ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : null,
             onTap: () async {
               setState(() => busy = true);
@@ -628,6 +682,7 @@ class _PrayerSettingsState extends State<PrayerSettings> {
             },
           ),
         ),
+        CitySearchCard(onPicked: () => setState(() => msg = 'تم اعتماد المدينة وإعادة جدولة الأذان')),
         const Padding(padding: EdgeInsets.fromLTRB(8, 12, 8, 4), child: Text('طريقة الحساب (التقويم المعتمد)', style: TextStyle(color: gold, fontWeight: FontWeight.bold))),
         if (p.getString('pt_method') == null) Padding(padding: const EdgeInsets.symmetric(horizontal: 8), child: Text('مختارة تلقائيا حسب موقعك: ${cur.name}', style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor))),
         for (final m in kMethods)

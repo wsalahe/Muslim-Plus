@@ -35,6 +35,7 @@ flutter:
     - assets/adhkar.json
     - assets/adhan/
     - assets/pages.json
+    - assets/cities.txt
   fonts:
     - family: AmiriQuran
       fonts:

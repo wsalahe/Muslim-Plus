@@ -190,7 +190,10 @@ class _AdhanTabState extends State<AdhanTab> {
         if (_err != null) Padding(padding: const EdgeInsets.all(8), child: Text(_err!, style: const TextStyle(color: Colors.redAccent, fontSize: 12))),
         FutureBuilder<(bool, bool, int)>(
           key: ValueKey(_statusKey),
-          future: PrayerService.status(),
+          future: PrayerService.status().then((v) async {
+            try { await Store.prefs.setBool('bat_ok', await PrayerService.nat.invokeMethod<bool>('isIgnoringBattery') ?? false); } catch (_) {}
+            return v;
+          }),
           builder: (c, snap) {
             final v = snap.data;
             if (v == null) return const SizedBox();
@@ -198,6 +201,15 @@ class _AdhanTabState extends State<AdhanTab> {
             return Card(child: Padding(padding: const EdgeInsets.all(12), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               const Text('حالة تنبيهات الأذان', style: TextStyle(color: gold, fontWeight: FontWeight.bold)),
               Text('${ok(v.$1)} الإشعارات مفعلة   ${ok(v.$2)} التنبيه الدقيق مسموح   (${v.$3}) أذان مجدول'),
+              Builder(builder: (_) {
+                final nx = DateTime.tryParse(Store.prefs.getString('sch_next') ?? '');
+                final err = Store.prefs.getString('sch_err') ?? '';
+                return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(nx == null ? 'لا يوجد أذان مجدول حاليا' : 'أقرب أذان مجدول: ${hm(nx)} · ${arabicDigits(nx.day)}/${arabicDigits(nx.month)}', style: const TextStyle(fontSize: 13)),
+                  Text('ببطارية: ${ok(Store.prefs.getBool('bat_ok') ?? false)} مستثنى من توفير البطارية', style: const TextStyle(fontSize: 12)),
+                  if (err.isNotEmpty) Text('خطأ الجدولة: $err', style: const TextStyle(fontSize: 11, color: Colors.redAccent)),
+                ]);
+              }),
               if (!v.$1 || !v.$2) const Text('فعّل الإشعارات و«التنبيهات والتذكيرات» للتطبيق من إعدادات الهاتف، وعطّل توفير البطارية للتطبيق.', style: TextStyle(fontSize: 12, color: Colors.orangeAccent)),
               Wrap(spacing: 8, children: [
                 TextButton.icon(icon: const Icon(Icons.security, color: gold), label: const Text('طلب الأذونات'), onPressed: () async { await PrayerService.ensurePermissions(context, force: true); await PrayerService.schedule(); setState(() => _statusKey++); }),

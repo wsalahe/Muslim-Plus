@@ -7,6 +7,7 @@ import 'package:flutter_compass/flutter_compass.dart';
 import 'package:geolocator/geolocator.dart';
 import 'main.dart';
 import 'prayer.dart';
+import 'extras.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 
@@ -18,18 +19,16 @@ class Shell extends StatefulWidget {
 
 class _ShellState extends State<Shell> {
   int i = 0;
-  final pages = const [HomeTab(), RecitersTab(), MushafTab(), AdhkarTab(), QiblaTab()];
+  final pages = const [HomeTab(), AdhanTab(), MushafTab(), AdhkarTab(), QiblaTab()];
   @override
   Widget build(BuildContext context) => Scaffold(
         body: IndexedStack(index: i, children: pages),
         bottomNavigationBar: NavigationBar(
-          backgroundColor: navy,
-          indicatorColor: gold.withValues(alpha: .25),
           selectedIndex: i,
           onDestinationSelected: (v) => setState(() => i = v),
           destinations: const [
             NavigationDestination(icon: Icon(Icons.home), label: 'الرئيسية'),
-            NavigationDestination(icon: Icon(Icons.headphones), label: 'التلاوات'),
+            NavigationDestination(icon: Icon(Icons.notifications_active), label: 'الأذان'),
             NavigationDestination(icon: Icon(Icons.menu_book), label: 'المصحف'),
             NavigationDestination(icon: Icon(Icons.favorite_border), label: 'الأذكار'),
             NavigationDestination(icon: Icon(Icons.explore), label: 'القبلة'),
@@ -46,11 +45,19 @@ class QuranText {
 
 String arabicDigits(int n) => n.toString().split('').map((d) => String.fromCharCode(0x660 + int.parse(d))).join();
 
-class MushafTab extends StatelessWidget {
+class MushafTab extends StatefulWidget {
   const MushafTab({super.key});
+  @override
+  State<MushafTab> createState() => _MushafTabState();
+}
+
+class _MushafTabState extends State<MushafTab> {
+  void open(Widget w) => Navigator.push(context, MaterialPageRoute(builder: (_) => w)).then((_) { if (mounted) setState(() {}); });
+
   @override
   Widget build(BuildContext context) {
     final last = Store.prefs.getInt('mushaf_last');
+    final lastAyah = Store.prefs.getInt('mushaf_ayah') ?? 0;
     return Scaffold(
       appBar: AppBar(title: const Text('المصحف الشريف', style: TextStyle(fontWeight: FontWeight.bold))),
       body: FutureBuilder<List>(
@@ -62,7 +69,7 @@ class MushafTab extends StatelessWidget {
             itemCount: data.length + (last != null ? 1 : 0),
             itemBuilder: (c, i) {
               if (last != null && i == 0) {
-                return Card(child: ListTile(leading: const Icon(Icons.bookmark, color: gold), title: Text('متابعة القراءة: سورة ${surahs[last - 1]}'), onTap: () => Navigator.push(c, MaterialPageRoute(builder: (_) => SurahReader(data[last - 1])))));
+                return Card(child: ListTile(leading: const Icon(Icons.bookmark, color: gold), title: Text('متابعة القراءة: سورة ${surahs[last - 1]} · آية ${arabicDigits(lastAyah + 1)}'), onTap: () => open(SurahReader(data[last - 1], initialAyah: lastAyah))));
               }
               final s = data[i - (last != null ? 1 : 0)];
               final n = s['n'] as int;
@@ -70,7 +77,7 @@ class MushafTab extends StatelessWidget {
                 leading: CircleAvatar(backgroundColor: navy, child: Text('$n', style: const TextStyle(color: gold, fontSize: 13))),
                 title: Text('سورة ${surahs[n - 1]}', style: const TextStyle(fontFamily: 'Amiri', fontSize: 20)),
                 subtitle: Text('${(s['a'] as List).length} آية · ${s['t'] == 'Meccan' ? 'مكية' : 'مدنية'}'),
-                onTap: () => Navigator.push(c, MaterialPageRoute(builder: (_) => SurahReader(s))),
+                onTap: () => open(SurahReader(s)),
               );
             },
           );
@@ -115,7 +122,8 @@ const kAyahReciters = [
 
 class SurahReader extends StatefulWidget {
   final Map s;
-  const SurahReader(this.s, {super.key});
+  final int initialAyah;
+  const SurahReader(this.s, {super.key, this.initialAyah = 0});
   @override
   State<SurahReader> createState() => _SurahReaderState();
 }
@@ -129,6 +137,8 @@ class _SurahReaderState extends State<SurahReader> {
   String? err;
   late final List<GlobalKey> keys;
   StreamSubscription? s1, s2;
+  final scroll = ScrollController();
+  int topAyah = 0;
 
   int get n => widget.s['n'] as int;
   List<String> get ay => (widget.s['a'] as List).cast<String>();
@@ -139,14 +149,23 @@ class _SurahReaderState extends State<SurahReader> {
     size = Store.prefs.getDouble('mushaf_size') ?? 28;
     reciter = Store.prefs.getInt('mushaf_reciter') ?? 0;
     if (reciter >= kAyahReciters.length) reciter = 0;
+    if (Store.prefs.getInt('mushaf_last') != n) Store.prefs.setInt('mushaf_ayah', 0);
     Store.prefs.setInt('mushaf_last', n);
+    topAyah = widget.initialAyah;
     keys = List.generate(ay.length, (_) => GlobalKey());
     s1 = player.currentIndexStream.listen((i) {
       if (i == null || !mounted) return;
       setState(() => cur = i);
       final c = keys[i].currentContext;
       if (c != null) Scrollable.ensureVisible(c, duration: const Duration(milliseconds: 300), alignment: .3);
+      Store.prefs.setInt('mushaf_ayah', i);
     });
+    if (widget.initialAyah > 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final c = keys[widget.initialAyah.clamp(0, keys.length - 1)].currentContext;
+        if (c != null) Scrollable.ensureVisible(c, alignment: 0.05);
+      });
+    }
     s2 = player.playerStateStream.listen((st) {
       if (!mounted) return;
       setState(() => playing = st.playing && st.processingState != ProcessingState.completed);
@@ -158,8 +177,26 @@ class _SurahReaderState extends State<SurahReader> {
   void dispose() {
     s1?.cancel();
     s2?.cancel();
+    Store.prefs.setInt('mushaf_ayah', topAyah);
+    scroll.dispose();
     player.dispose();
     super.dispose();
+  }
+
+  void trackTop() {
+    final topInset = MediaQuery.of(context).padding.top + kToolbarHeight + 8;
+    for (var i = 0; i < keys.length; i++) {
+      final ro = keys[i].currentContext?.findRenderObject();
+      if (ro is RenderBox && ro.attached) {
+        final y = ro.localToGlobal(Offset.zero).dy;
+        if (y + ro.size.height > topInset) {
+          topAyah = i;
+          Store.prefs.setInt('mushaf_ayah', i);
+          Store.prefs.setInt('mushaf_last', n);
+          return;
+        }
+      }
+    }
   }
 
   Future<void> start(int from) async {
@@ -202,33 +239,47 @@ class _SurahReaderState extends State<SurahReader> {
     final a = ay;
     return Scaffold(
       appBar: AppBar(title: Text('سورة ${surahs[n - 1]}'), actions: [
+        IconButton(icon: const Icon(Icons.done_all), tooltip: 'تعليم السورة كمقروءة في الختمة', onPressed: () {
+          final d = (jsonDecode(Store.prefs.getString('kh_done') ?? '[]') as List).cast<int>().toSet()..add(n);
+          Store.prefs.setString('kh_done', jsonEncode(d.toList()));
+          if (Store.prefs.getString('kh_start') == null) Store.prefs.setString('kh_start', DateTime.now().toIso8601String());
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تمت إضافتها إلى ختمتك')));
+        }),
         IconButton(icon: const Icon(Icons.text_decrease), onPressed: () { setState(() => size = math.max(18, size - 2)); Store.prefs.setDouble('mushaf_size', size); }),
         IconButton(icon: const Icon(Icons.text_increase), onPressed: () { setState(() => size = math.min(48, size + 2)); Store.prefs.setDouble('mushaf_size', size); }),
       ]),
-      body: ListView(padding: const EdgeInsets.fromLTRB(16, 16, 16, 24), children: [
-        if (n != 1 && n != 9)
-          Center(child: Padding(padding: const EdgeInsets.only(bottom: 16), child: Text('بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ', style: TextStyle(fontFamily: 'Amiri', fontSize: size + 2, color: gold)))),
-        for (var i = 0; i < a.length; i++)
-          InkWell(
-            key: keys[i],
-            onTap: () => start(i),
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 2),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(color: i == cur ? gold.withValues(alpha: .18) : null, borderRadius: BorderRadius.circular(10)),
-              child: Text.rich(
-                TextSpan(children: [TextSpan(text: '${a[i]} '), TextSpan(text: '\u06DD${arabicDigits(i + 1)}', style: const TextStyle(color: gold))]),
-                textAlign: TextAlign.justify,
-                style: TextStyle(fontFamily: 'Amiri', fontSize: size, height: 2.1),
+      body: NotificationListener<ScrollEndNotification>(
+        onNotification: (_) { trackTop(); return false; },
+        child: SingleChildScrollView(
+          controller: scroll,
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            if (n != 1 && n != 9)
+              Center(child: Padding(padding: const EdgeInsets.only(bottom: 16), child: Text('بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ', style: TextStyle(fontFamily: 'Amiri', fontSize: size + 2, color: gold)))),
+            for (var i = 0; i < a.length; i++)
+              InkWell(
+                key: keys[i],
+                onTap: () => start(i),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  margin: const EdgeInsets.symmetric(vertical: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(color: i == cur ? gold.withValues(alpha: .18) : null, borderRadius: BorderRadius.circular(10)),
+                  child: Text.rich(
+                    TextSpan(children: [TextSpan(text: '${a[i]} '), TextSpan(text: '\u06DD${arabicDigits(i + 1)}', style: const TextStyle(color: gold))]),
+                    textAlign: TextAlign.justify,
+                    style: TextStyle(fontFamily: 'Amiri', fontSize: size, height: 2.1),
+                  ),
+                ),
               ),
-            ),
-          ),
-        const SizedBox(height: 16),
-        const Center(child: Text('النص: المصحف العثماني (Tanzil / alquran.cloud) · الصوت: everyayah.com', style: TextStyle(fontSize: 11, color: Colors.white38))),
-      ]),
+            const SizedBox(height: 16),
+            Center(child: Text('النص: المصحف العثماني (Tanzil / alquran.cloud) · الصوت: everyayah.com', style: TextStyle(fontSize: 11, color: Theme.of(context).hintColor))),
+          ]),
+        ),
+      ),
       bottomNavigationBar: SafeArea(
         child: Container(
-          color: navy,
+          color: Theme.of(context).colorScheme.surface,
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             if (err != null) Text(err!, style: const TextStyle(color: Colors.redAccent, fontSize: 12)),
@@ -345,7 +396,7 @@ class _AdhkarPageState extends State<AdhkarPage> {
         itemBuilder: (c, i) {
           final done = left[i] == 0;
           return Card(
-            color: done ? const Color(0xFF123524) : navy,
+            color: done ? (Theme.of(context).brightness == Brightness.dark ? const Color(0xFF123524) : const Color(0xFFD7F0E0)) : Theme.of(context).colorScheme.surface,
             child: InkWell(
               borderRadius: BorderRadius.circular(16),
               onTap: () { if (left[i] > 0) { HapticFeedback.selectionClick(); setState(() => left[i]--); } },
@@ -439,7 +490,7 @@ class _QiblaTabState extends State<QiblaTab> {
                         Text('زاوية القبلة: ${arabicDigits(bearing!.round())}° من الشمال', style: const TextStyle(fontSize: 18, color: gold)),
                         const SizedBox(height: 24),
                         Stack(alignment: Alignment.center, children: [
-                          Container(width: 280, height: 280, decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: aligned ? Colors.greenAccent : gold, width: 3), color: navy)),
+                          Container(width: 280, height: 280, decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: aligned ? Colors.greenAccent : gold, width: 3), color: Theme.of(context).colorScheme.surface)),
                           Transform.rotate(angle: angle * math.pi / 180, child: Icon(Icons.navigation, size: 190, color: aligned ? Colors.greenAccent : gold)),
                           const Positioned(top: 22, child: Text('🕋', style: TextStyle(fontSize: 22))),
                         ]),

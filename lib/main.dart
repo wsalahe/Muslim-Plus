@@ -11,8 +11,9 @@ import 'package:video_player/video_player.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'features.dart';
+import 'extras.dart';
 
-const int kAppBuild = 3;
+const int kAppBuild = 4;
 const String kRepo = 'wsalahe/Quran-kareem';
 const String kCatalogUrl = 'https://raw.githubusercontent.com/$kRepo/main/catalog.json';
 const String kApkUrl = 'https://github.com/$kRepo/releases/download/app-latest/QuranKareem.apk';
@@ -30,7 +31,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.wsalahe.quran_app.audio',
-    androidNotificationChannelName: 'القرآن الكريم',
+    androidNotificationChannelName: 'Muslim Plus',
     androidNotificationOngoing: true,
   );
   runApp(const QuranApp());
@@ -71,24 +72,52 @@ class Store {
   static bool has(String sheikhId, Map x) => fileFor(sheikhId, x).existsSync();
 }
 
+final ValueNotifier<bool> darkMode = ValueNotifier(false);
+
+ThemeData buildTheme(bool dark) {
+  const tr = PageTransitionsTheme(builders: {
+    TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+    TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+  });
+  if (dark) {
+    return ThemeData(
+      brightness: Brightness.dark,
+      pageTransitionsTheme: tr,
+      scaffoldBackgroundColor: navyDark,
+      colorScheme: const ColorScheme.dark(primary: gold, surface: navy),
+      appBarTheme: const AppBarTheme(backgroundColor: navy, foregroundColor: gold, centerTitle: true),
+      navigationBarTheme: NavigationBarThemeData(backgroundColor: navy, indicatorColor: gold.withValues(alpha: .25)),
+      cardTheme: CardTheme(color: navy, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: gold, width: .6))),
+    );
+  }
+  return ThemeData(
+    brightness: Brightness.light,
+    pageTransitionsTheme: tr,
+    scaffoldBackgroundColor: const Color(0xFFF4F1EA),
+    colorScheme: const ColorScheme.light(primary: Color(0xFF0E7C7B), surface: Colors.white, secondary: gold),
+    appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF0E7C7B), foregroundColor: Colors.white, centerTitle: true),
+    navigationBarTheme: NavigationBarThemeData(backgroundColor: Colors.white, indicatorColor: const Color(0xFF13A78F).withValues(alpha: .25)),
+    cardTheme: CardTheme(color: Colors.white, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: Color(0x2213A78F)))),
+  );
+}
+
 class QuranApp extends StatelessWidget {
   const QuranApp({super.key});
   @override
-  Widget build(BuildContext context) => MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'القرآن الكريم',
-        locale: const Locale('ar'),
-        builder: (c, w) => Directionality(textDirection: TextDirection.rtl, child: w!),
-        theme: ThemeData(
-          brightness: Brightness.dark,
-          scaffoldBackgroundColor: navyDark,
-          colorScheme: const ColorScheme.dark(primary: gold, surface: navy),
-          appBarTheme: const AppBarTheme(backgroundColor: navy, foregroundColor: gold, centerTitle: true),
-          cardTheme: CardTheme(color: navy, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: gold, width: .6))),
-        ),
-        home: FutureBuilder(
-          future: Store.init(),
-          builder: (c, s) => s.connectionState == ConnectionState.done ? const Shell() : const Splash(),
+  Widget build(BuildContext context) => ValueListenableBuilder<bool>(
+        valueListenable: darkMode,
+        builder: (c, dark, _) => MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Muslim Plus',
+          locale: const Locale('ar'),
+          builder: (c, w) => Directionality(textDirection: TextDirection.rtl, child: w!),
+          theme: buildTheme(false),
+          darkTheme: buildTheme(true),
+          themeMode: dark ? ThemeMode.dark : ThemeMode.light,
+          home: FutureBuilder(
+            future: Store.init().then((_) => darkMode.value = Store.prefs.getBool('dark') ?? false),
+            builder: (c, s) => s.connectionState == ConnectionState.done ? const Shell() : const Splash(),
+          ),
         ),
       );
 }
@@ -363,7 +392,7 @@ class _PlayerState extends State<Player> {
                             Text(titleOf(x), style: const TextStyle(fontSize: 26, color: gold)),
                             Text(widget.s['name'], textAlign: TextAlign.center),
                             const SizedBox(height: 6),
-                            const Text('يستمر التشغيل في الخلفية', style: TextStyle(fontSize: 12, color: Colors.white54)),
+                            Text('يستمر التشغيل في الخلفية', style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor)),
                           ]),
           ),
         ),
@@ -445,7 +474,17 @@ class _SettingsState extends State<Settings> {
             ],
           ]))),
           const SizedBox(height: 12),
-          const Card(child: Padding(padding: EdgeInsets.all(16), child: Text('الإصدار 1.0 · التطبيق يعمل بدون تسجيل دخول. السور المحمّلة تعمل بدون إنترنت.'))),
+          Card(child: SwitchListTile(
+            activeColor: gold,
+            secondary: const Icon(Icons.dark_mode, color: gold),
+            title: const Text('الوضع الليلي'),
+            value: darkMode.value,
+            onChanged: (v) { darkMode.value = v; Store.prefs.setBool('dark', v); setState(() {}); },
+          )),
+          ListTile(leading: const Icon(Icons.calculate, color: gold), title: const Text('حاسبة الزكاة'), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ZakatPage()))),
+          ListTile(leading: const Icon(Icons.flag, color: gold), title: const Text('ختمة القرآن'), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const KhatmaPage()))),
+          ListTile(leading: const Icon(Icons.favorite, color: gold), title: const Text('حصن المسلم'), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdhkarTab()))),
+          const Card(child: Padding(padding: EdgeInsets.all(16), child: Text('Muslim Plus 1.3 · بدون تسجيل دخول. السور المحمّلة تعمل بدون إنترنت.'))),
         ]),
       );
 }

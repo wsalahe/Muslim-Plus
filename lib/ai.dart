@@ -71,7 +71,7 @@ class _AiTabState extends State<AiTab> {
                           constraints: BoxConstraints(maxWidth: MediaQuery.of(c).size.width * .85),
                           margin: const EdgeInsets.symmetric(vertical: 5),
                           padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(color: me ? gold.withValues(alpha: .22) : navy, borderRadius: BorderRadius.circular(14), border: Border.all(color: gold.withValues(alpha: .5), width: .6)),
+                          decoration: BoxDecoration(color: me ? gold.withValues(alpha: .22) : Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: gold.withValues(alpha: .5), width: .6)),
                           child: SelectableText(m['content']!, style: const TextStyle(fontSize: 16, height: 1.7)),
                         ),
                       );

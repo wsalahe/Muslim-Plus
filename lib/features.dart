@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:geolocator/geolocator.dart';
 import 'main.dart';
+import 'ai.dart';
 
 class Shell extends StatefulWidget {
   const Shell({super.key});
@@ -14,13 +15,13 @@ class Shell extends StatefulWidget {
 
 class _ShellState extends State<Shell> {
   int i = 0;
-  final pages = const [RecitersTab(), MushafTab(), AdhkarTab(), QiblaTab()];
+  final pages = const [RecitersTab(), MushafTab(), AdhkarTab(), QiblaTab(), AiTab()];
   @override
   Widget build(BuildContext context) => Scaffold(
         body: IndexedStack(index: i, children: pages),
         bottomNavigationBar: NavigationBar(
           backgroundColor: navy,
-          indicatorColor: gold.withOpacity(.25),
+          indicatorColor: gold.withValues(alpha: .25),
           selectedIndex: i,
           onDestinationSelected: (v) => setState(() => i = v),
           destinations: const [
@@ -28,6 +29,7 @@ class _ShellState extends State<Shell> {
             NavigationDestination(icon: Icon(Icons.menu_book), label: 'المصحف'),
             NavigationDestination(icon: Icon(Icons.favorite_border), label: 'الأذكار'),
             NavigationDestination(icon: Icon(Icons.explore), label: 'القبلة'),
+            NavigationDestination(icon: Icon(Icons.auto_awesome), label: 'اسأل'),
           ],
         ),
       );

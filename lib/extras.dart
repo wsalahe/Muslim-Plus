@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
@@ -39,6 +40,69 @@ class _AdhanTabState extends State<AdhanTab> {
     _sub?.cancel();
     _pl.dispose();
     super.dispose();
+  }
+
+  Future<void> pickCustom() async {
+    try {
+      final r = await FilePicker.platform.pickFiles(type: FileType.audio);
+      final path = r?.files.single.path;
+      if (path == null) return;
+      var name = r!.files.single.name;
+      final dot = name.lastIndexOf('.');
+      if (dot > 0) name = name.substring(0, dot);
+      final dir = await getApplicationDocumentsDirectory();
+      final ext = path.contains('.') ? path.substring(path.lastIndexOf('.')) : '.mp3';
+      final copy = await File(path).copy('${dir.path}/custom_adhan_${DateTime.now().millisecondsSinceEpoch}$ext');
+      final ok = await PrayerService.setCustom(copy.path, name);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ok ? 'تم اعتماد «$name» كأذان مخصص' : 'تعذر اعتماد الملف (يتطلب أندرويد ١٠ أو أحدث)')));
+      setState(() {});
+    } catch (e) {
+      if (mounted) setState(() => _err = 'تعذر اختيار الملف: $e');
+    }
+  }
+
+  Future<void> previewCustom() async {
+    final path = PrayerService.customPath;
+    if (path == null) return;
+    if (_playing == 100) {
+      await _pl.stop();
+      setState(() => _playing = null);
+      return;
+    }
+    try {
+      setState(() { _playing = 100; _err = null; });
+      await _pl.setAudioSource(AudioSource.file(path, tag: MediaItem(id: 'adhan-custom', title: 'أذان · ${PrayerService.customName}', album: 'Muslim Plus')));
+      _pl.play();
+    } catch (e) {
+      if (mounted) setState(() { _playing = null; _err = 'تعذّر تشغيل الملف: $e'; });
+    }
+  }
+
+  Future<void> pickForPrayer(int prayer) async {
+    final cur = Store.prefs.getInt('pt_mz_$prayer');
+    final r = await showModalBottomSheet<int>(
+      context: context,
+      isScrollControlled: true,
+      builder: (c) => SizedBox(
+        height: MediaQuery.of(c).size.height * .7,
+        child: ListView(children: [
+          Padding(padding: const EdgeInsets.all(14), child: Text('أذان صلاة ${prayerNames[prayer]}', style: const TextStyle(color: gold, fontSize: 18, fontWeight: FontWeight.bold))),
+          ListTile(title: const Text('الأذان الافتراضي'), trailing: cur == null ? const Icon(Icons.check, color: gold) : null, onTap: () => Navigator.pop(c, -1)),
+          if (PrayerService.hasCustom) ListTile(leading: const Icon(Icons.folder_special, color: gold), title: Text('من هاتفي: ${PrayerService.customName}'), trailing: cur == 100 ? const Icon(Icons.check, color: gold) : null, onTap: () => Navigator.pop(c, 100)),
+          for (var i = 0; i < kMuezzins.length; i++)
+            ListTile(title: Text(kMuezzins[i]), trailing: cur == i ? const Icon(Icons.check, color: gold) : null, onTap: () => Navigator.pop(c, i)),
+        ]),
+      ),
+    );
+    if (r == null) return;
+    if (r == -1) {
+      await Store.prefs.remove('pt_mz_$prayer');
+    } else {
+      await Store.prefs.setInt('pt_mz_$prayer', r);
+    }
+    setState(() {});
+    await PrayerService.schedule();
   }
 
   Future<void> preview(int i) async {
@@ -81,7 +145,32 @@ class _AdhanTabState extends State<AdhanTab> {
             subtitle: Text('المؤذن: ${kMuezzins[sel]} · ${PrayerService.method.name}'),
           ),
         ),
-        const Padding(padding: EdgeInsets.fromLTRB(8, 12, 8, 4), child: Text('اختر المؤذن (٣٠ مؤذنا)', style: TextStyle(color: gold, fontWeight: FontWeight.bold))),
+        Card(
+          child: Padding(padding: const EdgeInsets.all(12), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('أذان من ذاكرة الهاتف', style: TextStyle(color: gold, fontWeight: FontWeight.bold)),
+            Text(PrayerService.hasCustom ? 'الملف الحالي: ${PrayerService.customName}' : 'لم تختر ملفا بعد. اختر ملف صوت (mp3 أو m4a أو ogg) من الهاتف.', style: const TextStyle(fontSize: 13)),
+            Wrap(spacing: 8, children: [
+              TextButton.icon(icon: const Icon(Icons.folder_open, color: gold), label: const Text('اختيار ملف'), onPressed: pickCustom),
+              if (PrayerService.hasCustom) TextButton.icon(icon: Icon(_playing == 100 ? Icons.stop_circle : Icons.play_circle_outline, color: gold), label: Text(_playing == 100 ? 'إيقاف' : 'استماع'), onPressed: previewCustom),
+              if (PrayerService.hasCustom) TextButton.icon(icon: const Icon(Icons.done_all, color: gold), label: const Text('لكل الصلوات'), onPressed: () async {
+                for (var k = 0; k < 5; k++) { await Store.prefs.setInt('pt_mz_$k', 100); }
+                setState(() {});
+                await PrayerService.schedule();
+              }),
+            ]),
+            const Text('يعمل كصوت إشعار الأذان في الخلفية (أندرويد ١٠ أو أحدث).', style: TextStyle(fontSize: 11)),
+          ])),
+        ),
+        const Padding(padding: EdgeInsets.fromLTRB(8, 12, 8, 4), child: Text('الأذان لكل صلاة', style: TextStyle(color: gold, fontWeight: FontWeight.bold))),
+        for (var k = 0; k < 5; k++)
+          ListTile(
+            leading: Switch(activeColor: gold, value: PrayerService.adhanOn(k), onChanged: (v) async { await Store.prefs.setBool('pt_adhan_$k', v); setState(() {}); await PrayerService.schedule(); }),
+            title: Text(prayerNames[k]),
+            subtitle: Text(PrayerService.adhanOn(k) ? PrayerService.nameOf(PrayerService.muezzinFor(k)) : 'الأذان متوقف'),
+            trailing: const Icon(Icons.chevron_left),
+            onTap: () => pickForPrayer(k),
+          ),
+        const Padding(padding: EdgeInsets.fromLTRB(8, 12, 8, 4), child: Text('اختر المؤذن الافتراضي (٣٠ مؤذنا)', style: TextStyle(color: gold, fontWeight: FontWeight.bold))),
         for (var i = 0; i < kMuezzins.length; i++)
           AnimatedContainer(
             duration: const Duration(milliseconds: 250),
@@ -89,7 +178,7 @@ class _AdhanTabState extends State<AdhanTab> {
             child: ListTile(
               leading: CircleAvatar(backgroundColor: i == sel ? gold : navy, child: Text(arabicDigits(i + 1), style: TextStyle(color: i == sel ? Colors.black : gold, fontSize: 12))),
               title: Text(kMuezzins[i]),
-              subtitle: i == sel ? const Text('المؤذن المختار لكل الصلوات') : null,
+              subtitle: i == sel ? const Text('الأذان الافتراضي (للصلوات التي لم تخصص لها أذانا)') : null,
               onTap: () => choose(i),
               trailing: IconButton(
                 icon: Icon(_playing == i ? Icons.stop_circle : Icons.play_circle_outline, color: gold),
@@ -111,7 +200,7 @@ class _AdhanTabState extends State<AdhanTab> {
               Text('${ok(v.$1)} الإشعارات مفعلة   ${ok(v.$2)} التنبيه الدقيق مسموح   (${v.$3}) أذان مجدول'),
               if (!v.$1 || !v.$2) const Text('فعّل الإشعارات و«التنبيهات والتذكيرات» للتطبيق من إعدادات الهاتف، وعطّل توفير البطارية للتطبيق.', style: TextStyle(fontSize: 12, color: Colors.orangeAccent)),
               Wrap(spacing: 8, children: [
-                TextButton.icon(icon: const Icon(Icons.security, color: gold), label: const Text('طلب الأذونات'), onPressed: () async { await PrayerService.askPermissions(); await PrayerService.schedule(); setState(() => _statusKey++); }),
+                TextButton.icon(icon: const Icon(Icons.security, color: gold), label: const Text('طلب الأذونات'), onPressed: () async { await PrayerService.ensurePermissions(context, force: true); await PrayerService.schedule(); setState(() => _statusKey++); }),
                 TextButton.icon(icon: const Icon(Icons.notifications_active, color: gold), label: const Text('تجربة بعد ١٥ ثانية'), onPressed: () async {
                   await PrayerService.askPermissions();
                   final ok2 = await PrayerService.testScheduled();

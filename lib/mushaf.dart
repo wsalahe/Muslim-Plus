@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
@@ -117,10 +118,11 @@ class MushafPageFace extends StatelessWidget {
         spans.add(TextSpan(
           text: '$text ',
           style: hl ? TextStyle(backgroundColor: gold.withValues(alpha: .35)) : null,
+          recognizer: onTapAyah == null ? null : (TapGestureRecognizer()..onTap = () => onTapAyah!((ss, aa))),
         ));
         spans.add(WidgetSpan(
           alignment: PlaceholderAlignment.middle,
-          child: AyahMark(n: aa, ink: ink, size: fontSize * .95),
+          child: GestureDetector(onTap: onTapAyah == null ? null : () => onTapAyah!((ss, aa)), child: AyahMark(n: aa, ink: ink, size: fontSize * .95)),
         ));
         spans.add(const TextSpan(text: ' '));
         i++;
@@ -133,7 +135,7 @@ class MushafPageFace extends StatelessWidget {
           TextSpan(children: spans),
           textAlign: TextAlign.justify,
           textDirection: TextDirection.rtl,
-          style: TextStyle(fontFamily: 'Amiri', fontSize: fontSize, height: 2.0, color: ink),
+          style: TextStyle(fontFamily: 'AmiriQuran', fontFamilyFallback: const ['Amiri'], fontSize: fontSize, height: 2.1, color: ink),
         ),
       ));
     }
@@ -454,7 +456,16 @@ class _PageReaderState extends State<PageReader> with SingleTickerProviderStateM
     }
   }
 
-  Widget face(int p) => MushafPageFace(page: p.clamp(1, 604), quran: quran!, fontSize: size, highlight: cur);
+  Widget face(int p) => MushafPageFace(page: p.clamp(1, 604), quran: quran!, fontSize: size, highlight: cur, onTapAyah: t == 0 && p == page ? tapAyah : null);
+
+  /// الضغط على آية: تظليلها وتشغيل القارئ منها ثم المتابعة.
+  void tapAyah((int, int) ay) {
+    final list = PageData.ayahsOf(page, quran!);
+    final idx = list.indexOf(ay);
+    if (idx < 0) return;
+    setState(() => cur = ay);
+    startPage(idx);
+  }
 
   @override
   Widget build(BuildContext context) {

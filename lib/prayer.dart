@@ -177,12 +177,114 @@ class PrayerService {
       await a?.createNotificationChannel(AndroidNotificationChannel('adhan_m$id', 'الأذان · ${kMuezzins[i]}',
           description: 'أذان عند دخول وقت الصلاة', importance: Importance.max, playSound: true, sound: RawResourceAndroidNotificationSound('a$id')));
     }
+    final cu = customUri;
+    if (cu != null) {
+      await a?.createNotificationChannel(AndroidNotificationChannel('adhan_c$customVer', 'الأذان · $customName',
+          description: 'أذان بملف من الجهاز', importance: Importance.max, playSound: true, sound: UriAndroidNotificationSound(cu)));
+    }
     ready = true;
+  }
+
+  // ---- أذان مخصص من ذاكرة الهاتف ----
+  static const nat = MethodChannel('mp/native');
+  static String? get customUri => Store.prefs.getString('cs_uri');
+  static int get customVer => Store.prefs.getInt('cs_ver') ?? 0;
+  static String get customName => Store.prefs.getString('cs_name') ?? 'أذان مخصص';
+  static String? get customPath => Store.prefs.getString('cs_path');
+  static bool get hasCustom => customUri != null && customUri!.isNotEmpty;
+  static const customId = 100;
+
+  /// يسجل ملفا صوتيا كأذان مخصص. القناة لا يمكن تغيير صوتها بعد إنشائها، لذلك تُنشأ قناة جديدة لكل ملف.
+  static Future<bool> setCustom(String path, String name) async {
+    await init();
+    final a = plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    final uri = await nat.invokeMethod<String>('registerSound', {'path': path, 'name': name, 'old': customUri});
+    if (uri == null || uri.isEmpty) return false;
+    await a?.deleteNotificationChannel('adhan_c$customVer');
+    final ver = customVer + 1;
+    await Store.prefs.setString('cs_uri', uri);
+    await Store.prefs.setInt('cs_ver', ver);
+    await Store.prefs.setString('cs_name', name);
+    await Store.prefs.setString('cs_path', path);
+    await a?.createNotificationChannel(AndroidNotificationChannel('adhan_c$ver', 'الأذان · $name',
+        description: 'أذان بملف من الجهاز', importance: Importance.max, playSound: true, sound: UriAndroidNotificationSound(uri)));
+    return true;
+  }
+
+  static String nameOf(int m) => m == customId ? customName : kMuezzins[m.clamp(0, kMuezzins.length - 1)];
+
+  /// أذان الصلاة رقم i: اختيارها الخاص أو الأذان العام.
+  static int muezzinFor(int i) {
+    final v = Store.prefs.getInt('pt_mz_$i');
+    if (v == null) return muezzin;
+    if (v == customId && !hasCustom) return muezzin;
+    return v;
+  }
+
+  static Future<bool> ensurePermissions(BuildContext context, {bool force = false}) async {
+    final p = Store.prefs;
+    if (!force && p.getBool('perm_prompt_v1') == true) return true;
+    await p.setBool('perm_prompt_v1', true);
+    await init();
+    final a = plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    Future<bool> ask(String title, String body, String ok) async =>
+        await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (c) => AlertDialog(
+            title: Text(title),
+            content: Text(body),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('لاحقا')),
+              FilledButton(onPressed: () => Navigator.pop(c, true), child: Text(ok)),
+            ],
+          ),
+        ) ??
+        false;
+    if (!(await a?.areNotificationsEnabled() ?? true)) {
+      if (!context.mounted) return false;
+      if (await ask('السماح بالإشعارات', 'لكي يصلك الأذان في وقته يحتاج التطبيق إذن الإشعارات. اضغط «سماح» ثم وافق في النافذة التي ستظهر.', 'سماح')) {
+        await a?.requestNotificationsPermission();
+        if (!(await a?.areNotificationsEnabled() ?? true)) {
+          if (!context.mounted) return false;
+          if (await ask('الإشعارات ما زالت مغلقة', 'الإذن مرفوض. افتح إعدادات الإشعارات للتطبيق وفعّلها يدويا.', 'فتح الإعدادات')) {
+            await nat.invokeMethod('openSettings', {'kind': 'notif'});
+          }
+        }
+      }
+    }
+    if (!(await a?.canScheduleExactNotifications() ?? true)) {
+      if (!context.mounted) return false;
+      if (await ask('المنبهات والتذكيرات', 'لضبط الأذان على الثانية يلزم السماح بـ«المنبهات والتذكيرات». ستفتح لك صفحة الإعدادات: فعّل الخيار للتطبيق.', 'فتح الإعدادات')) {
+        await nat.invokeMethod('openSettings', {'kind': 'exact'});
+      }
+    }
+    final ign = await nat.invokeMethod<bool>('isIgnoringBattery') ?? true;
+    if (!ign) {
+      if (!context.mounted) return false;
+      if (await ask('توفير البطارية', 'بعض الهواتف توقف التطبيقات في الخلفية فيتأخر الأذان أو لا يصل. اسمح للتطبيق بتجاهل تحسين البطارية.', 'سماح')) {
+        await nat.invokeMethod('openSettings', {'kind': 'battery'});
+      }
+    }
+    return true;
   }
 
   static int get muezzin => (Store.prefs.getInt('mz') ?? 0).clamp(0, kMuezzins.length - 1);
 
   static NotificationDetails detailsFor(int m) {
+    if (m == customId && hasCustom) {
+      return NotificationDetails(
+          android: AndroidNotificationDetails('adhan_c$customVer', 'الأذان · $customName',
+              channelDescription: 'أذان بملف من الجهاز',
+              importance: Importance.max,
+              priority: Priority.high,
+              playSound: true,
+              sound: UriAndroidNotificationSound(customUri!),
+              category: AndroidNotificationCategory.alarm,
+              autoCancel: true,
+              visibility: NotificationVisibility.public));
+    }
+    m = m.clamp(0, kMuezzins.length - 1);
     final id = (m + 1).toString().padLeft(2, '0');
     return NotificationDetails(
         android: AndroidNotificationDetails('adhan_m$id', 'الأذان · ${kMuezzins[m]}',
@@ -220,7 +322,7 @@ class PrayerService {
     final when = tz.TZDateTime.from(DateTime.now().add(const Duration(seconds: 15)), tz.UTC);
     for (final mode in [AndroidScheduleMode.exactAllowWhileIdle, AndroidScheduleMode.inexactAllowWhileIdle]) {
       try {
-        await plugin.zonedSchedule(998, 'تجربة مجدولة · ${kMuezzins[mm]}', 'هكذا سيصلك الأذان في وقته', when, detailsFor(mm),
+        await plugin.zonedSchedule(998, 'تجربة مجدولة · ${nameOf(mm)}', 'هكذا سيصلك الأذان في وقته', when, detailsFor(mm),
             androidScheduleMode: mode, uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime);
         return true;
       } catch (_) {}
@@ -232,7 +334,7 @@ class PrayerService {
     await init();
     final mm = m ?? muezzin;
     await plugin.cancel(999);
-    await plugin.show(999, 'تجربة الأذان · ${kMuezzins[mm]}', 'اسحب الإشعار لإيقاف الصوت', detailsFor(mm));
+    await plugin.show(999, 'تجربة الأذان · ${nameOf(mm)}', 'اسحب الإشعار لإيقاف الصوت', detailsFor(mm));
   }
 
   /// يجدول أذان الأيام الستة القادمة. يُستدعى عند كل فتح للتطبيق وعند تغيير الإعدادات.
@@ -248,7 +350,7 @@ class PrayerService {
         final when = tz.TZDateTime.from(t[i], tz.UTC);
         for (final mode in [AndroidScheduleMode.exactAllowWhileIdle, AndroidScheduleMode.inexactAllowWhileIdle]) {
           try {
-            await plugin.zonedSchedule(d * 10 + i, 'حان الآن وقت صلاة ${prayerNames[i]}', '${kMuezzins[muezzin]} · ${method.name}', when, detailsFor(muezzin),
+            await plugin.zonedSchedule(d * 10 + i, 'حان الآن وقت صلاة ${prayerNames[i]}', '${nameOf(muezzinFor(i))} · ${method.name}', when, detailsFor(muezzinFor(i)),
                 androidScheduleMode: mode, uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime);
             n++;
             break;
@@ -282,6 +384,7 @@ class _HomeTabState extends State<HomeTab> {
         await PrayerService.askPermissions();
         if (await PrayerService.locate() && mounted) setState(() {});
       }
+      if (mounted) await PrayerService.ensurePermissions(context);
       await PrayerService.schedule();
     }();
   }

@@ -1,5 +1,5 @@
 {
-"catalog_version": 1,
+"catalog_version": 1795533513,
 "app_build": 1,
 "repo": "wsalahe/Quran-kareem",
 "sheikhs": [
@@ -1399,6 +1399,12 @@
 "id": "alafasy",
 "name": "الشيخ مشاري بن راشد العفاسي",
 "surahs": [
+{
+"n": 37,
+"p": 0,
+"size": 19240435,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/037.mp4"
+},
 {
 "n": 38,
 "p": 0,

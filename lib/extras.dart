@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +20,43 @@ class AdhanTab extends StatefulWidget {
 }
 
 class _AdhanTabState extends State<AdhanTab> {
+  final _pl = AudioPlayer();
+  int? _playing;
+  String? _err;
+  StreamSubscription? _sub;
+
+  @override
+  void initState() {
+    super.initState();
+    _sub = _pl.playerStateStream.listen((st) {
+      if (st.processingState == ProcessingState.completed && mounted) setState(() => _playing = null);
+    });
+  }
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    _pl.dispose();
+    super.dispose();
+  }
+
+  Future<void> preview(int i) async {
+    if (_playing == i) {
+      await _pl.stop();
+      setState(() => _playing = null);
+      return;
+    }
+    final id = (i + 1).toString().padLeft(2, '0');
+    try {
+      setState(() { _playing = i; _err = null; });
+      await _pl.setAudioSource(AudioSource.asset('assets/adhan/a$id.mp3', tag: MediaItem(id: 'adhan-$id', title: 'أذان · ${kMuezzins[i]}', album: 'Muslim Plus')));
+      await _pl.setVolume(1.0);
+      _pl.play();
+    } catch (e) {
+      if (mounted) setState(() { _playing = null; _err = 'تعذر تشغيل المقطع: $e'; });
+    }
+  }
+
   Future<void> choose(int i) async {
     await Store.prefs.setInt('mz', i);
     setState(() {});
@@ -52,15 +91,17 @@ class _AdhanTabState extends State<AdhanTab> {
               subtitle: i == sel ? const Text('المؤذن المختار لكل الصلوات') : null,
               onTap: () => choose(i),
               trailing: IconButton(
-                icon: const Icon(Icons.play_circle_outline, color: gold),
-                tooltip: 'تجربة',
-                onPressed: () async { await PrayerService.askPermissions(); await PrayerService.test(i); },
+                icon: Icon(_playing == i ? Icons.stop_circle : Icons.play_circle_outline, color: gold),
+                tooltip: _playing == i ? 'إيقاف' : 'استماع',
+                onPressed: () => preview(i),
               ),
             ),
           ),
+        if (_err != null) Padding(padding: const EdgeInsets.all(8), child: Text(_err!, style: const TextStyle(color: Colors.redAccent, fontSize: 12))),
+        Center(child: TextButton.icon(icon: const Icon(Icons.notifications_active, color: gold), label: const Text('تجربة إشعار الأذان (صوت الإشعار)'), onPressed: () async { await PrayerService.askPermissions(); await PrayerService.test(); })),
         const Padding(
           padding: EdgeInsets.all(12),
-          child: Text('زر التشغيل يرسل إشعار تجربة بصوت هذا المؤذن؛ اسحب الإشعار لإيقاف الصوت. الأذان يعمل في الخلفية حتى والتطبيق مغلق. المقاطع نحو ٨٠ ثانية من بداية كل أذان.', style: TextStyle(fontSize: 12)),
+          child: Text('زر التشغيل يسمع المقطع داخل التطبيق (بدون إنترنت). الأذان يعمل في الخلفية حتى والتطبيق مغلق. المقاطع نحو ٨٠ ثانية من بداية كل أذان.', style: TextStyle(fontSize: 12)),
         ),
       ]),
     );

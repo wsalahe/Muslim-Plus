@@ -13,7 +13,7 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'features.dart';
 import 'extras.dart';
 
-const int kAppBuild = 4;
+const int kAppBuild = 5;
 const String kRepo = 'wsalahe/Quran-kareem';
 const String kCatalogUrl = 'https://raw.githubusercontent.com/$kRepo/main/catalog.json';
 const String kApkUrl = 'https://github.com/$kRepo/releases/download/app-latest/QuranKareem.apk';

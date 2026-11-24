@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -7,8 +8,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
+import 'features.dart';
 
-const int kAppBuild = 1;
+const int kAppBuild = 2;
 const String kRepo = 'wsalahe/Quran-kareem';
 const String kCatalogUrl = 'https://raw.githubusercontent.com/$kRepo/main/catalog.json';
 const String kApkUrl = 'https://github.com/$kRepo/releases/download/app-latest/QuranKareem.apk';
@@ -22,8 +26,13 @@ String pad(int n) => n.toString().padLeft(3, '0');
 String keyOf(Map x) => '${pad(x['n'])}${(x['p'] ?? 0) > 0 ? '_p${x['p']}' : ''}';
 String titleOf(Map x) => 'سورة ${surahs[x['n'] - 1]}${(x['p'] ?? 0) > 0 ? ' - جزء ${x['p']}' : ''}';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await JustAudioBackground.init(
+    androidNotificationChannelId: 'com.wsalahe.quran_app.audio',
+    androidNotificationChannelName: 'القرآن الكريم',
+    androidNotificationOngoing: true,
+  );
   runApp(const QuranApp());
 }
 
@@ -79,7 +88,7 @@ class QuranApp extends StatelessWidget {
         ),
         home: FutureBuilder(
           future: Store.init(),
-          builder: (c, s) => s.connectionState == ConnectionState.done ? const Home() : const Splash(),
+          builder: (c, s) => s.connectionState == ConnectionState.done ? const Shell() : const Splash(),
         ),
       );
 }
@@ -90,13 +99,13 @@ class Splash extends StatelessWidget {
   Widget build(BuildContext context) => Scaffold(body: Center(child: ClipRRect(borderRadius: BorderRadius.circular(32), child: Image.asset('assets/logo.jpg', width: 200))));
 }
 
-class Home extends StatefulWidget {
-  const Home({super.key});
+class RecitersTab extends StatefulWidget {
+  const RecitersTab({super.key});
   @override
-  State<Home> createState() => _HomeState();
+  State<RecitersTab> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<RecitersTab> {
   @override
   void initState() {
     super.initState();
@@ -207,7 +216,7 @@ class _SheikhPageState extends State<SheikhPage> {
             trailing: have
                 ? IconButton(icon: const Icon(Icons.delete_outline), onPressed: () async { await Store.fileFor(widget.s['id'], x).delete(); setState(() {}); })
                 : IconButton(icon: const Icon(Icons.download, color: gold), onPressed: () => download(x)),
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => Player(widget.s, x))).then((_) => setState(() {})),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => Player(widget.s, i))).then((_) => setState(() {})),
           );
         },
       ),
@@ -216,83 +225,169 @@ class _SheikhPageState extends State<SheikhPage> {
 }
 
 class Player extends StatefulWidget {
-  final Map s, x;
-  const Player(this.s, this.x, {super.key});
+  final Map s;
+  final int index;
+  const Player(this.s, this.index, {super.key});
   @override
   State<Player> createState() => _PlayerState();
 }
 
 class _PlayerState extends State<Player> {
-  VideoPlayerController? c;
+  final AudioPlayer ap = AudioPlayer();
+  VideoPlayerController? vc;
+  late int idx;
   bool video = false;
+  bool ready = false;
   String? err;
+  Duration pos = Duration.zero, dur = Duration.zero;
+  bool playing = false;
+  final List<StreamSubscription> subs = [];
+
+  List get list => widget.s['surahs'] as List;
+  Map get x => list[idx] as Map;
 
   @override
   void initState() {
     super.initState();
+    idx = widget.index;
     video = Store.prefs.getBool('video') ?? false;
-    _init();
+    subs.add(ap.positionStream.listen((p) { if (!video && mounted) setState(() => pos = p); }));
+    subs.add(ap.durationStream.listen((d) { if (!video && d != null && mounted) setState(() => dur = d); }));
+    subs.add(ap.playerStateStream.listen((st) {
+      if (video) return;
+      if (mounted) setState(() => playing = st.playing);
+      if (st.processingState == ProcessingState.completed) _next(auto: true);
+    }));
+    _load(Duration.zero);
   }
 
-  Future<void> _init() async {
-    final f = Store.fileFor(widget.s['id'], widget.x);
+  Future<void> _disposeVideo() async {
+    final v = vc;
+    vc = null;
+    v?.removeListener(_vl);
+    await v?.dispose();
+  }
+
+  void _vl() {
+    final v = vc;
+    if (v == null || !mounted) return;
+    setState(() { pos = v.value.position; dur = v.value.duration; playing = v.value.isPlaying; });
+    if (v.value.isInitialized && v.value.duration > Duration.zero && v.value.position >= v.value.duration) _next(auto: true);
+  }
+
+  Future<void> _load(Duration start) async {
+    setState(() { ready = false; err = null; });
+    final f = Store.fileFor(widget.s['id'], x);
+    final local = f.existsSync();
     try {
-      c = f.existsSync() ? VideoPlayerController.file(f) : VideoPlayerController.networkUrl(Uri.parse(widget.x['url']));
-      await c!.initialize();
-      c!.addListener(() { if (mounted) setState(() {}); });
-      await c!.play();
+      if (video) {
+        await ap.stop();
+        await _disposeVideo();
+        vc = local ? VideoPlayerController.file(f) : VideoPlayerController.networkUrl(Uri.parse(x['url']));
+        await vc!.initialize();
+        vc!.addListener(_vl);
+        if (start > Duration.zero) await vc!.seekTo(start);
+        await vc!.play();
+      } else {
+        await _disposeVideo();
+        final tag = MediaItem(id: '${widget.s['id']}-${keyOf(x)}', title: titleOf(x), artist: widget.s['name'], album: 'القرآن الكريم');
+        await ap.setAudioSource(local ? AudioSource.file(f.path, tag: tag) : AudioSource.uri(Uri.parse(x['url']), tag: tag));
+        if (start > Duration.zero) await ap.seek(start);
+        ap.play();
+      }
+      ready = true;
     } catch (e) {
       err = 'تعذّر التشغيل. حمّل السورة أو تأكد من الإنترنت.';
     }
     if (mounted) setState(() {});
   }
 
+  Future<void> _next({bool auto = false}) async {
+    if (idx + 1 < list.length) {
+      idx++;
+      await _load(Duration.zero);
+    }
+  }
+
+  Future<void> _prev() async {
+    if (idx > 0) {
+      idx--;
+      await _load(Duration.zero);
+    }
+  }
+
+  Future<void> _seek(Duration d) async {
+    if (video) { await vc?.seekTo(d); } else { await ap.seek(d); }
+  }
+
+  Future<void> _toggle() async {
+    if (video) { playing ? await vc?.pause() : await vc?.play(); } else { playing ? await ap.pause() : ap.play(); }
+  }
+
+  Future<void> _setMode(bool v) async {
+    if (v == video) return;
+    final p = pos;
+    Store.prefs.setBool('video', v);
+    video = v;
+    await _load(p);
+  }
+
   @override
-  void dispose() { c?.dispose(); super.dispose(); }
+  void dispose() {
+    for (final s in subs) { s.cancel(); }
+    ap.dispose();
+    vc?.removeListener(_vl);
+    vc?.dispose();
+    super.dispose();
+  }
 
   String fmt(Duration d) => '${d.inMinutes}:${(d.inSeconds % 60).toString().padLeft(2, '0')}';
 
   @override
   Widget build(BuildContext context) {
-    final ready = c != null && c!.value.isInitialized;
+    final maxMs = dur.inMilliseconds > 0 ? dur.inMilliseconds.toDouble() : 1.0;
     return Scaffold(
-      appBar: AppBar(title: Text(titleOf(widget.x))),
+      appBar: AppBar(title: Text(titleOf(x))),
       body: Column(children: [
         Expanded(
           child: Center(
             child: err != null
-                ? Text(err!)
+                ? Padding(padding: const EdgeInsets.all(24), child: Text(err!))
                 : !ready
                     ? const CircularProgressIndicator(color: gold)
-                    : video
-                        ? AspectRatio(aspectRatio: c!.value.aspectRatio, child: VideoPlayer(c!))
+                    : (video && vc != null && vc!.value.isInitialized)
+                        ? AspectRatio(aspectRatio: vc!.value.aspectRatio, child: VideoPlayer(vc!))
                         : Column(mainAxisSize: MainAxisSize.min, children: [
                             ClipRRect(borderRadius: BorderRadius.circular(28), child: Image.asset('assets/logo.jpg', width: 240)),
                             const SizedBox(height: 20),
-                            Text(titleOf(widget.x), style: const TextStyle(fontSize: 26, color: gold)),
+                            Text(titleOf(x), style: const TextStyle(fontSize: 26, color: gold)),
                             Text(widget.s['name'], textAlign: TextAlign.center),
+                            const SizedBox(height: 6),
+                            const Text('يستمر التشغيل في الخلفية', style: TextStyle(fontSize: 12, color: Colors.white54)),
                           ]),
           ),
         ),
         if (ready) ...[
           Slider(
             activeColor: gold,
-            value: c!.value.position.inMilliseconds.clamp(0, c!.value.duration.inMilliseconds).toDouble(),
-            max: c!.value.duration.inMilliseconds.toDouble(),
-            onChanged: (v) => c!.seekTo(Duration(milliseconds: v.toInt())),
+            value: pos.inMilliseconds.clamp(0, maxMs.toInt()).toDouble(),
+            max: maxMs,
+            onChanged: (v) => _seek(Duration(milliseconds: v.toInt())),
           ),
-          Text('${fmt(c!.value.position)} / ${fmt(c!.value.duration)}'),
+          Text('${fmt(pos)} / ${fmt(dur)}'),
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            IconButton(iconSize: 34, icon: const Icon(Icons.replay_10), onPressed: () => c!.seekTo(c!.value.position - const Duration(seconds: 10))),
-            IconButton(iconSize: 64, color: gold, icon: Icon(c!.value.isPlaying ? Icons.pause_circle : Icons.play_circle), onPressed: () => c!.value.isPlaying ? c!.pause() : c!.play()),
-            IconButton(iconSize: 34, icon: const Icon(Icons.forward_10), onPressed: () => c!.seekTo(c!.value.position + const Duration(seconds: 10))),
+            IconButton(iconSize: 32, icon: const Icon(Icons.skip_next), onPressed: idx + 1 < list.length ? _next : null),
+            IconButton(iconSize: 30, icon: const Icon(Icons.replay_10), onPressed: () => _seek(pos - const Duration(seconds: 10))),
+            IconButton(iconSize: 64, color: gold, icon: Icon(playing ? Icons.pause_circle : Icons.play_circle), onPressed: _toggle),
+            IconButton(iconSize: 30, icon: const Icon(Icons.forward_10), onPressed: () => _seek(pos + const Duration(seconds: 10))),
+            IconButton(iconSize: 32, icon: const Icon(Icons.skip_previous), onPressed: idx > 0 ? _prev : null),
           ]),
           Padding(
             padding: const EdgeInsets.all(12),
             child: SegmentedButton<bool>(
               segments: const [ButtonSegment(value: false, label: Text('صوت'), icon: Icon(Icons.headphones)), ButtonSegment(value: true, label: Text('فيديو'), icon: Icon(Icons.videocam))],
               selected: {video},
-              onSelectionChanged: (v) { Store.prefs.setBool('video', v.first); setState(() => video = v.first); },
+              onSelectionChanged: (v) => _setMode(v.first),
             ),
           ),
         ],

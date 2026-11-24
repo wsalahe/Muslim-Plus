@@ -1,0 +1,2581 @@
+{
+"catalog_version": 1,
+"app_build": 1,
+"repo": "wsalahe/Quran-kareem",
+"sheikhs": [
+{
+"id": "abdulbasit",
+"name": "الشيخ عبد الباسط عبد الصمد",
+"surahs": [
+{
+"n": 1,
+"p": 0,
+"size": 4979144,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/001.mp4"
+},
+{
+"n": 4,
+"p": 0,
+"size": 25278488,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/004.mp4"
+},
+{
+"n": 5,
+"p": 0,
+"size": 25527383,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/005.mp4"
+},
+{
+"n": 6,
+"p": 0,
+"size": 20958960,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/006.mp4"
+},
+{
+"n": 7,
+"p": 0,
+"size": 21941679,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/007.mp4"
+},
+{
+"n": 8,
+"p": 0,
+"size": 19133394,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/008.mp4"
+},
+{
+"n": 9,
+"p": 0,
+"size": 23866952,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/009.mp4"
+},
+{
+"n": 10,
+"p": 0,
+"size": 22413867,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/010.mp4"
+},
+{
+"n": 11,
+"p": 0,
+"size": 22155672,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/011.mp4"
+},
+{
+"n": 12,
+"p": 0,
+"size": 22754453,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/012.mp4"
+},
+{
+"n": 13,
+"p": 0,
+"size": 17361699,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/013.mp4"
+},
+{
+"n": 14,
+"p": 0,
+"size": 16142015,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/014.mp4"
+},
+{
+"n": 15,
+"p": 0,
+"size": 14024358,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/015.mp4"
+},
+{
+"n": 16,
+"p": 0,
+"size": 22207118,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/016.mp4"
+},
+{
+"n": 17,
+"p": 0,
+"size": 22971080,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/017.mp4"
+},
+{
+"n": 18,
+"p": 0,
+"size": 23044672,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/018.mp4"
+},
+{
+"n": 19,
+"p": 0,
+"size": 23588870,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/019.mp4"
+},
+{
+"n": 20,
+"p": 0,
+"size": 21342073,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/020.mp4"
+},
+{
+"n": 21,
+"p": 0,
+"size": 19221087,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/021.mp4"
+},
+{
+"n": 22,
+"p": 0,
+"size": 21148622,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/022.mp4"
+},
+{
+"n": 23,
+"p": 0,
+"size": 17302773,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/023.mp4"
+},
+{
+"n": 24,
+"p": 0,
+"size": 16920982,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/024.mp4"
+},
+{
+"n": 25,
+"p": 0,
+"size": 12746444,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/025.mp4"
+},
+{
+"n": 26,
+"p": 0,
+"size": 21335502,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/026.mp4"
+},
+{
+"n": 27,
+"p": 0,
+"size": 19265537,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/027.mp4"
+},
+{
+"n": 28,
+"p": 0,
+"size": 25512581,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/028.mp4"
+},
+{
+"n": 29,
+"p": 0,
+"size": 15917395,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/029.mp4"
+},
+{
+"n": 30,
+"p": 0,
+"size": 12198053,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/030.mp4"
+},
+{
+"n": 31,
+"p": 0,
+"size": 10230852,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/031.mp4"
+},
+{
+"n": 32,
+"p": 0,
+"size": 7533146,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/032.mp4"
+},
+{
+"n": 33,
+"p": 0,
+"size": 17760654,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/033.mp4"
+},
+{
+"n": 34,
+"p": 0,
+"size": 16994122,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/034.mp4"
+},
+{
+"n": 35,
+"p": 0,
+"size": 14982474,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/035.mp4"
+},
+{
+"n": 36,
+"p": 0,
+"size": 14492249,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/036.mp4"
+},
+{
+"n": 37,
+"p": 0,
+"size": 20436559,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/037.mp4"
+},
+{
+"n": 38,
+"p": 0,
+"size": 16606589,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/038.mp4"
+},
+{
+"n": 39,
+"p": 0,
+"size": 18859952,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/039.mp4"
+},
+{
+"n": 40,
+"p": 0,
+"size": 20672034,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/040.mp4"
+},
+{
+"n": 41,
+"p": 0,
+"size": 18684775,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/041.mp4"
+},
+{
+"n": 42,
+"p": 0,
+"size": 20039313,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/042.mp4"
+},
+{
+"n": 43,
+"p": 0,
+"size": 21474858,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/043.mp4"
+},
+{
+"n": 44,
+"p": 0,
+"size": 9287966,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/044.mp4"
+},
+{
+"n": 45,
+"p": 0,
+"size": 12045893,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/045.mp4"
+},
+{
+"n": 46,
+"p": 0,
+"size": 15539604,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/046.mp4"
+},
+{
+"n": 47,
+"p": 0,
+"size": 13227246,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/047.mp4"
+},
+{
+"n": 48,
+"p": 0,
+"size": 12398596,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/048.mp4"
+},
+{
+"n": 49,
+"p": 0,
+"size": 7943329,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/049.mp4"
+},
+{
+"n": 50,
+"p": 0,
+"size": 8670129,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/050.mp4"
+},
+{
+"n": 51,
+"p": 0,
+"size": 9203579,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/051.mp4"
+},
+{
+"n": 52,
+"p": 0,
+"size": 7803742,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/052.mp4"
+},
+{
+"n": 53,
+"p": 0,
+"size": 8502932,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/053.mp4"
+},
+{
+"n": 54,
+"p": 0,
+"size": 9412629,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/054.mp4"
+},
+{
+"n": 55,
+"p": 0,
+"size": 10382991,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/055.mp4"
+},
+{
+"n": 56,
+"p": 0,
+"size": 10358350,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/056.mp4"
+},
+{
+"n": 57,
+"p": 0,
+"size": 12470388,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/057.mp4"
+},
+{
+"n": 58,
+"p": 0,
+"size": 10283235,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/058.mp4"
+},
+{
+"n": 59,
+"p": 0,
+"size": 10586706,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/059.mp4"
+},
+{
+"n": 60,
+"p": 0,
+"size": 8740157,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/060.mp4"
+},
+{
+"n": 61,
+"p": 0,
+"size": 5147573,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/061.mp4"
+},
+{
+"n": 62,
+"p": 0,
+"size": 4198991,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/062.mp4"
+},
+{
+"n": 63,
+"p": 0,
+"size": 4534916,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/063.mp4"
+},
+{
+"n": 64,
+"p": 0,
+"size": 5822742,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/064.mp4"
+},
+{
+"n": 65,
+"p": 0,
+"size": 6531435,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/065.mp4"
+},
+{
+"n": 66,
+"p": 0,
+"size": 6544632,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/066.mp4"
+},
+{
+"n": 67,
+"p": 0,
+"size": 7968678,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/067.mp4"
+},
+{
+"n": 68,
+"p": 0,
+"size": 7944616,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/068.mp4"
+},
+{
+"n": 69,
+"p": 0,
+"size": 7116881,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/069.mp4"
+},
+{
+"n": 70,
+"p": 0,
+"size": 6039959,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/070.mp4"
+},
+{
+"n": 71,
+"p": 0,
+"size": 6051763,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/071.mp4"
+},
+{
+"n": 72,
+"p": 0,
+"size": 6857950,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/072.mp4"
+},
+{
+"n": 73,
+"p": 0,
+"size": 4938608,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/073.mp4"
+},
+{
+"n": 74,
+"p": 0,
+"size": 6648716,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/074.mp4"
+},
+{
+"n": 75,
+"p": 0,
+"size": 4441150,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/075.mp4"
+},
+{
+"n": 76,
+"p": 0,
+"size": 6155496,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/076.mp4"
+},
+{
+"n": 77,
+"p": 0,
+"size": 4672466,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/077.mp4"
+},
+{
+"n": 78,
+"p": 0,
+"size": 4958341,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/078.mp4"
+},
+{
+"n": 79,
+"p": 0,
+"size": 4281695,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/079.mp4"
+},
+{
+"n": 80,
+"p": 0,
+"size": 3389756,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/080.mp4"
+},
+{
+"n": 81,
+"p": 0,
+"size": 2778127,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/081.mp4"
+},
+{
+"n": 82,
+"p": 0,
+"size": 2084596,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/082.mp4"
+},
+{
+"n": 83,
+"p": 0,
+"size": 4280284,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/083.mp4"
+},
+{
+"n": 84,
+"p": 0,
+"size": 2852875,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/084.mp4"
+},
+{
+"n": 85,
+"p": 0,
+"size": 2468858,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/085.mp4"
+},
+{
+"n": 86,
+"p": 0,
+"size": 1569428,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/086.mp4"
+},
+{
+"n": 87,
+"p": 0,
+"size": 2147382,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/087.mp4"
+},
+{
+"n": 88,
+"p": 0,
+"size": 2139160,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/088.mp4"
+},
+{
+"n": 89,
+"p": 0,
+"size": 3173779,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/089.mp4"
+},
+{
+"n": 90,
+"p": 0,
+"size": 2280668,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/090.mp4"
+},
+{
+"n": 91,
+"p": 0,
+"size": 1535695,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/091.mp4"
+},
+{
+"n": 92,
+"p": 0,
+"size": 1898210,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/092.mp4"
+},
+{
+"n": 93,
+"p": 0,
+"size": 1455800,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/093.mp4"
+},
+{
+"n": 94,
+"p": 0,
+"size": 797443,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/094.mp4"
+},
+{
+"n": 95,
+"p": 0,
+"size": 1006010,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/095.mp4"
+},
+{
+"n": 96,
+"p": 0,
+"size": 2034626,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/096.mp4"
+},
+{
+"n": 97,
+"p": 0,
+"size": 852213,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/097.mp4"
+},
+{
+"n": 98,
+"p": 0,
+"size": 2041624,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/098.mp4"
+},
+{
+"n": 99,
+"p": 0,
+"size": 1247058,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/099.mp4"
+},
+{
+"n": 100,
+"p": 0,
+"size": 1082199,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/100.mp4"
+},
+{
+"n": 101,
+"p": 0,
+"size": 1029050,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/101.mp4"
+},
+{
+"n": 102,
+"p": 0,
+"size": 1091217,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/102.mp4"
+},
+{
+"n": 103,
+"p": 0,
+"size": 3666856,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/103.mp4"
+},
+{
+"n": 104,
+"p": 0,
+"size": 954595,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/104.mp4"
+},
+{
+"n": 105,
+"p": 0,
+"size": 6102859,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/105.mp4"
+},
+{
+"n": 106,
+"p": 0,
+"size": 4148212,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/106.mp4"
+},
+{
+"n": 107,
+"p": 0,
+"size": 802477,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/107.mp4"
+},
+{
+"n": 108,
+"p": 0,
+"size": 3089421,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/108.mp4"
+},
+{
+"n": 109,
+"p": 0,
+"size": 4350131,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/109.mp4"
+},
+{
+"n": 110,
+"p": 0,
+"size": 6179996,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/110.mp4"
+},
+{
+"n": 111,
+"p": 0,
+"size": 4070106,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/111.mp4"
+},
+{
+"n": 112,
+"p": 0,
+"size": 2949860,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/112.mp4"
+},
+{
+"n": 113,
+"p": 0,
+"size": 5755648,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/113.mp4"
+},
+{
+"n": 114,
+"p": 0,
+"size": 3979537,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/abdulbasit/114.mp4"
+}
+]
+},
+{
+"id": "husary",
+"name": "الشيخ محمود خليل الحصري",
+"surahs": [
+{
+"n": 41,
+"p": 0,
+"size": 19359606,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/041.mp4"
+},
+{
+"n": 42,
+"p": 0,
+"size": 22176132,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/042.mp4"
+},
+{
+"n": 43,
+"p": 0,
+"size": 20283727,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/043.mp4"
+},
+{
+"n": 44,
+"p": 0,
+"size": 14826121,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/044.mp4"
+},
+{
+"n": 45,
+"p": 0,
+"size": 18117126,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/045.mp4"
+},
+{
+"n": 46,
+"p": 0,
+"size": 18693223,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/046.mp4"
+},
+{
+"n": 47,
+"p": 0,
+"size": 18648486,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/047.mp4"
+},
+{
+"n": 48,
+"p": 0,
+"size": 19938773,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/048.mp4"
+},
+{
+"n": 49,
+"p": 0,
+"size": 16134759,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/049.mp4"
+},
+{
+"n": 50,
+"p": 0,
+"size": 12313745,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/050.mp4"
+},
+{
+"n": 51,
+"p": 0,
+"size": 12784965,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/051.mp4"
+},
+{
+"n": 52,
+"p": 0,
+"size": 12306793,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/052.mp4"
+},
+{
+"n": 53,
+"p": 0,
+"size": 10329817,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/053.mp4"
+},
+{
+"n": 54,
+"p": 0,
+"size": 14344731,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/054.mp4"
+},
+{
+"n": 55,
+"p": 0,
+"size": 19758810,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/055.mp4"
+},
+{
+"n": 56,
+"p": 0,
+"size": 17612033,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/056.mp4"
+},
+{
+"n": 57,
+"p": 0,
+"size": 16275129,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/057.mp4"
+},
+{
+"n": 58,
+"p": 0,
+"size": 15704076,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/058.mp4"
+},
+{
+"n": 59,
+"p": 0,
+"size": 16193328,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/059.mp4"
+},
+{
+"n": 60,
+"p": 0,
+"size": 12501783,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/060.mp4"
+},
+{
+"n": 61,
+"p": 0,
+"size": 12082037,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/061.mp4"
+},
+{
+"n": 62,
+"p": 0,
+"size": 12006990,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/062.mp4"
+},
+{
+"n": 63,
+"p": 0,
+"size": 14068134,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/063.mp4"
+},
+{
+"n": 64,
+"p": 0,
+"size": 11131977,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/064.mp4"
+},
+{
+"n": 65,
+"p": 0,
+"size": 10233176,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/065.mp4"
+},
+{
+"n": 66,
+"p": 0,
+"size": 14709210,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/066.mp4"
+},
+{
+"n": 67,
+"p": 0,
+"size": 16415066,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/067.mp4"
+},
+{
+"n": 68,
+"p": 0,
+"size": 16767373,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/068.mp4"
+},
+{
+"n": 69,
+"p": 0,
+"size": 7989790,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/069.mp4"
+},
+{
+"n": 70,
+"p": 0,
+"size": 7371882,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/070.mp4"
+},
+{
+"n": 71,
+"p": 0,
+"size": 7424361,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/071.mp4"
+},
+{
+"n": 72,
+"p": 0,
+"size": 18526627,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/072.mp4"
+},
+{
+"n": 73,
+"p": 0,
+"size": 12303207,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/073.mp4"
+},
+{
+"n": 74,
+"p": 0,
+"size": 8486685,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/074.mp4"
+},
+{
+"n": 75,
+"p": 0,
+"size": 16739472,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/075.mp4"
+},
+{
+"n": 76,
+"p": 0,
+"size": 8688652,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/076.mp4"
+},
+{
+"n": 77,
+"p": 0,
+"size": 8524065,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/077.mp4"
+},
+{
+"n": 78,
+"p": 0,
+"size": 8718882,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/078.mp4"
+},
+{
+"n": 79,
+"p": 0,
+"size": 8033271,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/079.mp4"
+},
+{
+"n": 80,
+"p": 0,
+"size": 6161637,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/080.mp4"
+},
+{
+"n": 81,
+"p": 0,
+"size": 12935781,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/081.mp4"
+},
+{
+"n": 82,
+"p": 0,
+"size": 20060032,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/082.mp4"
+},
+{
+"n": 83,
+"p": 0,
+"size": 16135648,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/083.mp4"
+},
+{
+"n": 84,
+"p": 0,
+"size": 7705465,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/084.mp4"
+},
+{
+"n": 85,
+"p": 0,
+"size": 12440699,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/085.mp4"
+},
+{
+"n": 86,
+"p": 0,
+"size": 3844857,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/086.mp4"
+},
+{
+"n": 87,
+"p": 0,
+"size": 7200455,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/087.mp4"
+},
+{
+"n": 88,
+"p": 0,
+"size": 5449960,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/088.mp4"
+},
+{
+"n": 90,
+"p": 0,
+"size": 6383015,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/090.mp4"
+},
+{
+"n": 91,
+"p": 0,
+"size": 5404237,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/091.mp4"
+},
+{
+"n": 92,
+"p": 0,
+"size": 9299758,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/092.mp4"
+},
+{
+"n": 93,
+"p": 0,
+"size": 4528230,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/093.mp4"
+},
+{
+"n": 94,
+"p": 0,
+"size": 3369712,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/094.mp4"
+},
+{
+"n": 95,
+"p": 0,
+"size": 4510640,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/095.mp4"
+},
+{
+"n": 97,
+"p": 0,
+"size": 2372441,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/097.mp4"
+},
+{
+"n": 98,
+"p": 0,
+"size": 12725564,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/098.mp4"
+},
+{
+"n": 99,
+"p": 0,
+"size": 4886407,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/099.mp4"
+},
+{
+"n": 100,
+"p": 0,
+"size": 2815693,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/100.mp4"
+},
+{
+"n": 101,
+"p": 0,
+"size": 9369893,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/101.mp4"
+},
+{
+"n": 103,
+"p": 0,
+"size": 4292614,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/103.mp4"
+},
+{
+"n": 104,
+"p": 0,
+"size": 8198531,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/104.mp4"
+},
+{
+"n": 105,
+"p": 0,
+"size": 6821339,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/105.mp4"
+},
+{
+"n": 106,
+"p": 0,
+"size": 5962476,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/106.mp4"
+},
+{
+"n": 107,
+"p": 0,
+"size": 7071858,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/107.mp4"
+},
+{
+"n": 108,
+"p": 0,
+"size": 4305088,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/108.mp4"
+},
+{
+"n": 109,
+"p": 0,
+"size": 7349440,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/109.mp4"
+},
+{
+"n": 110,
+"p": 0,
+"size": 3856157,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/110.mp4"
+},
+{
+"n": 111,
+"p": 0,
+"size": 1510519,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/111.mp4"
+},
+{
+"n": 112,
+"p": 0,
+"size": 623302,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/112.mp4"
+},
+{
+"n": 113,
+"p": 0,
+"size": 1831178,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/113.mp4"
+},
+{
+"n": 114,
+"p": 0,
+"size": 2120094,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/114.mp4"
+}
+]
+},
+{
+"id": "minshawi",
+"name": "الشيخ محمد صديق المنشاوي",
+"surahs": [
+{
+"n": 1,
+"p": 0,
+"size": 1021369,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/001.mp4"
+},
+{
+"n": 70,
+"p": 0,
+"size": 7963161,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/070.mp4"
+},
+{
+"n": 71,
+"p": 0,
+"size": 10253272,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/071.mp4"
+},
+{
+"n": 72,
+"p": 0,
+"size": 9113516,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/072.mp4"
+},
+{
+"n": 73,
+"p": 0,
+"size": 10993803,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/073.mp4"
+},
+{
+"n": 74,
+"p": 0,
+"size": 15124020,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/074.mp4"
+},
+{
+"n": 75,
+"p": 0,
+"size": 10227901,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/075.mp4"
+},
+{
+"n": 76,
+"p": 0,
+"size": 12999955,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/076.mp4"
+},
+{
+"n": 77,
+"p": 0,
+"size": 14833980,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/077.mp4"
+},
+{
+"n": 78,
+"p": 0,
+"size": 11083240,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/078.mp4"
+},
+{
+"n": 79,
+"p": 0,
+"size": 10776826,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/079.mp4"
+},
+{
+"n": 80,
+"p": 0,
+"size": 4978246,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/080.mp4"
+},
+{
+"n": 81,
+"p": 0,
+"size": 5954457,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/081.mp4"
+},
+{
+"n": 82,
+"p": 0,
+"size": 5506856,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/082.mp4"
+},
+{
+"n": 83,
+"p": 0,
+"size": 8593678,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/083.mp4"
+},
+{
+"n": 84,
+"p": 0,
+"size": 7104816,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/084.mp4"
+},
+{
+"n": 85,
+"p": 0,
+"size": 6194555,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/085.mp4"
+},
+{
+"n": 86,
+"p": 0,
+"size": 3299607,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/086.mp4"
+},
+{
+"n": 87,
+"p": 0,
+"size": 4296133,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/087.mp4"
+},
+{
+"n": 88,
+"p": 0,
+"size": 3469108,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/088.mp4"
+},
+{
+"n": 89,
+"p": 0,
+"size": 6480738,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/089.mp4"
+},
+{
+"n": 90,
+"p": 0,
+"size": 7166236,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/090.mp4"
+},
+{
+"n": 91,
+"p": 0,
+"size": 3173365,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/091.mp4"
+},
+{
+"n": 92,
+"p": 0,
+"size": 3514344,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/092.mp4"
+},
+{
+"n": 93,
+"p": 0,
+"size": 1992039,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/093.mp4"
+},
+{
+"n": 94,
+"p": 0,
+"size": 1831527,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/094.mp4"
+},
+{
+"n": 95,
+"p": 0,
+"size": 1935150,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/095.mp4"
+},
+{
+"n": 96,
+"p": 0,
+"size": 4105247,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/096.mp4"
+},
+{
+"n": 97,
+"p": 0,
+"size": 1981295,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/097.mp4"
+},
+{
+"n": 98,
+"p": 0,
+"size": 6992548,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/098.mp4"
+},
+{
+"n": 99,
+"p": 0,
+"size": 3302386,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/099.mp4"
+},
+{
+"n": 100,
+"p": 0,
+"size": 3386393,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/100.mp4"
+},
+{
+"n": 101,
+"p": 0,
+"size": 2256588,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/101.mp4"
+},
+{
+"n": 102,
+"p": 0,
+"size": 1772220,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/102.mp4"
+},
+{
+"n": 103,
+"p": 0,
+"size": 1094981,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/103.mp4"
+},
+{
+"n": 104,
+"p": 0,
+"size": 2217215,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/104.mp4"
+},
+{
+"n": 105,
+"p": 0,
+"size": 1767660,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/105.mp4"
+},
+{
+"n": 106,
+"p": 0,
+"size": 1316306,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/106.mp4"
+},
+{
+"n": 107,
+"p": 0,
+"size": 1743349,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/107.mp4"
+},
+{
+"n": 108,
+"p": 0,
+"size": 975318,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/108.mp4"
+},
+{
+"n": 109,
+"p": 0,
+"size": 1918443,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/109.mp4"
+},
+{
+"n": 110,
+"p": 0,
+"size": 1433220,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/110.mp4"
+},
+{
+"n": 111,
+"p": 0,
+"size": 1405400,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/111.mp4"
+},
+{
+"n": 112,
+"p": 0,
+"size": 869785,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/112.mp4"
+},
+{
+"n": 113,
+"p": 0,
+"size": 1505439,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/113.mp4"
+},
+{
+"n": 114,
+"p": 0,
+"size": 1250691,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/minshawi/114.mp4"
+}
+]
+},
+{
+"id": "alafasy",
+"name": "الشيخ مشاري بن راشد العفاسي",
+"surahs": [
+{
+"n": 38,
+"p": 0,
+"size": 15583995,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/038.mp4"
+},
+{
+"n": 39,
+"p": 0,
+"size": 20257330,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/039.mp4"
+},
+{
+"n": 40,
+"p": 0,
+"size": 20266707,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/040.mp4"
+},
+{
+"n": 41,
+"p": 0,
+"size": 19891652,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/041.mp4"
+},
+{
+"n": 42,
+"p": 0,
+"size": 17022001,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/042.mp4"
+},
+{
+"n": 43,
+"p": 0,
+"size": 19666272,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/043.mp4"
+},
+{
+"n": 44,
+"p": 0,
+"size": 19067798,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/044.mp4"
+},
+{
+"n": 45,
+"p": 0,
+"size": 12449717,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/045.mp4"
+},
+{
+"n": 46,
+"p": 0,
+"size": 18958308,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/046.mp4"
+},
+{
+"n": 47,
+"p": 0,
+"size": 13775934,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/047.mp4"
+},
+{
+"n": 48,
+"p": 0,
+"size": 11577380,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/048.mp4"
+},
+{
+"n": 49,
+"p": 0,
+"size": 15025915,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/049.mp4"
+},
+{
+"n": 50,
+"p": 0,
+"size": 17981674,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/050.mp4"
+},
+{
+"n": 51,
+"p": 0,
+"size": 10624313,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/051.mp4"
+},
+{
+"n": 52,
+"p": 0,
+"size": 10359503,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/052.mp4"
+},
+{
+"n": 53,
+"p": 0,
+"size": 9277007,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/053.mp4"
+},
+{
+"n": 54,
+"p": 0,
+"size": 10424587,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/054.mp4"
+},
+{
+"n": 55,
+"p": 0,
+"size": 16067311,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/055.mp4"
+},
+{
+"n": 56,
+"p": 0,
+"size": 14301062,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/056.mp4"
+},
+{
+"n": 57,
+"p": 0,
+"size": 16372137,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/057.mp4"
+},
+{
+"n": 58,
+"p": 0,
+"size": 13160833,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/058.mp4"
+},
+{
+"n": 59,
+"p": 0,
+"size": 13758586,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/059.mp4"
+},
+{
+"n": 60,
+"p": 0,
+"size": 11116475,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/060.mp4"
+},
+{
+"n": 61,
+"p": 0,
+"size": 10134230,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/061.mp4"
+},
+{
+"n": 62,
+"p": 0,
+"size": 6256570,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/062.mp4"
+},
+{
+"n": 63,
+"p": 0,
+"size": 9220930,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/063.mp4"
+},
+{
+"n": 64,
+"p": 0,
+"size": 9773547,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/064.mp4"
+},
+{
+"n": 65,
+"p": 0,
+"size": 10529335,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/065.mp4"
+},
+{
+"n": 66,
+"p": 0,
+"size": 15035502,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/066.mp4"
+},
+{
+"n": 67,
+"p": 0,
+"size": 12714326,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/067.mp4"
+},
+{
+"n": 68,
+"p": 0,
+"size": 10525216,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/068.mp4"
+},
+{
+"n": 69,
+"p": 0,
+"size": 18226242,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/069.mp4"
+},
+{
+"n": 70,
+"p": 0,
+"size": 7260138,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/070.mp4"
+},
+{
+"n": 71,
+"p": 0,
+"size": 10756643,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/071.mp4"
+},
+{
+"n": 72,
+"p": 0,
+"size": 16090461,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/072.mp4"
+},
+{
+"n": 73,
+"p": 0,
+"size": 11325181,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/073.mp4"
+},
+{
+"n": 74,
+"p": 0,
+"size": 13330936,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/074.mp4"
+},
+{
+"n": 75,
+"p": 0,
+"size": 18907293,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/075.mp4"
+},
+{
+"n": 76,
+"p": 0,
+"size": 16101361,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/076.mp4"
+},
+{
+"n": 77,
+"p": 0,
+"size": 5423944,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/077.mp4"
+},
+{
+"n": 78,
+"p": 0,
+"size": 5366854,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/078.mp4"
+},
+{
+"n": 79,
+"p": 0,
+"size": 5336997,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/079.mp4"
+},
+{
+"n": 80,
+"p": 0,
+"size": 4609363,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/080.mp4"
+},
+{
+"n": 81,
+"p": 0,
+"size": 14050789,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/081.mp4"
+},
+{
+"n": 82,
+"p": 0,
+"size": 9841575,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/082.mp4"
+},
+{
+"n": 83,
+"p": 0,
+"size": 13530701,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/083.mp4"
+},
+{
+"n": 84,
+"p": 0,
+"size": 11582851,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/084.mp4"
+},
+{
+"n": 85,
+"p": 0,
+"size": 12329397,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/085.mp4"
+},
+{
+"n": 86,
+"p": 0,
+"size": 8123937,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/086.mp4"
+},
+{
+"n": 87,
+"p": 0,
+"size": 6526931,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/087.mp4"
+},
+{
+"n": 88,
+"p": 0,
+"size": 13481642,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/088.mp4"
+},
+{
+"n": 89,
+"p": 0,
+"size": 24224140,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/089.mp4"
+},
+{
+"n": 90,
+"p": 0,
+"size": 12387363,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/090.mp4"
+},
+{
+"n": 91,
+"p": 0,
+"size": 11512024,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/091.mp4"
+},
+{
+"n": 92,
+"p": 0,
+"size": 9837222,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/092.mp4"
+},
+{
+"n": 93,
+"p": 0,
+"size": 6246220,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/093.mp4"
+},
+{
+"n": 94,
+"p": 0,
+"size": 4764401,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/094.mp4"
+},
+{
+"n": 95,
+"p": 0,
+"size": 3646271,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/095.mp4"
+},
+{
+"n": 97,
+"p": 0,
+"size": 5090774,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/097.mp4"
+},
+{
+"n": 98,
+"p": 0,
+"size": 10200627,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/098.mp4"
+},
+{
+"n": 99,
+"p": 0,
+"size": 5951468,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/099.mp4"
+},
+{
+"n": 100,
+"p": 0,
+"size": 6387553,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/100.mp4"
+},
+{
+"n": 101,
+"p": 0,
+"size": 7199716,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/101.mp4"
+},
+{
+"n": 102,
+"p": 0,
+"size": 5067493,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/102.mp4"
+},
+{
+"n": 103,
+"p": 0,
+"size": 4092305,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/103.mp4"
+},
+{
+"n": 104,
+"p": 0,
+"size": 5752999,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/104.mp4"
+},
+{
+"n": 105,
+"p": 0,
+"size": 5508128,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/105.mp4"
+},
+{
+"n": 106,
+"p": 0,
+"size": 2666152,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/106.mp4"
+},
+{
+"n": 107,
+"p": 0,
+"size": 4825529,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/107.mp4"
+},
+{
+"n": 108,
+"p": 0,
+"size": 2461995,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/108.mp4"
+},
+{
+"n": 109,
+"p": 0,
+"size": 4735218,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/109.mp4"
+},
+{
+"n": 110,
+"p": 0,
+"size": 4225809,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/110.mp4"
+},
+{
+"n": 111,
+"p": 0,
+"size": 3719914,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/111.mp4"
+},
+{
+"n": 112,
+"p": 0,
+"size": 613839,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/112.mp4"
+},
+{
+"n": 113,
+"p": 0,
+"size": 4510764,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/113.mp4"
+},
+{
+"n": 114,
+"p": 0,
+"size": 4891567,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/114.mp4"
+}
+]
+},
+{
+"id": "sudais",
+"name": "الشيخ عبد الرحمن بن عبد العزيز السديس",
+"surahs": [
+{
+"n": 1,
+"p": 0,
+"size": 915677,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/001.mp4"
+},
+{
+"n": 2,
+"p": 1,
+"size": 22330599,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/002_p1.mp4"
+},
+{
+"n": 2,
+"p": 2,
+"size": 23045825,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/002_p2.mp4"
+},
+{
+"n": 2,
+"p": 3,
+"size": 21241706,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/002_p3.mp4"
+},
+{
+"n": 3,
+"p": 1,
+"size": 20233514,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/003_p1.mp4"
+},
+{
+"n": 3,
+"p": 2,
+"size": 20122010,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/003_p2.mp4"
+},
+{
+"n": 4,
+"p": 1,
+"size": 20290818,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/004_p1.mp4"
+},
+{
+"n": 4,
+"p": 2,
+"size": 19799422,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/004_p2.mp4"
+},
+{
+"n": 5,
+"p": 0,
+"size": 22202321,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/005.mp4"
+},
+{
+"n": 6,
+"p": 0,
+"size": 22590164,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/006.mp4"
+},
+{
+"n": 7,
+"p": 1,
+"size": 17898693,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/007_p1.mp4"
+},
+{
+"n": 7,
+"p": 2,
+"size": 17911690,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/007_p2.mp4"
+},
+{
+"n": 8,
+"p": 0,
+"size": 22543196,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/008.mp4"
+},
+{
+"n": 9,
+"p": 0,
+"size": 22092473,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/009.mp4"
+},
+{
+"n": 10,
+"p": 0,
+"size": 20780183,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/010.mp4"
+},
+{
+"n": 11,
+"p": 0,
+"size": 22121584,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/011.mp4"
+},
+{
+"n": 12,
+"p": 0,
+"size": 18935599,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/012.mp4"
+},
+{
+"n": 13,
+"p": 0,
+"size": 17293737,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/013.mp4"
+},
+{
+"n": 14,
+"p": 0,
+"size": 15758462,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/014.mp4"
+},
+{
+"n": 15,
+"p": 0,
+"size": 13301653,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/015.mp4"
+},
+{
+"n": 16,
+"p": 0,
+"size": 20817353,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/016.mp4"
+},
+{
+"n": 17,
+"p": 0,
+"size": 18400968,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/017.mp4"
+},
+{
+"n": 18,
+"p": 0,
+"size": 25458442,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/018.mp4"
+},
+{
+"n": 19,
+"p": 0,
+"size": 20012728,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/019.mp4"
+},
+{
+"n": 20,
+"p": 0,
+"size": 22919584,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/020.mp4"
+},
+{
+"n": 21,
+"p": 0,
+"size": 22949440,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/021.mp4"
+},
+{
+"n": 22,
+"p": 0,
+"size": 22967386,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/022.mp4"
+},
+{
+"n": 23,
+"p": 0,
+"size": 20095917,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/023.mp4"
+},
+{
+"n": 24,
+"p": 0,
+"size": 22979263,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/024.mp4"
+},
+{
+"n": 25,
+"p": 0,
+"size": 17725766,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/025.mp4"
+},
+{
+"n": 26,
+"p": 0,
+"size": 22578282,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/026.mp4"
+},
+{
+"n": 27,
+"p": 0,
+"size": 21906266,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/027.mp4"
+},
+{
+"n": 28,
+"p": 0,
+"size": 24118338,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/028.mp4"
+},
+{
+"n": 29,
+"p": 0,
+"size": 18509585,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/029.mp4"
+},
+{
+"n": 30,
+"p": 0,
+"size": 14800748,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/030.mp4"
+},
+{
+"n": 31,
+"p": 0,
+"size": 10025026,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/031.mp4"
+},
+{
+"n": 32,
+"p": 0,
+"size": 7206443,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/032.mp4"
+},
+{
+"n": 33,
+"p": 0,
+"size": 25203772,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/033.mp4"
+},
+{
+"n": 34,
+"p": 0,
+"size": 17328949,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/034.mp4"
+},
+{
+"n": 35,
+"p": 0,
+"size": 14126026,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/035.mp4"
+},
+{
+"n": 36,
+"p": 0,
+"size": 15443673,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/036.mp4"
+},
+{
+"n": 37,
+"p": 0,
+"size": 18348470,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/037.mp4"
+},
+{
+"n": 38,
+"p": 0,
+"size": 14892690,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/038.mp4"
+},
+{
+"n": 39,
+"p": 0,
+"size": 21863024,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/039.mp4"
+},
+{
+"n": 40,
+"p": 0,
+"size": 22710648,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/040.mp4"
+},
+{
+"n": 41,
+"p": 0,
+"size": 15381006,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/041.mp4"
+},
+{
+"n": 42,
+"p": 0,
+"size": 17739914,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/042.mp4"
+},
+{
+"n": 43,
+"p": 0,
+"size": 20077103,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/043.mp4"
+},
+{
+"n": 44,
+"p": 0,
+"size": 7970039,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/044.mp4"
+},
+{
+"n": 45,
+"p": 0,
+"size": 10230322,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/045.mp4"
+},
+{
+"n": 46,
+"p": 0,
+"size": 12441277,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/046.mp4"
+},
+{
+"n": 47,
+"p": 0,
+"size": 10841117,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/047.mp4"
+},
+{
+"n": 48,
+"p": 0,
+"size": 11089116,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/048.mp4"
+},
+{
+"n": 49,
+"p": 0,
+"size": 7310937,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/049.mp4"
+},
+{
+"n": 50,
+"p": 0,
+"size": 9359101,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/050.mp4"
+},
+{
+"n": 51,
+"p": 0,
+"size": 8732607,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/051.mp4"
+},
+{
+"n": 52,
+"p": 0,
+"size": 6981055,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/052.mp4"
+},
+{
+"n": 53,
+"p": 0,
+"size": 8105646,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/053.mp4"
+},
+{
+"n": 54,
+"p": 0,
+"size": 7724160,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/054.mp4"
+},
+{
+"n": 55,
+"p": 0,
+"size": 9426217,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/055.mp4"
+},
+{
+"n": 56,
+"p": 0,
+"size": 7878839,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/056.mp4"
+},
+{
+"n": 57,
+"p": 0,
+"size": 10433169,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/057.mp4"
+},
+{
+"n": 58,
+"p": 0,
+"size": 9616397,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/058.mp4"
+},
+{
+"n": 59,
+"p": 0,
+"size": 9263286,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/059.mp4"
+},
+{
+"n": 60,
+"p": 0,
+"size": 7023174,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/060.mp4"
+},
+{
+"n": 61,
+"p": 0,
+"size": 4697500,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/061.mp4"
+},
+{
+"n": 62,
+"p": 0,
+"size": 3640454,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/062.mp4"
+},
+{
+"n": 63,
+"p": 0,
+"size": 3805785,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/063.mp4"
+},
+{
+"n": 64,
+"p": 0,
+"size": 5031379,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/064.mp4"
+},
+{
+"n": 65,
+"p": 0,
+"size": 5604592,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/065.mp4"
+},
+{
+"n": 66,
+"p": 0,
+"size": 5500272,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/066.mp4"
+},
+{
+"n": 67,
+"p": 0,
+"size": 7602650,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/067.mp4"
+},
+{
+"n": 68,
+"p": 0,
+"size": 6880139,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/068.mp4"
+},
+{
+"n": 69,
+"p": 0,
+"size": 6873856,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/069.mp4"
+},
+{
+"n": 70,
+"p": 0,
+"size": 6127925,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/070.mp4"
+},
+{
+"n": 71,
+"p": 0,
+"size": 5132274,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/071.mp4"
+},
+{
+"n": 72,
+"p": 0,
+"size": 5646739,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/072.mp4"
+},
+{
+"n": 73,
+"p": 0,
+"size": 4124142,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/073.mp4"
+},
+{
+"n": 74,
+"p": 0,
+"size": 5445739,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/074.mp4"
+},
+{
+"n": 75,
+"p": 0,
+"size": 3556343,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/075.mp4"
+},
+{
+"n": 76,
+"p": 0,
+"size": 5339367,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/076.mp4"
+},
+{
+"n": 77,
+"p": 0,
+"size": 4409872,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/077.mp4"
+},
+{
+"n": 78,
+"p": 0,
+"size": 4329380,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/078.mp4"
+},
+{
+"n": 79,
+"p": 0,
+"size": 3643694,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/079.mp4"
+},
+{
+"n": 80,
+"p": 0,
+"size": 3064622,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/080.mp4"
+},
+{
+"n": 81,
+"p": 0,
+"size": 2230317,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/081.mp4"
+},
+{
+"n": 82,
+"p": 0,
+"size": 1752648,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/082.mp4"
+},
+{
+"n": 83,
+"p": 0,
+"size": 3809164,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/083.mp4"
+},
+{
+"n": 84,
+"p": 0,
+"size": 2313746,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/084.mp4"
+},
+{
+"n": 85,
+"p": 0,
+"size": 2432560,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/085.mp4"
+},
+{
+"n": 86,
+"p": 0,
+"size": 1555327,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/086.mp4"
+},
+{
+"n": 87,
+"p": 0,
+"size": 1571731,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/087.mp4"
+},
+{
+"n": 88,
+"p": 0,
+"size": 2148600,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/088.mp4"
+},
+{
+"n": 89,
+"p": 0,
+"size": 3157706,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/089.mp4"
+},
+{
+"n": 90,
+"p": 0,
+"size": 1840029,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/090.mp4"
+},
+{
+"n": 91,
+"p": 0,
+"size": 1485800,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/091.mp4"
+},
+{
+"n": 92,
+"p": 0,
+"size": 1709117,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/092.mp4"
+},
+{
+"n": 93,
+"p": 0,
+"size": 1106901,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/093.mp4"
+},
+{
+"n": 94,
+"p": 0,
+"size": 717355,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/094.mp4"
+},
+{
+"n": 95,
+"p": 0,
+"size": 1023351,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/095.mp4"
+},
+{
+"n": 96,
+"p": 0,
+"size": 1562425,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/096.mp4"
+},
+{
+"n": 97,
+"p": 0,
+"size": 883190,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/097.mp4"
+},
+{
+"n": 98,
+"p": 0,
+"size": 2025590,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/098.mp4"
+},
+{
+"n": 99,
+"p": 0,
+"size": 1212971,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/099.mp4"
+},
+{
+"n": 100,
+"p": 0,
+"size": 1245055,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/100.mp4"
+},
+{
+"n": 101,
+"p": 0,
+"size": 1221912,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/101.mp4"
+},
+{
+"n": 102,
+"p": 0,
+"size": 1005366,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/102.mp4"
+},
+{
+"n": 103,
+"p": 0,
+"size": 719980,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/103.mp4"
+},
+{
+"n": 104,
+"p": 0,
+"size": 982872,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/104.mp4"
+},
+{
+"n": 105,
+"p": 0,
+"size": 881038,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/105.mp4"
+},
+{
+"n": 106,
+"p": 0,
+"size": 770240,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/106.mp4"
+},
+{
+"n": 107,
+"p": 0,
+"size": 896179,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/107.mp4"
+},
+{
+"n": 108,
+"p": 0,
+"size": 535645,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/108.mp4"
+},
+{
+"n": 109,
+"p": 0,
+"size": 802764,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/109.mp4"
+},
+{
+"n": 110,
+"p": 0,
+"size": 742916,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/110.mp4"
+},
+{
+"n": 111,
+"p": 0,
+"size": 787827,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/111.mp4"
+},
+{
+"n": 112,
+"p": 0,
+"size": 551060,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/112.mp4"
+},
+{
+"n": 113,
+"p": 0,
+"size": 694915,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/113.mp4"
+},
+{
+"n": 114,
+"p": 0,
+"size": 788509,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/sudais/114.mp4"
+}
+]
+}
+]
+}

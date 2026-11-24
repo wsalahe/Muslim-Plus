@@ -1,5 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:open_filex/open_filex.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'main.dart';
 import 'features.dart';
 import 'prayer.dart';
@@ -221,5 +227,123 @@ class _KhatmaPageState extends State<KhatmaPage> {
           ),
       ]),
     );
+  }
+}
+
+// ---------------- التحديث الإجباري (يتحكم فيه المالك فقط عبر catalog.json في مستودعه) ----------------
+/// يفرض التحديث إذا كان min_build في catalog.json أكبر من رقم نسخة التطبيق.
+bool updateRequired(Map catalog, int myBuild) => ((catalog['min_build'] ?? 0) as num) > myBuild;
+
+class UpdateGate extends StatefulWidget {
+  final Widget child;
+  const UpdateGate({super.key, required this.child});
+  @override
+  State<UpdateGate> createState() => _UpdateGateState();
+}
+
+class _UpdateGateState extends State<UpdateGate> with WidgetsBindingObserver {
+  bool blocked = false;
+  bool downloading = false;
+  double? progress;
+  String? msg;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    check();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState s) {
+    if (s == AppLifecycleState.resumed) check();
+  }
+
+  Future<void> check() async {
+    try {
+      final r = await http.get(Uri.parse('$kCatalogUrl?t=${DateTime.now().millisecondsSinceEpoch}')).timeout(const Duration(seconds: 10));
+      if (r.statusCode == 200) {
+        final remote = jsonDecode(utf8.decode(r.bodyBytes)) as Map;
+        final min = ((remote['min_build'] ?? 0) as num).toInt();
+        final p = await SharedPreferences.getInstance();
+        await p.setInt('min_build', min);
+      }
+    } catch (_) {}
+    final p = await SharedPreferences.getInstance();
+    final need = (p.getInt('min_build') ?? 0) > kAppBuild;
+    if (mounted && need != blocked) setState(() => blocked = need);
+  }
+
+  Future<void> update() async {
+    setState(() { downloading = true; progress = 0; msg = null; });
+    try {
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/MuslimPlus-update.apk');
+      final client = http.Client();
+      final resp = await client.send(http.Request('GET', Uri.parse(kApkUrl)));
+      if (resp.statusCode != 200) throw 'HTTP ${resp.statusCode}';
+      final total = resp.contentLength ?? 0;
+      var got = 0;
+      final sink = file.openWrite();
+      await for (final chunk in resp.stream) {
+        sink.add(chunk);
+        got += chunk.length;
+        if (total > 0 && mounted) setState(() => progress = got / total);
+      }
+      await sink.close();
+      client.close();
+      if (mounted) setState(() { progress = 1; msg = 'اكتمل التحميل. اضغط "تثبيت" في النافذة التي ستظهر. إذا طلب الهاتف السماح بالتثبيت من هذا التطبيق فاسمح له ثم ارجع.'; });
+      final r = await OpenFilex.open(file.path, type: 'application/vnd.android.package-archive');
+      if (r.type != ResultType.done && mounted) setState(() => msg = 'تعذّر فتح المثبّت: ${r.message}');
+    } catch (e) {
+      if (mounted) setState(() => msg = 'تعذّر التحميل. تأكد من الإنترنت وحاول مرة أخرى.');
+    }
+    if (mounted) setState(() => downloading = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!blocked) return widget.child;
+    return Stack(children: [
+      widget.child,
+      Positioned.fill(
+        child: PopScope(
+          canPop: false,
+          child: Material(
+            color: const Color(0xFF083F44),
+            child: SafeArea(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(28),
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    const Icon(Icons.system_update, color: gold, size: 72),
+                    const SizedBox(height: 16),
+                    const Text('تحديث مطلوب', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 10),
+                    const Text('يوجد إصدار جديد من التطبيق. يجب التحديث لمتابعة الاستخدام.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white70, fontSize: 15)),
+                    const SizedBox(height: 22),
+                    if (downloading || progress != null) LinearProgressIndicator(value: progress, color: gold, backgroundColor: Colors.white24, minHeight: 8),
+                    const SizedBox(height: 12),
+                    FilledButton.icon(
+                      style: FilledButton.styleFrom(backgroundColor: gold, foregroundColor: Colors.black, minimumSize: const Size(200, 48)),
+                      onPressed: downloading ? null : update,
+                      icon: const Icon(Icons.download),
+                      label: Text(downloading ? 'جاري التحميل...' : (progress == 1 ? 'تثبيت التحديث' : 'تحديث الآن')),
+                    ),
+                    if (msg != null) Padding(padding: const EdgeInsets.only(top: 14), child: Text(msg!, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70, fontSize: 13))),
+                  ]),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ]);
   }
 }

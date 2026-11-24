@@ -110,7 +110,7 @@ class QuranApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           title: 'Muslim Plus',
           locale: const Locale('ar'),
-          builder: (c, w) => Directionality(textDirection: TextDirection.rtl, child: w!),
+          builder: (c, w) => Directionality(textDirection: TextDirection.rtl, child: UpdateGate(child: w!)),
           theme: buildTheme(false),
           darkTheme: buildTheme(true),
           themeMode: dark ? ThemeMode.dark : ThemeMode.light,

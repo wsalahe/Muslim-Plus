@@ -5,6 +5,11 @@ import 'package:quran_app/extras.dart';
 import 'package:quran_app/prayer.dart';
 
 void main() {
+  test('forced update flag', () {
+    expect(updateRequired({'min_build': 5}, 4), true);
+    expect(updateRequired({'min_build': 4}, 4), false);
+    expect(updateRequired({}, 4), false);
+  });
   test('zakat: below and above nisab', () {
     final a = computeZakat(cash: 1000, goldGrams: 0, goldPrice: 100, silverGrams: 0, silverPrice: 1, trade: 0, debts: 0, silverNisab: false);
     expect(a.due, false);

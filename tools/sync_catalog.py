@@ -16,6 +16,6 @@ for k,nm in names.items():
     sheikhs.append({'id':k,'name':nm,'surahs':items})
 if sheikhs==old.get('sheikhs'):
     print('no change'); sys.exit(0)
-new={'catalog_version':int(time.time()),'app_build':old.get('app_build',1),'repo':R,'sheikhs':sheikhs}
+new={'catalog_version':int(time.time()),'app_build':old.get('app_build',1),'min_build':old.get('min_build',0),'repo':R,'sheikhs':sheikhs}
 json.dump(new,open('catalog.json','w'),ensure_ascii=False,indent=0)
 print('changed',{s['id']:len(s['surahs']) for s in sheikhs})

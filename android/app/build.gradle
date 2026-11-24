@@ -20,6 +20,15 @@ android {
         jvmTarget = JavaVersion.VERSION_1_8
     }
 
+    signingConfigs {
+        release {
+            storeFile file("muslimplus.jks")
+            storePassword "7d1cc0db3aa179bf5aae10cc"
+            keyAlias "muslimplus"
+            keyPassword "7d1cc0db3aa179bf5aae10cc"
+        }
+    }
+
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.wsalahe.quran_app"
@@ -35,7 +44,7 @@ android {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.debug
+            signingConfig = signingConfigs.release
         }
     }
 }

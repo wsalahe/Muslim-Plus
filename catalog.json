@@ -1,5 +1,5 @@
 {
-"catalog_version": 1795544356,
+"catalog_version": 1795552154,
 "app_build": 2,
 "repo": "wsalahe/Quran-kareem",
 "sheikhs": [
@@ -685,6 +685,30 @@
 "id": "husary",
 "name": "الشيخ محمود خليل الحصري",
 "surahs": [
+{
+"n": 34,
+"p": 0,
+"size": 20197578,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/034.mp4"
+},
+{
+"n": 35,
+"p": 0,
+"size": 19433373,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/035.mp4"
+},
+{
+"n": 36,
+"p": 0,
+"size": 19855532,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/036.mp4"
+},
+{
+"n": 37,
+"p": 0,
+"size": 19280604,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/037.mp4"
+},
 {
 "n": 38,
 "p": 0,
@@ -1417,6 +1441,36 @@
 "id": "alafasy",
 "name": "الشيخ مشاري بن راشد العفاسي",
 "surahs": [
+{
+"n": 29,
+"p": 0,
+"size": 18805854,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/029.mp4"
+},
+{
+"n": 30,
+"p": 0,
+"size": 18823167,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/030.mp4"
+},
+{
+"n": 31,
+"p": 0,
+"size": 17776871,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/031.mp4"
+},
+{
+"n": 32,
+"p": 0,
+"size": 16094344,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/032.mp4"
+},
+{
+"n": 33,
+"p": 0,
+"size": 19805913,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/033.mp4"
+},
 {
 "n": 34,
 "p": 0,

@@ -1,7 +1,7 @@
 name: quran_app
 description: القرآن الكريم
 publish_to: none
-version: 1.1.0+2
+version: 1.2.0+3
 environment:
   sdk: ">=3.0.0 <4.0.0"
 dependencies:
@@ -16,6 +16,10 @@ dependencies:
   just_audio_background: ^0.0.1-beta.13
   geolocator: ^13.0.1
   flutter_compass: ^0.8.1
+  adhan: ^2.0.0+1
+  hijri: ^3.0.1
+  flutter_local_notifications: ^17.2.4
+  timezone: ^0.9.4
 dev_dependencies:
   flutter_test:
     sdk: flutter

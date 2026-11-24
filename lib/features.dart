@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
@@ -5,7 +6,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:geolocator/geolocator.dart';
 import 'main.dart';
-import 'ai.dart';
+import 'prayer.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 
 class Shell extends StatefulWidget {
   const Shell({super.key});
@@ -15,7 +18,7 @@ class Shell extends StatefulWidget {
 
 class _ShellState extends State<Shell> {
   int i = 0;
-  final pages = const [RecitersTab(), MushafTab(), AdhkarTab(), QiblaTab(), AiTab()];
+  final pages = const [HomeTab(), RecitersTab(), MushafTab(), AdhkarTab(), QiblaTab()];
   @override
   Widget build(BuildContext context) => Scaffold(
         body: IndexedStack(index: i, children: pages),
@@ -25,11 +28,11 @@ class _ShellState extends State<Shell> {
           selectedIndex: i,
           onDestinationSelected: (v) => setState(() => i = v),
           destinations: const [
+            NavigationDestination(icon: Icon(Icons.home), label: 'الرئيسية'),
             NavigationDestination(icon: Icon(Icons.headphones), label: 'التلاوات'),
             NavigationDestination(icon: Icon(Icons.menu_book), label: 'المصحف'),
             NavigationDestination(icon: Icon(Icons.favorite_border), label: 'الأذكار'),
             NavigationDestination(icon: Icon(Icons.explore), label: 'القبلة'),
-            NavigationDestination(icon: Icon(Icons.auto_awesome), label: 'اسأل'),
           ],
         ),
       );
@@ -77,6 +80,39 @@ class MushafTab extends StatelessWidget {
   }
 }
 
+const kAyahReciters = [
+  ('مشاري العفاسي', 'Alafasy_128kbps'),
+  ('محمود خليل الحصري', 'Husary_128kbps'),
+  ('محمد صديق المنشاوي (مرتل)', 'Minshawy_Murattal_128kbps'),
+  ('محمد صديق المنشاوي (مجود)', 'Minshawy_Mujawwad_192kbps'),
+  ('عبد الباسط عبد الصمد (مرتل)', 'Abdul_Basit_Murattal_192kbps'),
+  ('عبد الباسط عبد الصمد (مجود)', 'Abdul_Basit_Mujawwad_128kbps'),
+  ('عبد الرحمن السديس', 'Abdurrahmaan_As-Sudais_192kbps'),
+  ('سعود الشريم', 'Saood_ash-Shuraym_128kbps'),
+  ('ماهر المعيقلي', 'MaherAlMuaiqly128kbps'),
+  ('علي الحذيفي', 'Hudhaify_128kbps'),
+  ('سعد الغامدي', 'Ghamadi_40kbps'),
+  ('ياسر الدوسري', 'Yasser_Ad-Dussary_128kbps'),
+  ('ناصر القطامي', 'Nasser_Alqatami_128kbps'),
+  ('أبو بكر الشاطري', 'Abu_Bakr_Ash-Shaatree_128kbps'),
+  ('عبد الله بصفر', 'Abdullah_Basfar_192kbps'),
+  ('عبد الله مطرود', 'Abdullah_Matroud_128kbps'),
+  ('هاني الرفاعي', 'Hani_Rifai_192kbps'),
+  ('صلاح البدير', 'Salah_Al_Budair_128kbps'),
+  ('محمد جبريل', 'Muhammad_Jibreel_128kbps'),
+  ('محمد أيوب', 'Muhammad_Ayyoub_128kbps'),
+  ('محمد الطبلاوي', 'Mohammad_al_Tablaway_128kbps'),
+  ('خالد القحطاني', 'Khaalid_Abdullaah_al-Qahtaanee_192kbps'),
+  ('أحمد العجمي', 'Ahmed_ibn_Ali_al-Ajamy_128kbps_ketaballah.net'),
+  ('علي جابر', 'Ali_Jaber_64kbps'),
+  ('فارس عباد', 'Fares_Abbad_64kbps'),
+  ('عبد الله الجهني', 'Abdullaah_3awwaad_Al-Juhaynee_128kbps'),
+  ('مصطفى إسماعيل', 'Mustafa_Ismail_48kbps'),
+  ('أيمن سويد', 'Ayman_Sowaid_64kbps'),
+  ('إبراهيم الأخضر', 'Ibrahim_Akhdar_32kbps'),
+  ('محسن القاسم', 'Muhsin_Al_Qasim_192kbps'),
+];
+
 class SurahReader extends StatefulWidget {
   final Map s;
   const SurahReader(this.s, {super.key});
@@ -86,34 +122,138 @@ class SurahReader extends StatefulWidget {
 
 class _SurahReaderState extends State<SurahReader> {
   double size = 28;
+  final player = AudioPlayer();
+  int reciter = 0;
+  int cur = -1;
+  bool playing = false;
+  String? err;
+  late final List<GlobalKey> keys;
+  StreamSubscription? s1, s2;
+
+  int get n => widget.s['n'] as int;
+  List<String> get ay => (widget.s['a'] as List).cast<String>();
+
   @override
   void initState() {
     super.initState();
     size = Store.prefs.getDouble('mushaf_size') ?? 28;
-    Store.prefs.setInt('mushaf_last', widget.s['n']);
+    reciter = Store.prefs.getInt('mushaf_reciter') ?? 0;
+    if (reciter >= kAyahReciters.length) reciter = 0;
+    Store.prefs.setInt('mushaf_last', n);
+    keys = List.generate(ay.length, (_) => GlobalKey());
+    s1 = player.currentIndexStream.listen((i) {
+      if (i == null || !mounted) return;
+      setState(() => cur = i);
+      final c = keys[i].currentContext;
+      if (c != null) Scrollable.ensureVisible(c, duration: const Duration(milliseconds: 300), alignment: .3);
+    });
+    s2 = player.playerStateStream.listen((st) {
+      if (!mounted) return;
+      setState(() => playing = st.playing && st.processingState != ProcessingState.completed);
+      if (st.processingState == ProcessingState.completed) player.pause();
+    });
+  }
+
+  @override
+  void dispose() {
+    s1?.cancel();
+    s2?.cancel();
+    player.dispose();
+    super.dispose();
+  }
+
+  Future<void> start(int from) async {
+    final (name, folder) = kAyahReciters[reciter];
+    setState(() => err = null);
+    try {
+      final items = <AudioSource>[
+        for (var i = 0; i < ay.length; i++)
+          AudioSource.uri(
+            Uri.parse('https://everyayah.com/data/$folder/${n.toString().padLeft(3, '0')}${(i + 1).toString().padLeft(3, '0')}.mp3'),
+            tag: MediaItem(id: '$folder-$n-$i', title: 'سورة ${surahs[n - 1]} · آية ${i + 1}', album: name),
+          )
+      ];
+      await player.setAudioSource(ConcatenatingAudioSource(children: items), initialIndex: from);
+      player.play();
+    } catch (e) {
+      if (mounted) setState(() => err = 'تعذّر التشغيل، تأكد من الإنترنت');
+    }
+  }
+
+  Future<void> pickReciter() async {
+    final r = await showModalBottomSheet<int>(
+      context: context,
+      builder: (c) => ListView(children: [
+        const Padding(padding: EdgeInsets.all(14), child: Text('اختر القارئ', style: TextStyle(color: gold, fontSize: 18, fontWeight: FontWeight.bold))),
+        for (var i = 0; i < kAyahReciters.length; i++)
+          ListTile(title: Text(kAyahReciters[i].$1), trailing: i == reciter ? const Icon(Icons.check, color: gold) : null, onTap: () => Navigator.pop(c, i)),
+      ]),
+    );
+    if (r == null || r == reciter) return;
+    await Store.prefs.setInt('mushaf_reciter', r);
+    final was = playing;
+    final from = cur < 0 ? 0 : cur;
+    setState(() => reciter = r);
+    if (was || cur >= 0) await start(from);
   }
 
   @override
   Widget build(BuildContext context) {
-    final n = widget.s['n'] as int;
-    final ay = (widget.s['a'] as List).cast<String>();
-    final spans = <InlineSpan>[];
-    for (var i = 0; i < ay.length; i++) {
-      spans.add(TextSpan(text: '${ay[i]} '));
-      spans.add(TextSpan(text: '\u06DD${arabicDigits(i + 1)} ', style: const TextStyle(color: gold)));
-    }
+    final a = ay;
     return Scaffold(
       appBar: AppBar(title: Text('سورة ${surahs[n - 1]}'), actions: [
         IconButton(icon: const Icon(Icons.text_decrease), onPressed: () { setState(() => size = math.max(18, size - 2)); Store.prefs.setDouble('mushaf_size', size); }),
         IconButton(icon: const Icon(Icons.text_increase), onPressed: () { setState(() => size = math.min(48, size + 2)); Store.prefs.setDouble('mushaf_size', size); }),
       ]),
-      body: ListView(padding: const EdgeInsets.all(16), children: [
+      body: ListView(padding: const EdgeInsets.fromLTRB(16, 16, 16, 24), children: [
         if (n != 1 && n != 9)
           Center(child: Padding(padding: const EdgeInsets.only(bottom: 16), child: Text('بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ', style: TextStyle(fontFamily: 'Amiri', fontSize: size + 2, color: gold)))),
-        Text.rich(TextSpan(children: spans), textAlign: TextAlign.justify, style: TextStyle(fontFamily: 'Amiri', fontSize: size, height: 2.1)),
-        const SizedBox(height: 24),
-        const Center(child: Text('النص: المصحف العثماني (Tanzil / alquran.cloud)', style: TextStyle(fontSize: 11, color: Colors.white38))),
+        for (var i = 0; i < a.length; i++)
+          InkWell(
+            key: keys[i],
+            onTap: () => start(i),
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(color: i == cur ? gold.withValues(alpha: .18) : null, borderRadius: BorderRadius.circular(10)),
+              child: Text.rich(
+                TextSpan(children: [TextSpan(text: '${a[i]} '), TextSpan(text: '\u06DD${arabicDigits(i + 1)}', style: const TextStyle(color: gold))]),
+                textAlign: TextAlign.justify,
+                style: TextStyle(fontFamily: 'Amiri', fontSize: size, height: 2.1),
+              ),
+            ),
+          ),
+        const SizedBox(height: 16),
+        const Center(child: Text('النص: المصحف العثماني (Tanzil / alquran.cloud) · الصوت: everyayah.com', style: TextStyle(fontSize: 11, color: Colors.white38))),
       ]),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          color: navy,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            if (err != null) Text(err!, style: const TextStyle(color: Colors.redAccent, fontSize: 12)),
+            Row(children: [
+              Expanded(child: TextButton.icon(onPressed: pickReciter, icon: const Icon(Icons.person, color: gold), label: Text(kAyahReciters[reciter].$1, overflow: TextOverflow.ellipsis))),
+              IconButton(icon: const Icon(Icons.skip_previous), onPressed: cur > 0 ? player.seekToPrevious : null),
+              IconButton(
+                iconSize: 44,
+                color: gold,
+                icon: Icon(playing ? Icons.pause_circle : Icons.play_circle),
+                onPressed: () {
+                  if (playing) {
+                    player.pause();
+                  } else if (cur < 0 || player.audioSource == null) {
+                    start(0);
+                  } else {
+                    player.play();
+                  }
+                },
+              ),
+              IconButton(icon: const Icon(Icons.skip_next), onPressed: cur >= 0 && cur < a.length - 1 ? player.seekToNext : null),
+            ]),
+          ]),
+        ),
+      ),
     );
   }
 }

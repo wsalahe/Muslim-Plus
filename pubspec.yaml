@@ -1,7 +1,7 @@
 name: quran_app
 description: Muslim Plus
 publish_to: none
-version: 1.4.0+5
+version: 1.4.0+6
 environment:
   sdk: ">=3.0.0 <4.0.0"
 dependencies:
@@ -43,5 +43,5 @@ flutter_launcher_icons:
   android: true
   ios: false
   image_path: assets/icon.png
-  adaptive_icon_background: "#0A2A52"
+  adaptive_icon_background: "#082044"
   adaptive_icon_foreground: assets/icon_fg.png

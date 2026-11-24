@@ -203,6 +203,31 @@ class PrayerService {
     await a?.requestExactAlarmsPermission();
   }
 
+  /// حالة الإشعارات: (مفعلة, تنبيه دقيق مسموح, عدد المجدول)
+  static Future<(bool, bool, int)> status() async {
+    await init();
+    final a = plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    final en = await a?.areNotificationsEnabled() ?? false;
+    final ex = await a?.canScheduleExactNotifications() ?? false;
+    final pend = (await plugin.pendingNotificationRequests()).length;
+    return (en, ex, pend);
+  }
+
+  /// يجدول إشعار أذان بعد ١٥ ثانية ليختبر مسار الجدولة الحقيقي (التطبيق يمكن إغلاقه).
+  static Future<bool> testScheduled([int? m]) async {
+    await init();
+    final mm = m ?? muezzin;
+    final when = tz.TZDateTime.from(DateTime.now().add(const Duration(seconds: 15)), tz.UTC);
+    for (final mode in [AndroidScheduleMode.exactAllowWhileIdle, AndroidScheduleMode.inexactAllowWhileIdle]) {
+      try {
+        await plugin.zonedSchedule(998, 'تجربة مجدولة · ${kMuezzins[mm]}', 'هكذا سيصلك الأذان في وقته', when, detailsFor(mm),
+            androidScheduleMode: mode, uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime);
+        return true;
+      } catch (_) {}
+    }
+    return false;
+  }
+
   static Future<void> test([int? m]) async {
     await init();
     final mm = m ?? muezzin;

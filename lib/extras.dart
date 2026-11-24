@@ -22,6 +22,7 @@ class AdhanTab extends StatefulWidget {
 class _AdhanTabState extends State<AdhanTab> {
   final _pl = AudioPlayer();
   int? _playing;
+  int _statusKey = 0;
   String? _err;
   StreamSubscription? _sub;
 
@@ -98,7 +99,30 @@ class _AdhanTabState extends State<AdhanTab> {
             ),
           ),
         if (_err != null) Padding(padding: const EdgeInsets.all(8), child: Text(_err!, style: const TextStyle(color: Colors.redAccent, fontSize: 12))),
-        Center(child: TextButton.icon(icon: const Icon(Icons.notifications_active, color: gold), label: const Text('تجربة إشعار الأذان (صوت الإشعار)'), onPressed: () async { await PrayerService.askPermissions(); await PrayerService.test(); })),
+        FutureBuilder<(bool, bool, int)>(
+          key: ValueKey(_statusKey),
+          future: PrayerService.status(),
+          builder: (c, snap) {
+            final v = snap.data;
+            if (v == null) return const SizedBox();
+            String ok(bool b) => b ? '✓' : '✗';
+            return Card(child: Padding(padding: const EdgeInsets.all(12), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const Text('حالة تنبيهات الأذان', style: TextStyle(color: gold, fontWeight: FontWeight.bold)),
+              Text('${ok(v.$1)} الإشعارات مفعلة   ${ok(v.$2)} التنبيه الدقيق مسموح   (${v.$3}) أذان مجدول'),
+              if (!v.$1 || !v.$2) const Text('فعّل الإشعارات و«التنبيهات والتذكيرات» للتطبيق من إعدادات الهاتف، وعطّل توفير البطارية للتطبيق.', style: TextStyle(fontSize: 12, color: Colors.orangeAccent)),
+              Wrap(spacing: 8, children: [
+                TextButton.icon(icon: const Icon(Icons.security, color: gold), label: const Text('طلب الأذونات'), onPressed: () async { await PrayerService.askPermissions(); await PrayerService.schedule(); setState(() => _statusKey++); }),
+                TextButton.icon(icon: const Icon(Icons.notifications_active, color: gold), label: const Text('تجربة بعد ١٥ ثانية'), onPressed: () async {
+                  await PrayerService.askPermissions();
+                  final ok2 = await PrayerService.testScheduled();
+                  if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ok2 ? 'سيصلك إشعار الأذان بعد ١٥ ثانية، يمكنك قفل الشاشة' : 'تعذر الجدولة، راجع الأذونات')));
+                  setState(() => _statusKey++);
+                }),
+                TextButton.icon(icon: const Icon(Icons.notifications, color: gold), label: const Text('إشعار فوري'), onPressed: () async { await PrayerService.askPermissions(); await PrayerService.test(); }),
+              ]),
+            ])));
+          },
+        ),
         const Padding(
           padding: EdgeInsets.all(12),
           child: Text('زر التشغيل يسمع المقطع داخل التطبيق (بدون إنترنت). الأذان يعمل في الخلفية حتى والتطبيق مغلق. المقاطع نحو ٨٠ ثانية من بداية كل أذان.', style: TextStyle(fontSize: 12)),

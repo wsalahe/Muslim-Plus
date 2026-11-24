@@ -1,5 +1,5 @@
 {
-"catalog_version": 1795540746,
+"catalog_version": 1795544356,
 "app_build": 1,
 "repo": "wsalahe/Quran-kareem",
 "sheikhs": [
@@ -685,6 +685,12 @@
 "id": "husary",
 "name": "الشيخ محمود خليل الحصري",
 "surahs": [
+{
+"n": 38,
+"p": 0,
+"size": 18159177,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/husary/038.mp4"
+},
 {
 "n": 39,
 "p": 0,
@@ -1411,6 +1417,12 @@
 "id": "alafasy",
 "name": "الشيخ مشاري بن راشد العفاسي",
 "surahs": [
+{
+"n": 34,
+"p": 0,
+"size": 17559225,
+"url": "https://github.com/wsalahe/Quran-kareem/releases/download/alafasy/034.mp4"
+},
 {
 "n": 35,
 "p": 0,

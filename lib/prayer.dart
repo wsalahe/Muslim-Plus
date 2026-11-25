@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math' as math;
 import 'package:adhan/adhan.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
-import 'package:timezone/timezone.dart' as tz;
 import 'main.dart';
 import 'l10n.dart';
 import 'features.dart';
@@ -242,6 +242,34 @@ class PrayerService {
     return true;
   }
 
+  /// الصوت الذي تشغله الخدمة الأصلية: ملف raw أو ملف مخصص.
+  static Map<String, String> soundFor(int m) {
+    if (m == customId && hasCustom) return {'uri': customUri!, 'raw': ''};
+    final id = (m.clamp(0, kMuezzins.length - 1) + 1).toString().padLeft(2, '0');
+    return {'raw': 'a$id', 'uri': ''};
+  }
+
+  /// يشغل الأذان فورا بنفس مسار التنبيه الحقيقي (خدمة أمامية + تيار المنبه).
+  static Future<void> playNow([int? m]) async {
+    final mm = m ?? muezzin;
+    await askPermissions();
+    await nat.invokeMethod('playAdhan', {'title': tr('تجربة الأذان · ${nameOf(mm)}'), 'body': tr('اضغط إيقاف لإنهاء الصوت'), ...soundFor(mm)});
+  }
+
+  static Future<bool> testScheduled([int? m]) async {
+    await askPermissions();
+    final mm = m ?? muezzin;
+    final at = DateTime.now().add(const Duration(seconds: 15)).millisecondsSinceEpoch;
+    try {
+      // معرف 990 منفصل حتى لا يلغي جدول الصلوات
+      final r = await nat.invokeMethod<List<Object?>>('scheduleAdhan', {'items': jsonEncode([{'id': 990, 'at': at, ...soundFor(mm), 'title': tr('تجربة مجدولة · ${nameOf(mm)}'), 'body': tr('هكذا سيصلك الأذان في وقته')}])});
+      await schedule();
+      return ((r?[0] as int?) ?? 0) > 0;
+    } catch (_) {
+      return false;
+    }
+  }
+
   static String nameOf(int m) => m == customId ? customName : tr(kMuezzins[m.clamp(0, kMuezzins.length - 1)]);
 
   /// أذان الصلاة رقم i: اختيارها الخاص أو الأذان العام.
@@ -348,21 +376,6 @@ class PrayerService {
     return (en, ex, pend);
   }
 
-  /// يجدول إشعار أذان بعد ١٥ ثانية ليختبر مسار الجدولة الحقيقي (التطبيق يمكن إغلاقه).
-  static Future<bool> testScheduled([int? m]) async {
-    await init();
-    final mm = m ?? muezzin;
-    final when = tz.TZDateTime.from(DateTime.now().add(const Duration(seconds: 15)), tz.UTC);
-    for (final mode in [AndroidScheduleMode.exactAllowWhileIdle, AndroidScheduleMode.inexactAllowWhileIdle]) {
-      try {
-        await plugin.zonedSchedule(998, tr('تجربة مجدولة · ${nameOf(mm)}'), tr('هكذا سيصلك الأذان في وقته'), when, detailsFor(mm),
-            androidScheduleMode: mode, uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime);
-        return true;
-      } catch (_) {}
-    }
-    return false;
-  }
-
   static Future<void> test([int? m]) async {
     await init();
     final mm = m ?? muezzin;
@@ -383,38 +396,28 @@ class PrayerService {
       return 0;
     }
     final now = DateTime.now();
-    var n = 0;
     DateTime? first;
-    String? firstErr;
-    String? exactErr;
+    final items = <Map<String, dynamic>>[];
     for (var d = 0; d < 21; d++) {
       final t = five(timesFor(now.add(Duration(days: d))));
       for (var i = 0; i < 5; i++) {
         if (!adhanOn(i) || !t[i].isAfter(now)) continue;
-        final when = tz.TZDateTime.from(t[i], tz.UTC);
         final m = muezzinFor(i);
-        var ok = false;
-        for (final mode in [AndroidScheduleMode.exactAllowWhileIdle, AndroidScheduleMode.inexactAllowWhileIdle]) {
-          try {
-            await plugin.zonedSchedule(d * 10 + i, tr('حان الآن وقت صلاة ${trp(prayerNames[i])}'), '${nameOf(m)} · ${method.name}', when, detailsFor(m),
-                androidScheduleMode: mode, uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime);
-            ok = true;
-            if (mode == AndroidScheduleMode.inexactAllowWhileIdle) exactErr ??= 'exact refused';
-            break;
-          } catch (e) {
-            firstErr ??= e.toString();
-          }
-        }
-        if (ok) {
-          n++;
-          if (first == null || t[i].isBefore(first)) first = t[i];
-        }
+        items.add({'id': d * 10 + i + 1, 'at': t[i].millisecondsSinceEpoch, ...soundFor(m),
+          'title': tr('حان الآن وقت صلاة ${trp(prayerNames[i])}'), 'body': '${nameOf(m)} · ${method.name}'});
+        if (first == null || t[i].isBefore(first)) first = t[i];
       }
+    }
+    var n = 0;
+    try {
+      final r = await nat.invokeMethod<List<Object?>>('scheduleAdhan', {'items': jsonEncode(items)});
+      n = (r?[0] as int?) ?? 0;
+      if (r?[1] != true) await p.setString('sch_exact', '0'); else await p.setString('sch_exact', '1');
+    } catch (e) {
+      await p.setString('sch_err', 'native: $e');
     }
     await p.setInt('sch_n', n);
     await p.setString('sch_next', first?.toIso8601String() ?? '');
-    await p.setString('sch_exact', exactErr == null ? '1' : '0');
-    if (n == 0 && firstErr != null) await p.setString('sch_err', firstErr);
     return n;
   }
 }

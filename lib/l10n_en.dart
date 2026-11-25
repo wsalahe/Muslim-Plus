@@ -32,7 +32,7 @@ const Map<String, String> kEn = {
   'يستمر التشغيل في الخلفية': 'Playback continues in the background',
   'صوت': 'Audio',
   'فيديو': 'Video',
-  'اضغط للتحقق من آخر تحديث على GitHub': 'Tap to check for the latest update on GitHub',
+  'اضغط للتحقق من آخر تحديث': 'Tap to check for the latest update',
   'جاري التحقق...': 'Checking...',
   'أنت على آخر إصدار.': 'You are on the latest version.',
   'تعذّر التحقق. تأكد من الإنترنت.': 'Could not check. Check your internet.',

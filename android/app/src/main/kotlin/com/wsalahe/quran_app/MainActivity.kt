@@ -39,6 +39,40 @@ class MainActivity : AudioServiceActivity() {
                         val pm = getSystemService(POWER_SERVICE) as PowerManager
                         result.success(pm.isIgnoringBatteryOptimizations(packageName))
                     }
+                    "scheduleAdhan" -> {
+                        val arr = org.json.JSONArray(call.argument<String>("items") ?: "[]")
+                        val r = AdhanNative.schedule(applicationContext, arr)
+                        result.success(listOf(r.first, r.second))
+                    }
+                    "playAdhan" -> {
+                        val i = Intent(applicationContext, AdhanService::class.java).setAction(AdhanService.ACTION_PLAY)
+                            .putExtra("title", call.argument<String>("title")).putExtra("body", call.argument<String>("body"))
+                            .putExtra("raw", call.argument<String>("raw")).putExtra("uri", call.argument<String>("uri"))
+                        androidx.core.content.ContextCompat.startForegroundService(applicationContext, i)
+                        result.success(true)
+                    }
+                    "stopAdhan" -> {
+                        startService(Intent(applicationContext, AdhanService::class.java).setAction(AdhanService.ACTION_STOP))
+                        result.success(true)
+                    }
+                    "diagnostics" -> {
+                        val m = HashMap<String, Any?>()
+                        m["model"] = Build.MANUFACTURER + " " + Build.MODEL
+                        m["android"] = Build.VERSION.RELEASE + " (API " + Build.VERSION.SDK_INT + ")"
+                        val nm = getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
+                        m["notif"] = nm.areNotificationsEnabled()
+                        m["exact"] = AdhanNative.canExact(applicationContext)
+                        m["battery"] = (getSystemService(POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(packageName)
+                        m["dnd"] = if (Build.VERSION.SDK_INT >= 23) nm.currentInterruptionFilter else 0
+                        val am = getSystemService(AUDIO_SERVICE) as android.media.AudioManager
+                        m["alarmVol"] = am.getStreamVolume(android.media.AudioManager.STREAM_ALARM)
+                        m["alarmMax"] = am.getStreamMaxVolume(android.media.AudioManager.STREAM_ALARM)
+                        val pr = getSharedPreferences(AdhanNative.PREFS, MODE_PRIVATE)
+                        m["lastFired"] = pr.getLong(AdhanNative.KEY_LAST, 0L)
+                        m["lastErr"] = pr.getString(AdhanNative.KEY_LAST_ERR, "") ?: ""
+                        m["saved"] = try { org.json.JSONArray(pr.getString(AdhanNative.KEY_ITEMS, "[]")).length() } catch (e: Exception) { 0 }
+                        result.success(m)
+                    }
                     "registerSound" -> {
                         val path = call.argument<String>("path")!!
                         val name = call.argument<String>("name") ?: "adhan"

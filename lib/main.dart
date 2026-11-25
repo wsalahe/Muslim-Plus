@@ -13,9 +13,10 @@ import 'features.dart';
 import 'l10n.dart';
 import 'extras.dart';
 
-const int kAppBuild = 12;
-const String kAppVersion = '1.10';
+const int kAppBuild = 13;
+const String kAppVersion = '1.11';
 const String kRepo = 'wsalahe/Quran-kareem';
+String cleanErr(Object e) => e.toString().replaceAll(RegExp(r'[\w.-]*github[\w.-]*', caseSensitive: false), '…');
 const String kCatalogApi = 'https://api.github.com/repos/$kRepo/contents/catalog.json?ref=main';
 const String kCatalogUrl = 'https://raw.githubusercontent.com/$kRepo/main/catalog.json';
 const String kApkUrl = 'https://github.com/$kRepo/releases/download/app-latest/QuranKareem.apk';
@@ -481,7 +482,7 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-  String status = tr('اضغط للتحقق من آخر تحديث على GitHub');
+  String status = tr('اضغط للتحقق من آخر تحديث');
   bool busy = false;
   bool appUpdate = false;
   int? remoteBuild;
@@ -508,7 +509,7 @@ class _SettingsState extends State<Settings> {
           : tr('أنت على آخر إصدار.');
       status += '\n${tr('المثبّت: بناء')} $kAppBuild · ${tr('المتاح: بناء')} $rb';
     } catch (e) {
-      status = '${tr('تعذّر التحقق. تأكد من الإنترنت.')}\n$e';
+      status = '${tr('تعذّر التحقق. تأكد من الإنترنت.')}\n${cleanErr(e)}';
     }
     if (mounted) setState(() => busy = false);
   }

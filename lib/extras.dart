@@ -5,7 +5,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
-import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -58,7 +57,7 @@ class _AdhanTabState extends State<AdhanTab> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ok ? tr('تم اعتماد «$name» كأذان مخصص') : tr('تعذر اعتماد الملف (يتطلب أندرويد ١٠ أو أحدث)'))));
       setState(() {});
     } catch (e) {
-      if (mounted) setState(() => _err = tr('تعذر اختيار الملف: $e'));
+      if (mounted) setState(() => _err = tr('تعذر اختيار الملف.'));
     }
   }
 
@@ -75,7 +74,7 @@ class _AdhanTabState extends State<AdhanTab> {
       await _pl.setAudioSource(AudioSource.file(path, tag: MediaItem(id: 'adhan-custom', title: tr('أذان · ${PrayerService.customName}'), album: 'Muslim Plus')));
       _pl.play();
     } catch (e) {
-      if (mounted) setState(() { _playing = null; _err = tr('تعذّر تشغيل الملف: $e'); });
+      if (mounted) setState(() { _playing = null; _err = tr('تعذّر تشغيل الملف.'); });
     }
   }
 
@@ -118,7 +117,7 @@ class _AdhanTabState extends State<AdhanTab> {
       await _pl.setVolume(1.0);
       _pl.play();
     } catch (e) {
-      if (mounted) setState(() { _playing = null; _err = tr('تعذر تشغيل المقطع: $e'); });
+      if (mounted) setState(() { _playing = null; _err = tr('تعذر تشغيل المقطع.'); });
     }
   }
 
@@ -382,8 +381,8 @@ Future<String?> downloadAndInstallApk(void Function(double?) onProgress) async {
     client.close();
     if (got < 5 * 1024 * 1024) throw 'incomplete download ($got bytes)';
     onProgress(1);
-    final r = await OpenFilex.open(file.path, type: 'application/vnd.android.package-archive');
-    if (r.type != ResultType.done) return tr('تعذّر فتح المثبّت: ${r.message}');
+    final r = await PrayerService.nat.invokeMethod<String>('installApk', {'path': file.path});
+    if (r == 'perm') return tr('فعّل «السماح بالتثبيت» ثم اضغط تحميل مرة أخرى');
     return null;
   } catch (e) {
     return '${tr('تعذّر التحميل. تأكد من الإنترنت وحاول مرة أخرى.')}';

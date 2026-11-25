@@ -73,6 +73,19 @@ class MainActivity : AudioServiceActivity() {
                         m["saved"] = try { org.json.JSONArray(pr.getString(AdhanNative.KEY_ITEMS, "[]")).length() } catch (e: Exception) { 0 }
                         result.success(m)
                     }
+                    "installApk" -> {
+                        val path = call.argument<String>("path")!!
+                        if (Build.VERSION.SDK_INT >= 26 && !packageManager.canRequestPackageInstalls()) {
+                            startActivity(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:" + packageName)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                            result.success("perm")
+                        } else {
+                            val uri = androidx.core.content.FileProvider.getUriForFile(this, packageName + ".updates", File(path))
+                            val i = Intent(Intent.ACTION_VIEW).setDataAndType(uri, "application/vnd.android.package-archive")
+                                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+                            startActivity(i)
+                            result.success("ok")
+                        }
+                    }
                     "registerSound" -> {
                         val path = call.argument<String>("path")!!
                         val name = call.argument<String>("name") ?: "adhan"

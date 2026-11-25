@@ -13,8 +13,8 @@ import 'features.dart';
 import 'l10n.dart';
 import 'extras.dart';
 
-const int kAppBuild = 19;
-const String kAppVersion = '1.17';
+const int kAppBuild = 20;
+const String kAppVersion = '1.18';
 const String kRepo = 'wsalahe/Muslim-Plus';
 String cleanErr(Object e) => e.toString().replaceAll(RegExp(r'[\w.-]*github[\w.-]*', caseSensitive: false), '…');
 const String kCounterUrl = 'https://script.google.com/macros/s/AKfycbx7EKJ65Fz38klqHVy5pX3knWzJJfZpOO3WloR46C-wlalMOeVOTGe274SfdHZ679v1LA/exec';

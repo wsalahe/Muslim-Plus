@@ -10,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'main.dart';
+import 'l10n.dart';
 import 'features.dart';
 import 'prayer.dart';
 
@@ -55,10 +56,10 @@ class _AdhanTabState extends State<AdhanTab> {
       final copy = await File(path).copy('${dir.path}/custom_adhan_${DateTime.now().millisecondsSinceEpoch}$ext');
       final ok = await PrayerService.setCustom(copy.path, name);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ok ? 'تم اعتماد «$name» كأذان مخصص' : 'تعذر اعتماد الملف (يتطلب أندرويد ١٠ أو أحدث)')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ok ? tr('تم اعتماد «$name» كأذان مخصص') : tr('تعذر اعتماد الملف (يتطلب أندرويد ١٠ أو أحدث)'))));
       setState(() {});
     } catch (e) {
-      if (mounted) setState(() => _err = 'تعذر اختيار الملف: $e');
+      if (mounted) setState(() => _err = tr('تعذر اختيار الملف: $e'));
     }
   }
 
@@ -72,10 +73,10 @@ class _AdhanTabState extends State<AdhanTab> {
     }
     try {
       setState(() { _playing = 100; _err = null; });
-      await _pl.setAudioSource(AudioSource.file(path, tag: MediaItem(id: 'adhan-custom', title: 'أذان · ${PrayerService.customName}', album: 'Muslim Plus')));
+      await _pl.setAudioSource(AudioSource.file(path, tag: MediaItem(id: 'adhan-custom', title: tr('أذان · ${PrayerService.customName}'), album: 'Muslim Plus')));
       _pl.play();
     } catch (e) {
-      if (mounted) setState(() { _playing = null; _err = 'تعذّر تشغيل الملف: $e'; });
+      if (mounted) setState(() { _playing = null; _err = tr('تعذّر تشغيل الملف: $e'); });
     }
   }
 
@@ -87,11 +88,11 @@ class _AdhanTabState extends State<AdhanTab> {
       builder: (c) => SizedBox(
         height: MediaQuery.of(c).size.height * .7,
         child: ListView(children: [
-          Padding(padding: const EdgeInsets.all(14), child: Text('أذان صلاة ${prayerNames[prayer]}', style: const TextStyle(color: gold, fontSize: 18, fontWeight: FontWeight.bold))),
-          ListTile(title: const Text('الأذان الافتراضي'), trailing: cur == null ? const Icon(Icons.check, color: gold) : null, onTap: () => Navigator.pop(c, -1)),
-          if (PrayerService.hasCustom) ListTile(leading: const Icon(Icons.folder_special, color: gold), title: Text('من هاتفي: ${PrayerService.customName}'), trailing: cur == 100 ? const Icon(Icons.check, color: gold) : null, onTap: () => Navigator.pop(c, 100)),
+          Padding(padding: const EdgeInsets.all(14), child: Text(tr('أذان صلاة ${trp(prayerNames[prayer])}'), style: const TextStyle(color: gold, fontSize: 18, fontWeight: FontWeight.bold))),
+          ListTile(title: Text(tr('الأذان الافتراضي')), trailing: cur == null ? const Icon(Icons.check, color: gold) : null, onTap: () => Navigator.pop(c, -1)),
+          if (PrayerService.hasCustom) ListTile(leading: const Icon(Icons.folder_special, color: gold), title: Text(tr('من هاتفي: ${PrayerService.customName}')), trailing: cur == 100 ? const Icon(Icons.check, color: gold) : null, onTap: () => Navigator.pop(c, 100)),
           for (var i = 0; i < kMuezzins.length; i++)
-            ListTile(title: Text(kMuezzins[i]), trailing: cur == i ? const Icon(Icons.check, color: gold) : null, onTap: () => Navigator.pop(c, i)),
+            ListTile(title: Text(tr(kMuezzins[i])), trailing: cur == i ? const Icon(Icons.check, color: gold) : null, onTap: () => Navigator.pop(c, i)),
         ]),
       ),
     );
@@ -114,11 +115,11 @@ class _AdhanTabState extends State<AdhanTab> {
     final id = (i + 1).toString().padLeft(2, '0');
     try {
       setState(() { _playing = i; _err = null; });
-      await _pl.setAudioSource(AudioSource.asset('assets/adhan/a$id.mp3', tag: MediaItem(id: 'adhan-$id', title: 'أذان · ${kMuezzins[i]}', album: 'Muslim Plus')));
+      await _pl.setAudioSource(AudioSource.asset('assets/adhan/a$id.mp3', tag: MediaItem(id: 'adhan-$id', title: tr('أذان · ${tr(kMuezzins[i])}'), album: 'Muslim Plus')));
       await _pl.setVolume(1.0);
       _pl.play();
     } catch (e) {
-      if (mounted) setState(() { _playing = null; _err = 'تعذر تشغيل المقطع: $e'; });
+      if (mounted) setState(() { _playing = null; _err = tr('تعذر تشغيل المقطع: $e'); });
     }
   }
 
@@ -134,55 +135,55 @@ class _AdhanTabState extends State<AdhanTab> {
     final sel = PrayerService.muezzin;
     final (ni, nt) = PrayerService.next();
     return Scaffold(
-      appBar: AppBar(title: const Text('الأذان', style: TextStyle(fontWeight: FontWeight.bold)), actions: [
-        IconButton(icon: const Icon(Icons.tune), tooltip: 'طريقة الحساب والمواقيت', onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PrayerSettings())).then((_) => setState(() {}))),
+      appBar: AppBar(title: Text(tr('الأذان'), style: TextStyle(fontWeight: FontWeight.bold)), actions: [
+        IconButton(icon: const Icon(Icons.tune), tooltip: tr('طريقة الحساب والمواقيت'), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PrayerSettings())).then((_) => setState(() {}))),
       ]),
       body: ListView(padding: const EdgeInsets.all(12), children: [
         Card(
           child: ListTile(
             leading: const Icon(Icons.access_time_filled, color: gold),
-            title: Text('الصلاة القادمة: ${prayerNames[ni]} ${hm(nt)}'),
-            subtitle: Text('المؤذن: ${kMuezzins[sel]} · ${PrayerService.method.name}'),
+            title: Text(tr('الصلاة القادمة: ${trp(prayerNames[ni])} ${hm(nt)}')),
+            subtitle: Text(tr('المؤذن: ${tr(kMuezzins[sel])} · ${PrayerService.method.name}')),
           ),
         ),
         Card(
           child: Padding(padding: const EdgeInsets.all(12), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text('أذان من ذاكرة الهاتف', style: TextStyle(color: gold, fontWeight: FontWeight.bold)),
-            Text(PrayerService.hasCustom ? 'الملف الحالي: ${PrayerService.customName}' : 'لم تختر ملفا بعد. اختر ملف صوت (mp3 أو m4a أو ogg) من الهاتف.', style: const TextStyle(fontSize: 13)),
+            Text(tr('أذان من ذاكرة الهاتف'), style: TextStyle(color: gold, fontWeight: FontWeight.bold)),
+            Text(PrayerService.hasCustom ? tr('الملف الحالي: ${PrayerService.customName}') : tr('لم تختر ملفا بعد. اختر ملف صوت (mp3 أو m4a أو ogg) من الهاتف.'), style: const TextStyle(fontSize: 13)),
             Wrap(spacing: 8, children: [
-              TextButton.icon(icon: const Icon(Icons.folder_open, color: gold), label: const Text('اختيار ملف'), onPressed: pickCustom),
-              if (PrayerService.hasCustom) TextButton.icon(icon: Icon(_playing == 100 ? Icons.stop_circle : Icons.play_circle_outline, color: gold), label: Text(_playing == 100 ? 'إيقاف' : 'استماع'), onPressed: previewCustom),
-              if (PrayerService.hasCustom) TextButton.icon(icon: const Icon(Icons.done_all, color: gold), label: const Text('لكل الصلوات'), onPressed: () async {
+              TextButton.icon(icon: const Icon(Icons.folder_open, color: gold), label: Text(tr('اختيار ملف')), onPressed: pickCustom),
+              if (PrayerService.hasCustom) TextButton.icon(icon: Icon(_playing == 100 ? Icons.stop_circle : Icons.play_circle_outline, color: gold), label: Text(_playing == 100 ? tr('إيقاف') : tr('استماع')), onPressed: previewCustom),
+              if (PrayerService.hasCustom) TextButton.icon(icon: const Icon(Icons.done_all, color: gold), label: Text(tr('لكل الصلوات')), onPressed: () async {
                 for (var k = 0; k < 5; k++) { await Store.prefs.setInt('pt_mz_$k', 100); }
                 setState(() {});
                 await PrayerService.schedule();
               }),
             ]),
-            const Text('يعمل كصوت إشعار الأذان في الخلفية (أندرويد ١٠ أو أحدث).', style: TextStyle(fontSize: 11)),
+            Text(tr('يعمل كصوت إشعار الأذان في الخلفية (أندرويد ١٠ أو أحدث).'), style: TextStyle(fontSize: 11)),
           ])),
         ),
-        const Padding(padding: EdgeInsets.fromLTRB(8, 12, 8, 4), child: Text('الأذان لكل صلاة', style: TextStyle(color: gold, fontWeight: FontWeight.bold))),
+        Padding(padding: EdgeInsets.fromLTRB(8, 12, 8, 4), child: Text(tr('الأذان لكل صلاة'), style: TextStyle(color: gold, fontWeight: FontWeight.bold))),
         for (var k = 0; k < 5; k++)
           ListTile(
             leading: Switch(activeColor: gold, value: PrayerService.adhanOn(k), onChanged: (v) async { await Store.prefs.setBool('pt_adhan_$k', v); setState(() {}); await PrayerService.schedule(); }),
-            title: Text(prayerNames[k]),
-            subtitle: Text(PrayerService.adhanOn(k) ? PrayerService.nameOf(PrayerService.muezzinFor(k)) : 'الأذان متوقف'),
+            title: Text(trp(prayerNames[k])),
+            subtitle: Text(PrayerService.adhanOn(k) ? PrayerService.nameOf(PrayerService.muezzinFor(k)) : tr('الأذان متوقف')),
             trailing: const Icon(Icons.chevron_left),
             onTap: () => pickForPrayer(k),
           ),
-        const Padding(padding: EdgeInsets.fromLTRB(8, 12, 8, 4), child: Text('اختر المؤذن الافتراضي (٣٠ مؤذنا)', style: TextStyle(color: gold, fontWeight: FontWeight.bold))),
+        Padding(padding: EdgeInsets.fromLTRB(8, 12, 8, 4), child: Text(tr('اختر المؤذن الافتراضي (٣٠ مؤذنا)'), style: TextStyle(color: gold, fontWeight: FontWeight.bold))),
         for (var i = 0; i < kMuezzins.length; i++)
           AnimatedContainer(
             duration: const Duration(milliseconds: 250),
             decoration: BoxDecoration(color: i == sel ? gold.withValues(alpha: .15) : null, borderRadius: BorderRadius.circular(12)),
             child: ListTile(
               leading: CircleAvatar(backgroundColor: i == sel ? gold : navy, child: Text(arabicDigits(i + 1), style: TextStyle(color: i == sel ? Colors.black : gold, fontSize: 12))),
-              title: Text(kMuezzins[i]),
-              subtitle: i == sel ? const Text('الأذان الافتراضي (للصلوات التي لم تخصص لها أذانا)') : null,
+              title: Text(tr(kMuezzins[i])),
+              subtitle: i == sel ? Text(tr('الأذان الافتراضي (للصلوات التي لم تخصص لها أذانا)')) : null,
               onTap: () => choose(i),
               trailing: IconButton(
                 icon: Icon(_playing == i ? Icons.stop_circle : Icons.play_circle_outline, color: gold),
-                tooltip: _playing == i ? 'إيقاف' : 'استماع',
+                tooltip: _playing == i ? tr('إيقاف') : tr('استماع'),
                 onPressed: () => preview(i),
               ),
             ),
@@ -199,34 +200,34 @@ class _AdhanTabState extends State<AdhanTab> {
             if (v == null) return const SizedBox();
             String ok(bool b) => b ? '✓' : '✗';
             return Card(child: Padding(padding: const EdgeInsets.all(12), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('حالة تنبيهات الأذان', style: TextStyle(color: gold, fontWeight: FontWeight.bold)),
-              Text('${ok(v.$1)} الإشعارات مفعلة   ${ok(v.$2)} التنبيه الدقيق مسموح   (${v.$3}) أذان مجدول'),
+              Text(tr('حالة تنبيهات الأذان'), style: TextStyle(color: gold, fontWeight: FontWeight.bold)),
+              Text(tr('${ok(v.$1)} الإشعارات مفعلة   ${ok(v.$2)} التنبيه الدقيق مسموح   (${v.$3}) أذان مجدول')),
               Builder(builder: (_) {
                 final nx = DateTime.tryParse(Store.prefs.getString('sch_next') ?? '');
                 final err = Store.prefs.getString('sch_err') ?? '';
                 return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(nx == null ? 'لا يوجد أذان مجدول حاليا' : 'أقرب أذان مجدول: ${hm(nx)} · ${arabicDigits(nx.day)}/${arabicDigits(nx.month)}', style: const TextStyle(fontSize: 13)),
-                  Text('ببطارية: ${ok(Store.prefs.getBool('bat_ok') ?? false)} مستثنى من توفير البطارية', style: const TextStyle(fontSize: 12)),
-                  if (err.isNotEmpty) Text('خطأ الجدولة: $err', style: const TextStyle(fontSize: 11, color: Colors.redAccent)),
+                  Text(nx == null ? tr('لا يوجد أذان مجدول حاليا') : tr('أقرب أذان مجدول: ${hm(nx)} · ${arabicDigits(nx.day)}/${arabicDigits(nx.month)}'), style: const TextStyle(fontSize: 13)),
+                  Text(tr('ببطارية: ${ok(Store.prefs.getBool('bat_ok') ?? false)} مستثنى من توفير البطارية'), style: const TextStyle(fontSize: 12)),
+                  if (err.isNotEmpty) Text(tr('خطأ الجدولة: $err'), style: const TextStyle(fontSize: 11, color: Colors.redAccent)),
                 ]);
               }),
-              if (!v.$1 || !v.$2) const Text('فعّل الإشعارات و«التنبيهات والتذكيرات» للتطبيق من إعدادات الهاتف، وعطّل توفير البطارية للتطبيق.', style: TextStyle(fontSize: 12, color: Colors.orangeAccent)),
+              if (!v.$1 || !v.$2) Text(tr('فعّل الإشعارات و«التنبيهات والتذكيرات» للتطبيق من إعدادات الهاتف، وعطّل توفير البطارية للتطبيق.'), style: TextStyle(fontSize: 12, color: Colors.orangeAccent)),
               Wrap(spacing: 8, children: [
-                TextButton.icon(icon: const Icon(Icons.security, color: gold), label: const Text('طلب الأذونات'), onPressed: () async { await PrayerService.ensurePermissions(context, force: true); await PrayerService.schedule(); setState(() => _statusKey++); }),
-                TextButton.icon(icon: const Icon(Icons.notifications_active, color: gold), label: const Text('تجربة بعد ١٥ ثانية'), onPressed: () async {
+                TextButton.icon(icon: const Icon(Icons.security, color: gold), label: Text(tr('طلب الأذونات')), onPressed: () async { await PrayerService.ensurePermissions(context, force: true); await PrayerService.schedule(); setState(() => _statusKey++); }),
+                TextButton.icon(icon: const Icon(Icons.notifications_active, color: gold), label: Text(tr('تجربة بعد ١٥ ثانية')), onPressed: () async {
                   await PrayerService.askPermissions();
                   final ok2 = await PrayerService.testScheduled();
-                  if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ok2 ? 'سيصلك إشعار الأذان بعد ١٥ ثانية، يمكنك قفل الشاشة' : 'تعذر الجدولة، راجع الأذونات')));
+                  if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ok2 ? tr('سيصلك إشعار الأذان بعد ١٥ ثانية، يمكنك قفل الشاشة') : tr('تعذر الجدولة، راجع الأذونات'))));
                   setState(() => _statusKey++);
                 }),
-                TextButton.icon(icon: const Icon(Icons.notifications, color: gold), label: const Text('إشعار فوري'), onPressed: () async { await PrayerService.askPermissions(); await PrayerService.test(); }),
+                TextButton.icon(icon: const Icon(Icons.notifications, color: gold), label: Text(tr('إشعار فوري')), onPressed: () async { await PrayerService.askPermissions(); await PrayerService.test(); }),
               ]),
             ])));
           },
         ),
-        const Padding(
+        Padding(
           padding: EdgeInsets.all(12),
-          child: Text('زر التشغيل يسمع المقطع داخل التطبيق (بدون إنترنت). الأذان يعمل في الخلفية حتى والتطبيق مغلق. المقاطع نحو ٨٠ ثانية من بداية كل أذان.', style: TextStyle(fontSize: 12)),
+          child: Text(tr('زر التشغيل يسمع المقطع داخل التطبيق (بدون إنترنت). الأذان يعمل في الخلفية حتى والتطبيق مغلق. المقاطع نحو ٨٠ ثانية من بداية كل أذان.'), style: TextStyle(fontSize: 12)),
         ),
       ]),
     );
@@ -275,25 +276,25 @@ class _ZakatPageState extends State<ZakatPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('حاسبة الزكاة')),
+        appBar: AppBar(title: Text(tr('حاسبة الزكاة'))),
         body: ListView(padding: const EdgeInsets.all(16), children: [
-          const Text('أدخل المبالغ بعملتك. أسعار الذهب والفضة تدخلها بنفسك من سعر اليوم.', style: TextStyle(fontSize: 12)),
+          Text(tr('أدخل المبالغ بعملتك. أسعار الذهب والفضة تدخلها بنفسك من سعر اليوم.'), style: TextStyle(fontSize: 12)),
           const SizedBox(height: 8),
-          field('cash', 'النقود والمدخرات'),
-          field('goldg', 'الذهب (جرام)'),
-          field('goldp', 'سعر جرام الذهب'),
-          field('silg', 'الفضة (جرام)'),
-          field('silp', 'سعر جرام الفضة'),
-          field('trade', 'عروض التجارة'),
-          field('debt', 'الديون المستحقة عليك'),
+          field('cash', tr('النقود والمدخرات')),
+          field('goldg', tr('الذهب (جرام)')),
+          field('goldp', tr('سعر جرام الذهب')),
+          field('silg', tr('الفضة (جرام)')),
+          field('silp', tr('سعر جرام الفضة')),
+          field('trade', tr('عروض التجارة')),
+          field('debt', tr('الديون المستحقة عليك')),
           SwitchListTile(
             activeColor: gold,
-            title: const Text('النصاب بالفضة (٥٩٥ جراما)'),
-            subtitle: Text(silver ? 'النصاب بالفضة (أقل)' : 'النصاب بالذهب (٨٥ جراما)'),
+            title: Text(tr('النصاب بالفضة (٥٩٥ جراما)')),
+            subtitle: Text(silver ? tr('النصاب بالفضة (أقل)') : tr('النصاب بالذهب (٨٥ جراما)')),
             value: silver,
             onChanged: (x) => setState(() => silver = x),
           ),
-          FilledButton(style: FilledButton.styleFrom(backgroundColor: gold, foregroundColor: Colors.black), onPressed: calc, child: const Text('احسب الزكاة')),
+          FilledButton(style: FilledButton.styleFrom(backgroundColor: gold, foregroundColor: Colors.black), onPressed: calc, child: Text(tr('احسب الزكاة'))),
           if (res != null)
             AnimatedSize(
               duration: const Duration(milliseconds: 300),
@@ -302,12 +303,12 @@ class _ZakatPageState extends State<ZakatPage> {
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text('صافي المال: ${f(res!.net)}'),
-                    Text('النصاب: ${res!.nisab > 0 ? f(res!.nisab) : 'أدخل سعر الجرام'}'),
+                    Text(tr('صافي المال: ${f(res!.net)}')),
+                    Text(tr('النصاب: ${res!.nisab > 0 ? f(res!.nisab) : 'أدخل سعر الجرام'}')),
                     const SizedBox(height: 6),
-                    Text(res!.due ? 'الزكاة الواجبة (٢٫٥٪): ${f(res!.zakat)}' : (res!.nisab > 0 ? 'لم يبلغ النصاب: لا زكاة عليك الآن' : 'أدخل سعر الذهب أو الفضة لتحديد النصاب'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: gold)),
+                    Text(res!.due ? tr('الزكاة الواجبة (٢٫٥٪): ${f(res!.zakat)}') : (res!.nisab > 0 ? tr('لم يبلغ النصاب: لا زكاة عليك الآن') : tr('أدخل سعر الذهب أو الفضة لتحديد النصاب')), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: gold)),
                     const SizedBox(height: 6),
-                    const Text('تشترط الزكاة مرور حول هجري كامل على المال. الحاسبة مساعدة فقط؛ اسأل أهل العلم في مسائلك الخاصة.', style: TextStyle(fontSize: 11)),
+                    Text(tr('تشترط الزكاة مرور حول هجري كامل على المال. الحاسبة مساعدة فقط؛ اسأل أهل العلم في مسائلك الخاصة.'), style: TextStyle(fontSize: 11)),
                   ]),
                 ),
               ),
@@ -359,10 +360,10 @@ class _KhatmaPageState extends State<KhatmaPage> {
     final daysLeft = (days - elapsed).clamp(1, 9999);
     final wird = (left / daysLeft).ceil();
     return Scaffold(
-      appBar: AppBar(title: const Text('ختمة القرآن'), actions: [
+      appBar: AppBar(title: Text(tr('ختمة القرآن')), actions: [
         IconButton(
             icon: const Icon(Icons.restart_alt),
-            tooltip: 'ختمة جديدة',
+            tooltip: tr('ختمة جديدة'),
             onPressed: () { setState(() { done = {}; start = DateTime.now(); }); save(); }),
       ]),
       body: ListView(padding: const EdgeInsets.all(12), children: [
@@ -370,16 +371,16 @@ class _KhatmaPageState extends State<KhatmaPage> {
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('أنهيت ${arabicDigits(done.length)} من ١١٤ سورة (${arabicDigits((read * 100 / total).round())}٪)', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(tr('أنهيت ${arabicDigits(done.length)} من ١١٤ سورة (${arabicDigits((read * 100 / total).round())}٪)'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               TweenAnimationBuilder<double>(tween: Tween(begin: 0, end: read / total), duration: const Duration(milliseconds: 500), builder: (c, v, _) => LinearProgressIndicator(value: v, minHeight: 8, color: gold, borderRadius: BorderRadius.circular(8))),
               const SizedBox(height: 10),
               Row(children: [
-                const Text('أريد الختم خلال '),
-                DropdownButton<int>(value: days, items: [for (final d in [7, 10, 15, 20, 30, 60, 90]) DropdownMenuItem(value: d, child: Text('${arabicDigits(d)} يوما'))], onChanged: (v) { setState(() { days = v!; start ??= DateTime.now(); }); save(); }),
+                Text(tr('أريد الختم خلال ')),
+                DropdownButton<int>(value: days, items: [for (final d in [7, 10, 15, 20, 30, 60, 90]) DropdownMenuItem(value: d, child: Text(tr('${arabicDigits(d)} يوما')))], onChanged: (v) { setState(() { days = v!; start ??= DateTime.now(); }); save(); }),
               ]),
-              if (start != null) Text('وردك اليومي المتبقي: ${arabicDigits(wird)} آية تقريبا (متبقي ${arabicDigits(daysLeft)} يوما)'),
-              if (start == null) const Text('اختر المدة ثم علّم السور التي تقرؤها.', style: TextStyle(fontSize: 12)),
+              if (start != null) Text(tr('وردك اليومي المتبقي: ${arabicDigits(wird)} آية تقريبا (متبقي ${arabicDigits(daysLeft)} يوما)')),
+              if (start == null) Text(tr('اختر المدة ثم علّم السور التي تقرؤها.'), style: TextStyle(fontSize: 12)),
             ]),
           ),
         ),
@@ -387,8 +388,8 @@ class _KhatmaPageState extends State<KhatmaPage> {
           CheckboxListTile(
             activeColor: gold,
             value: done.contains(n),
-            title: Text('سورة ${surahs[n - 1]}', style: const TextStyle(fontFamily: 'Amiri', fontSize: 18)),
-            subtitle: Text('${arabicDigits(ayahs(n))} آية'),
+            title: Text(tr('سورة ${trs(surahs[n - 1])}'), style: const TextStyle(fontFamily: 'Amiri', fontSize: 18)),
+            subtitle: Text(tr('${arabicDigits(ayahs(n))} آية')),
             onChanged: (v) { setState(() { v! ? done.add(n) : done.remove(n); start ??= DateTime.now(); }); save(); },
           ),
       ]),
@@ -464,11 +465,11 @@ class _UpdateGateState extends State<UpdateGate> with WidgetsBindingObserver {
       }
       await sink.close();
       client.close();
-      if (mounted) setState(() { progress = 1; msg = 'اكتمل التحميل. اضغط "تثبيت" في النافذة التي ستظهر. إذا طلب الهاتف السماح بالتثبيت من هذا التطبيق فاسمح له ثم ارجع.'; });
+      if (mounted) setState(() { progress = 1; msg = tr('اكتمل التحميل. اضغط "تثبيت" في النافذة التي ستظهر. إذا طلب الهاتف السماح بالتثبيت من هذا التطبيق فاسمح له ثم ارجع.'); });
       final r = await OpenFilex.open(file.path, type: 'application/vnd.android.package-archive');
-      if (r.type != ResultType.done && mounted) setState(() => msg = 'تعذّر فتح المثبّت: ${r.message}');
+      if (r.type != ResultType.done && mounted) setState(() => msg = tr('تعذّر فتح المثبّت: ${r.message}'));
     } catch (e) {
-      if (mounted) setState(() => msg = 'تعذّر التحميل. تأكد من الإنترنت وحاول مرة أخرى.');
+      if (mounted) setState(() => msg = tr('تعذّر التحميل. تأكد من الإنترنت وحاول مرة أخرى.'));
     }
     if (mounted) setState(() => downloading = false);
   }
@@ -490,9 +491,9 @@ class _UpdateGateState extends State<UpdateGate> with WidgetsBindingObserver {
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
                     const Icon(Icons.system_update, color: gold, size: 72),
                     const SizedBox(height: 16),
-                    const Text('تحديث مطلوب', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+                    Text(tr('تحديث مطلوب'), style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 10),
-                    const Text('يوجد إصدار جديد من التطبيق. يجب التحديث لمتابعة الاستخدام.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white70, fontSize: 15)),
+                    Text(tr('يوجد إصدار جديد من التطبيق. يجب التحديث لمتابعة الاستخدام.'), textAlign: TextAlign.center, style: TextStyle(color: Colors.white70, fontSize: 15)),
                     const SizedBox(height: 22),
                     if (downloading || progress != null) LinearProgressIndicator(value: progress, color: gold, backgroundColor: Colors.white24, minHeight: 8),
                     const SizedBox(height: 12),
@@ -500,7 +501,7 @@ class _UpdateGateState extends State<UpdateGate> with WidgetsBindingObserver {
                       style: FilledButton.styleFrom(backgroundColor: gold, foregroundColor: Colors.black, minimumSize: const Size(200, 48)),
                       onPressed: downloading ? null : update,
                       icon: const Icon(Icons.download),
-                      label: Text(downloading ? 'جاري التحميل...' : (progress == 1 ? 'تثبيت التحديث' : 'تحديث الآن')),
+                      label: Text(downloading ? tr('جاري التحميل...') : (progress == 1 ? tr('تثبيت التحديث') : tr('تحديث الآن'))),
                     ),
                     if (msg != null) Padding(padding: const EdgeInsets.only(top: 14), child: Text(msg!, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70, fontSize: 13))),
                   ]),

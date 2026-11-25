@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'main.dart';
+import 'l10n.dart';
 import 'features.dart';
 
 const _paperLight = Color(0xFFFBF3DD);
@@ -102,7 +103,7 @@ class MushafPageFace extends StatelessWidget {
     while (i < ays.length) {
       final s = ays[i].$1;
       if (ays[i].$2 == 1) {
-        blocks.add(SurahBanner(name: surahs[s - 1], ink: ink));
+        blocks.add(SurahBanner(name: trs(surahs[s - 1]), ink: ink));
         if (s != 1 && s != 9) {
           blocks.add(Padding(
             padding: const EdgeInsets.only(bottom: 6),
@@ -151,8 +152,8 @@ class MushafPageFace extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
           child: Column(children: [
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text('الجزء ${arabicDigits(juz)}', style: TextStyle(fontFamily: 'Amiri', fontSize: 14, color: ink.withValues(alpha: .75))),
-              Text('سورة ${surahs[firstSurah - 1]}', style: TextStyle(fontFamily: 'Amiri', fontSize: 14, color: ink.withValues(alpha: .75))),
+              Text(tr('الجزء ${arabicDigits(juz)}'), style: TextStyle(fontFamily: 'Amiri', fontSize: 14, color: ink.withValues(alpha: .75))),
+              Text(tr('سورة ${trs(surahs[firstSurah - 1])}'), style: TextStyle(fontFamily: 'Amiri', fontSize: 14, color: ink.withValues(alpha: .75))),
             ]),
             Divider(color: gold.withValues(alpha: .5), height: 10),
             Expanded(
@@ -207,7 +208,7 @@ class SurahBanner extends StatelessWidget {
         child: Container(
           height: 46,
           alignment: Alignment.center,
-          child: Text('سورة $name', style: TextStyle(fontFamily: 'Amiri', fontWeight: FontWeight.bold, fontSize: 24, color: ink)),
+          child: Text(tr('سورة $name'), style: TextStyle(fontFamily: 'Amiri', fontWeight: FontWeight.bold, fontSize: 24, color: ink)),
         ),
       ),
     );
@@ -406,13 +407,13 @@ class _PageReaderState extends State<PageReader> with SingleTickerProviderStateM
         for (final (s, a) in queue)
           AudioSource.uri(
             Uri.parse('https://everyayah.com/data/$folder/${s.toString().padLeft(3, '0')}${a.toString().padLeft(3, '0')}.mp3'),
-            tag: MediaItem(id: '$folder-$s-$a', title: 'سورة ${surahs[s - 1]} · آية $a', album: name),
+            tag: MediaItem(id: '$folder-$s-$a', title: tr('سورة ${trs(surahs[s - 1])} · آية $a'), album: name),
           )
       ];
       await player.setAudioSource(ConcatenatingAudioSource(children: items), initialIndex: fromIdx.clamp(0, items.length - 1));
       player.play();
     } catch (e) {
-      if (mounted) setState(() => err = 'تعذّر التشغيل، تأكد من الإنترنت');
+      if (mounted) setState(() => err = tr('تعذّر التشغيل، تأكد من الإنترنت'));
     }
   }
 
@@ -420,9 +421,9 @@ class _PageReaderState extends State<PageReader> with SingleTickerProviderStateM
     final r = await showModalBottomSheet<int>(
       context: context,
       builder: (c) => ListView(children: [
-        const Padding(padding: EdgeInsets.all(14), child: Text('اختر القارئ', style: TextStyle(color: gold, fontSize: 18, fontWeight: FontWeight.bold))),
+        Padding(padding: EdgeInsets.all(14), child: Text(tr('اختر القارئ'), style: TextStyle(color: gold, fontSize: 18, fontWeight: FontWeight.bold))),
         for (var i = 0; i < kAyahReciters.length; i++)
-          ListTile(title: Text(kAyahReciters[i].$1), trailing: i == reciter ? const Icon(Icons.check, color: gold) : null, onTap: () => Navigator.pop(c, i)),
+          ListTile(title: Text(tr(kAyahReciters[i].$1)), trailing: i == reciter ? const Icon(Icons.check, color: gold) : null, onTap: () => Navigator.pop(c, i)),
       ]),
     );
     if (r == null || r == reciter) return;
@@ -438,12 +439,12 @@ class _PageReaderState extends State<PageReader> with SingleTickerProviderStateM
       builder: (c) => SizedBox(
         height: MediaQuery.of(c).size.height * .7,
         child: ListView(children: [
-          const Padding(padding: EdgeInsets.all(14), child: Text('اذهب إلى سورة', style: TextStyle(color: gold, fontSize: 18, fontWeight: FontWeight.bold))),
+          Padding(padding: EdgeInsets.all(14), child: Text(tr('اذهب إلى سورة'), style: TextStyle(color: gold, fontSize: 18, fontWeight: FontWeight.bold))),
           for (var i = 0; i < 114; i++)
             ListTile(
               leading: Text(arabicDigits(i + 1)),
-              title: Text('سورة ${surahs[i]}'),
-              trailing: Text('ص ${arabicDigits(PageData.pageOf(i + 1, 1))}'),
+              title: Text(tr('سورة ${trs(surahs[i])}')),
+              trailing: Text(tr('ص ${arabicDigits(PageData.pageOf(i + 1, 1))}')),
               onTap: () => Navigator.pop(c, PageData.pageOf(i + 1, 1)),
             ),
         ]),
@@ -468,25 +469,27 @@ class _PageReaderState extends State<PageReader> with SingleTickerProviderStateM
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Directionality(textDirection: TextDirection.rtl, child: _body(context));
+
+  Widget _body(BuildContext context) {
     final q = quran;
     return Scaffold(
       appBar: AppBar(
-        title: Text('صفحة ${arabicDigits(page)}'),
+        title: Text(tr('صفحة ${arabicDigits(page)}')),
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline),
-            tooltip: 'المصادر والتراخيص',
+            tooltip: tr('المصادر والتراخيص'),
             onPressed: () => showDialog(
               context: context,
               builder: (c) => AlertDialog(
-                title: const Text('المصادر والتراخيص'),
-                content: const Text('نص القرآن وبيانات الصفحات والأجزاء: Tanzil.net، رخصة Creative Commons Attribution 3.0 (النص دون تعديل).\nالصوت: everyayah.com.\nالخط: Amiri (رخصة SIL OFL).\nأصوات الأذان: archive.org (Public Domain Mark).'),
-                actions: [TextButton(onPressed: () => Navigator.pop(c), child: const Text('حسنا'))],
+                title: Text(tr('المصادر والتراخيص')),
+                content: Text(tr('نص القرآن وبيانات الصفحات والأجزاء: Tanzil.net، رخصة Creative Commons Attribution 3.0 (النص دون تعديل).\nالصوت: everyayah.com.\nالخط: Amiri (رخصة SIL OFL).\nأصوات الأذان: archive.org (Public Domain Mark).')),
+                actions: [TextButton(onPressed: () => Navigator.pop(c), child: Text(tr('حسنا')))],
               ),
             ),
           ),
-          IconButton(icon: const Icon(Icons.list), tooltip: 'السور', onPressed: q == null ? null : goTo),
+          IconButton(icon: const Icon(Icons.list), tooltip: tr('السور'), onPressed: q == null ? null : goTo),
           IconButton(icon: const Icon(Icons.text_decrease), onPressed: () { setState(() => size = math.max(16, size - 2)); Store.prefs.setDouble('mushaf_pg_size', size); }),
           IconButton(icon: const Icon(Icons.text_increase), onPressed: () { setState(() => size = math.min(34, size + 2)); Store.prefs.setDouble('mushaf_pg_size', size); }),
         ],
@@ -521,8 +524,8 @@ class _PageReaderState extends State<PageReader> with SingleTickerProviderStateM
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             if (err != null) Text(err!, style: const TextStyle(color: Colors.redAccent, fontSize: 12)),
             Row(children: [
-              Expanded(child: TextButton.icon(onPressed: pickReciter, icon: const Icon(Icons.person, color: gold), label: Text(kAyahReciters[reciter].$1, overflow: TextOverflow.ellipsis))),
-              IconButton(icon: const Icon(Icons.chevron_right), tooltip: 'الصفحة السابقة', onPressed: page > 1 ? () => flipTo(-1) : null),
+              Expanded(child: TextButton.icon(onPressed: pickReciter, icon: const Icon(Icons.person, color: gold), label: Text(tr(kAyahReciters[reciter].$1), overflow: TextOverflow.ellipsis))),
+              IconButton(icon: const Icon(Icons.chevron_right), tooltip: tr('الصفحة السابقة'), onPressed: page > 1 ? () => flipTo(-1) : null),
               IconButton(
                 iconSize: 44,
                 color: gold,
@@ -539,7 +542,7 @@ class _PageReaderState extends State<PageReader> with SingleTickerProviderStateM
                         }
                       },
               ),
-              IconButton(icon: const Icon(Icons.chevron_left), tooltip: 'الصفحة التالية', onPressed: page < 604 ? () => flipTo(1) : null),
+              IconButton(icon: const Icon(Icons.chevron_left), tooltip: tr('الصفحة التالية'), onPressed: page < 604 ? () => flipTo(1) : null),
             ]),
           ]),
         ),

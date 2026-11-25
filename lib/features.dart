@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:geolocator/geolocator.dart';
 import 'main.dart';
+import 'l10n.dart';
 import 'prayer.dart';
 import 'extras.dart';
 import 'mushaf.dart';
@@ -20,19 +21,19 @@ class Shell extends StatefulWidget {
 
 class _ShellState extends State<Shell> {
   int i = 0;
-  final pages = const [HomeTab(), AdhanTab(), MushafTab(), AdhkarTab(), QiblaTab()];
+  final pages = [HomeTab(), AdhanTab(), MushafTab(), AdhkarTab(), QiblaTab()];
   @override
   Widget build(BuildContext context) => Scaffold(
         body: IndexedStack(index: i, children: pages),
         bottomNavigationBar: NavigationBar(
           selectedIndex: i,
           onDestinationSelected: (v) => setState(() => i = v),
-          destinations: const [
-            NavigationDestination(icon: Icon(Icons.home), label: 'الرئيسية'),
-            NavigationDestination(icon: Icon(Icons.notifications_active), label: 'الأذان'),
-            NavigationDestination(icon: Icon(Icons.menu_book), label: 'المصحف'),
-            NavigationDestination(icon: Icon(Icons.favorite_border), label: 'الأذكار'),
-            NavigationDestination(icon: Icon(Icons.explore), label: 'القبلة'),
+          destinations: [
+            NavigationDestination(icon: Icon(Icons.home), label: tr('الرئيسية')),
+            NavigationDestination(icon: Icon(Icons.notifications_active), label: tr('الأذان')),
+            NavigationDestination(icon: Icon(Icons.menu_book), label: tr('المصحف')),
+            NavigationDestination(icon: Icon(Icons.favorite_border), label: tr('الأذكار')),
+            NavigationDestination(icon: Icon(Icons.explore), label: tr('القبلة')),
           ],
         ),
       );
@@ -44,7 +45,7 @@ class QuranText {
   static Future<List> load() async => _data ??= jsonDecode(await rootBundle.loadString('assets/quran.json')) as List;
 }
 
-String arabicDigits(int n) => n.toString().split('').map((d) => String.fromCharCode(0x660 + int.parse(d))).join();
+String arabicDigits(int n) => isEn ? n.toString() : n.toString().split('').map((d) => d == '-' ? d : String.fromCharCode(0x660 + int.parse(d))).join();
 
 class MushafTab extends StatefulWidget {
   const MushafTab({super.key});
@@ -60,7 +61,7 @@ class _MushafTabState extends State<MushafTab> {
     final last = Store.prefs.getInt('mushaf_last');
     final lastAyah = Store.prefs.getInt('mushaf_ayah') ?? 0;
     return Scaffold(
-      appBar: AppBar(title: const Text('المصحف الشريف', style: TextStyle(fontWeight: FontWeight.bold))),
+      appBar: AppBar(title: Text(tr('المصحف الشريف'), style: TextStyle(fontWeight: FontWeight.bold))),
       body: FutureBuilder<List>(
         future: QuranText.load(),
         builder: (c, snap) {
@@ -70,14 +71,14 @@ class _MushafTabState extends State<MushafTab> {
             itemCount: data.length + (last != null ? 1 : 0),
             itemBuilder: (c, i) {
               if (last != null && i == 0) {
-                return Card(child: ListTile(leading: const Icon(Icons.bookmark, color: gold), title: Text('متابعة القراءة: سورة ${surahs[last - 1]} · آية ${arabicDigits(lastAyah + 1)}'), subtitle: const Text('مصحف بالصفحات مع قلب الصفحة'), onTap: () async { await PageData.load(); if (mounted) open(PageReader(initialPage: Store.prefs.getInt('mushaf_page') ?? PageData.pageOf(last, lastAyah + 1))); }));
+                return Card(child: ListTile(leading: const Icon(Icons.bookmark, color: gold), title: Text(tr('متابعة القراءة: سورة ${trs(surahs[last - 1])} · آية ${arabicDigits(lastAyah + 1)}')), subtitle: Text(tr('مصحف بالصفحات مع قلب الصفحة')), onTap: () async { await PageData.load(); if (mounted) open(PageReader(initialPage: Store.prefs.getInt('mushaf_page') ?? PageData.pageOf(last, lastAyah + 1))); }));
               }
               final s = data[i - (last != null ? 1 : 0)];
               final n = s['n'] as int;
               return ListTile(
                 leading: CircleAvatar(backgroundColor: navy, child: Text('$n', style: const TextStyle(color: gold, fontSize: 13))),
-                title: Text('سورة ${surahs[n - 1]}', style: const TextStyle(fontFamily: 'Amiri', fontSize: 20)),
-                subtitle: Text('${(s['a'] as List).length} آية · ${s['t'] == 'Meccan' ? 'مكية' : 'مدنية'}'),
+                title: Text(tr('سورة ${trs(surahs[n - 1])}'), style: const TextStyle(fontFamily: 'Amiri', fontSize: 20)),
+                subtitle: Text(tr('${(s['a'] as List).length} آية · ${s['t'] == 'Meccan' ? 'مكية' : 'مدنية'}')),
                 onTap: () async { await PageData.load(); if (mounted) open(PageReader(initialPage: PageData.pageOf(n, 1))); },
               );
             },
@@ -208,13 +209,13 @@ class _SurahReaderState extends State<SurahReader> {
         for (var i = 0; i < ay.length; i++)
           AudioSource.uri(
             Uri.parse('https://everyayah.com/data/$folder/${n.toString().padLeft(3, '0')}${(i + 1).toString().padLeft(3, '0')}.mp3'),
-            tag: MediaItem(id: '$folder-$n-$i', title: 'سورة ${surahs[n - 1]} · آية ${i + 1}', album: name),
+            tag: MediaItem(id: '$folder-$n-$i', title: tr('سورة ${trs(surahs[n - 1])} · آية ${i + 1}'), album: name),
           )
       ];
       await player.setAudioSource(ConcatenatingAudioSource(children: items), initialIndex: from);
       player.play();
     } catch (e) {
-      if (mounted) setState(() => err = 'تعذّر التشغيل، تأكد من الإنترنت');
+      if (mounted) setState(() => err = tr('تعذّر التشغيل، تأكد من الإنترنت'));
     }
   }
 
@@ -222,9 +223,9 @@ class _SurahReaderState extends State<SurahReader> {
     final r = await showModalBottomSheet<int>(
       context: context,
       builder: (c) => ListView(children: [
-        const Padding(padding: EdgeInsets.all(14), child: Text('اختر القارئ', style: TextStyle(color: gold, fontSize: 18, fontWeight: FontWeight.bold))),
+        Padding(padding: EdgeInsets.all(14), child: Text(tr('اختر القارئ'), style: TextStyle(color: gold, fontSize: 18, fontWeight: FontWeight.bold))),
         for (var i = 0; i < kAyahReciters.length; i++)
-          ListTile(title: Text(kAyahReciters[i].$1), trailing: i == reciter ? const Icon(Icons.check, color: gold) : null, onTap: () => Navigator.pop(c, i)),
+          ListTile(title: Text(tr(kAyahReciters[i].$1)), trailing: i == reciter ? const Icon(Icons.check, color: gold) : null, onTap: () => Navigator.pop(c, i)),
       ]),
     );
     if (r == null || r == reciter) return;
@@ -239,12 +240,12 @@ class _SurahReaderState extends State<SurahReader> {
   Widget build(BuildContext context) {
     final a = ay;
     return Scaffold(
-      appBar: AppBar(title: Text('سورة ${surahs[n - 1]}'), actions: [
-        IconButton(icon: const Icon(Icons.done_all), tooltip: 'تعليم السورة كمقروءة في الختمة', onPressed: () {
+      appBar: AppBar(title: Text(tr('سورة ${trs(surahs[n - 1])}')), actions: [
+        IconButton(icon: const Icon(Icons.done_all), tooltip: tr('تعليم السورة كمقروءة في الختمة'), onPressed: () {
           final d = (jsonDecode(Store.prefs.getString('kh_done') ?? '[]') as List).cast<int>().toSet()..add(n);
           Store.prefs.setString('kh_done', jsonEncode(d.toList()));
           if (Store.prefs.getString('kh_start') == null) Store.prefs.setString('kh_start', DateTime.now().toIso8601String());
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تمت إضافتها إلى ختمتك')));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(tr('تمت إضافتها إلى ختمتك'))));
         }),
         IconButton(icon: const Icon(Icons.text_decrease), onPressed: () { setState(() => size = math.max(18, size - 2)); Store.prefs.setDouble('mushaf_size', size); }),
         IconButton(icon: const Icon(Icons.text_increase), onPressed: () { setState(() => size = math.min(48, size + 2)); Store.prefs.setDouble('mushaf_size', size); }),
@@ -274,7 +275,7 @@ class _SurahReaderState extends State<SurahReader> {
                 ),
               ),
             const SizedBox(height: 16),
-            Center(child: Text('النص: المصحف العثماني (Tanzil / alquran.cloud) · الصوت: everyayah.com', style: TextStyle(fontSize: 11, color: Theme.of(context).hintColor))),
+            Center(child: Text(tr('النص: المصحف العثماني (Tanzil / alquran.cloud) · الصوت: everyayah.com'), style: TextStyle(fontSize: 11, color: Theme.of(context).hintColor))),
           ]),
         ),
       ),
@@ -285,7 +286,7 @@ class _SurahReaderState extends State<SurahReader> {
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             if (err != null) Text(err!, style: const TextStyle(color: Colors.redAccent, fontSize: 12)),
             Row(children: [
-              Expanded(child: TextButton.icon(onPressed: pickReciter, icon: const Icon(Icons.person, color: gold), label: Text(kAyahReciters[reciter].$1, overflow: TextOverflow.ellipsis))),
+              Expanded(child: TextButton.icon(onPressed: pickReciter, icon: const Icon(Icons.person, color: gold), label: Text(tr(kAyahReciters[reciter].$1), overflow: TextOverflow.ellipsis))),
               IconButton(icon: const Icon(Icons.skip_previous), onPressed: cur > 0 ? player.seekToPrevious : null),
               IconButton(
                 iconSize: 44,
@@ -332,7 +333,7 @@ class _AdhkarTabState extends State<AdhkarTab> {
   static const pinned = ['أذكار الصباح والمساء', 'أذكار النوم', 'أذكار الاستيقاظ من النوم', 'الأذكار بعد السلام من الصلاة'];
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('الأذكار والأدعية', style: TextStyle(fontWeight: FontWeight.bold))),
+        appBar: AppBar(title: Text(tr('الأذكار والأدعية'), style: TextStyle(fontWeight: FontWeight.bold))),
         body: FutureBuilder<List>(
           future: AdhkarData.load(),
           builder: (c, snap) {
@@ -346,7 +347,7 @@ class _AdhkarTabState extends State<AdhkarTab> {
             return Column(children: [
               Padding(
                 padding: const EdgeInsets.all(12),
-                child: TextField(decoration: InputDecoration(hintText: 'ابحث عن ذكر أو دعاء', prefixIcon: const Icon(Icons.search), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14))), onChanged: (v) => setState(() => q = v.trim())),
+                child: TextField(decoration: InputDecoration(hintText: tr('ابحث عن ذكر أو دعاء'), prefixIcon: const Icon(Icons.search), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14))), onChanged: (v) => setState(() => q = v.trim())),
               ),
               Expanded(
                 child: ListView.builder(
@@ -357,7 +358,7 @@ class _AdhkarTabState extends State<AdhkarTab> {
                     return ListTile(
                       leading: Icon(isPinned ? Icons.star : Icons.favorite_border, color: gold),
                       title: Text(cat['name']),
-                      subtitle: Text('${(cat['items'] as List).length} ذكر'),
+                      subtitle: Text(tr('${(cat['items'] as List).length} ذكر')),
                       onTap: () => Navigator.push(c, MaterialPageRoute(builder: (_) => AdhkarPage(cat))),
                     );
                   },
@@ -389,7 +390,7 @@ class _AdhkarPageState extends State<AdhkarPage> {
     final items = widget.cat['items'] as List;
     return Scaffold(
       appBar: AppBar(title: Text(widget.cat['name'], style: const TextStyle(fontSize: 16)), actions: [
-        IconButton(icon: const Icon(Icons.restart_alt), tooltip: 'إعادة العد', onPressed: () => setState(() => left = items.map((e) => countOf(e['c'])).toList())),
+        IconButton(icon: const Icon(Icons.restart_alt), tooltip: tr('إعادة العد'), onPressed: () => setState(() => left = items.map((e) => countOf(e['c'])).toList())),
       ]),
       body: ListView.builder(
         padding: const EdgeInsets.all(10),
@@ -409,7 +410,7 @@ class _AdhkarPageState extends State<AdhkarPage> {
                   Row(children: [
                     Icon(done ? Icons.check_circle : Icons.touch_app, color: gold, size: 20),
                     const SizedBox(width: 8),
-                    Text(done ? 'تم' : 'اضغط للعد · المتبقي ${arabicDigits(left[i])}', style: const TextStyle(color: gold)),
+                    Text(done ? tr('تم') : tr('اضغط للعد · المتبقي ${arabicDigits(left[i])}'), style: const TextStyle(color: gold)),
                   ]),
                 ]),
               ),
@@ -446,15 +447,15 @@ class _QiblaTabState extends State<QiblaTab> {
   Future<void> locate() async {
     setState(() { busy = true; msg = null; });
     try {
-      if (!await Geolocator.isLocationServiceEnabled()) throw 'فعّل الموقع (GPS) من إعدادات الهاتف';
+      if (!await Geolocator.isLocationServiceEnabled()) throw tr('فعّل الموقع (GPS) من إعدادات الهاتف');
       var perm = await Geolocator.checkPermission();
       if (perm == LocationPermission.denied) perm = await Geolocator.requestPermission();
-      if (perm == LocationPermission.denied || perm == LocationPermission.deniedForever) throw 'اسمح للتطبيق بالوصول إلى الموقع لتحديد القبلة';
+      if (perm == LocationPermission.denied || perm == LocationPermission.deniedForever) throw tr('اسمح للتطبيق بالوصول إلى الموقع لتحديد القبلة');
       final p = await Geolocator.getLastKnownPosition() ?? await Geolocator.getCurrentPosition(locationSettings: const LocationSettings(accuracy: LocationAccuracy.low, timeLimit: Duration(seconds: 20)));
       bearing = qiblaBearing(p.latitude, p.longitude);
       Store.prefs.setDouble('qibla', bearing!);
     } catch (e) {
-      msg = e is String ? e : 'تعذّر تحديد الموقع';
+      msg = e is String ? e : tr('تعذّر تحديد الموقع');
       bearing ??= Store.prefs.getDouble('qibla');
     }
     if (mounted) setState(() => busy = false);
@@ -468,7 +469,7 @@ class _QiblaTabState extends State<QiblaTab> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('اتجاه القبلة', style: TextStyle(fontWeight: FontWeight.bold))),
+        appBar: AppBar(title: Text(tr('اتجاه القبلة'), style: TextStyle(fontWeight: FontWeight.bold))),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -476,10 +477,10 @@ class _QiblaTabState extends State<QiblaTab> {
                 ? Column(mainAxisSize: MainAxisSize.min, children: [
                     const Icon(Icons.explore, color: gold, size: 80),
                     const SizedBox(height: 12),
-                    const Text('لتحديد القبلة يحتاج التطبيق إلى موقعك (يبقى على جهازك فقط)', textAlign: TextAlign.center),
+                    Text(tr('لتحديد القبلة يحتاج التطبيق إلى موقعك (يبقى على جهازك فقط)'), textAlign: TextAlign.center),
                     if (msg != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(msg!, style: const TextStyle(color: Colors.redAccent), textAlign: TextAlign.center)),
                     const SizedBox(height: 16),
-                    FilledButton(style: FilledButton.styleFrom(backgroundColor: gold, foregroundColor: Colors.black), onPressed: busy ? null : locate, child: Text(busy ? 'جاري التحديد...' : 'تحديد القبلة')),
+                    FilledButton(style: FilledButton.styleFrom(backgroundColor: gold, foregroundColor: Colors.black), onPressed: busy ? null : locate, child: Text(busy ? tr('جاري التحديد...') : tr('تحديد القبلة'))),
                   ])
                 : StreamBuilder<CompassEvent>(
                     stream: FlutterCompass.events,
@@ -488,7 +489,7 @@ class _QiblaTabState extends State<QiblaTab> {
                       final angle = h == null ? bearing! : (bearing! - h);
                       final aligned = h != null && ((angle % 360 + 360) % 360 < 4 || (angle % 360 + 360) % 360 > 356);
                       return Column(mainAxisSize: MainAxisSize.min, children: [
-                        Text('زاوية القبلة: ${arabicDigits(bearing!.round())}° من الشمال', style: const TextStyle(fontSize: 18, color: gold)),
+                        Text(tr('زاوية القبلة: ${arabicDigits(bearing!.round())}° من الشمال'), style: const TextStyle(fontSize: 18, color: gold)),
                         const SizedBox(height: 24),
                         Stack(alignment: Alignment.center, children: [
                           Container(width: 280, height: 280, decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: aligned ? Colors.greenAccent : gold, width: 3), color: Theme.of(context).colorScheme.surface)),
@@ -496,9 +497,9 @@ class _QiblaTabState extends State<QiblaTab> {
                           const Positioned(top: 22, child: Text('🕋', style: TextStyle(fontSize: 22))),
                         ]),
                         const SizedBox(height: 20),
-                        Text(h == null ? 'لا يوجد حساس بوصلة: وجّه الهاتف نحو الشمال ثم اتبع الزاوية' : (aligned ? 'أنت تواجه القبلة' : 'أدر الهاتف حتى يشير السهم لأعلى'), textAlign: TextAlign.center),
+                        Text(h == null ? tr('لا يوجد حساس بوصلة: وجّه الهاتف نحو الشمال ثم اتبع الزاوية') : (aligned ? tr('أنت تواجه القبلة') : tr('أدر الهاتف حتى يشير السهم لأعلى')), textAlign: TextAlign.center),
                         const SizedBox(height: 12),
-                        TextButton.icon(onPressed: busy ? null : locate, icon: const Icon(Icons.my_location), label: const Text('تحديث الموقع')),
+                        TextButton.icon(onPressed: busy ? null : locate, icon: const Icon(Icons.my_location), label: Text(tr('تحديث الموقع'))),
                         if (msg != null) Text(msg!, style: const TextStyle(color: Colors.redAccent)),
                       ]);
                     },

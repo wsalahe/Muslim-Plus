@@ -9,6 +9,7 @@ import 'package:hijri/hijri_calendar.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 import 'main.dart';
+import 'l10n.dart';
 import 'features.dart';
 import 'ai.dart';
 import 'extras.dart';
@@ -55,9 +56,11 @@ const kMuezzins = [
 ];
 
 class MethodInfo {
-  final String id, name, where;
+  final String id, _name, _where;
   final CalculationMethod m;
-  const MethodInfo(this.id, this.name, this.where, this.m);
+  const MethodInfo(this.id, this._name, this._where, this.m);
+  String get name => tr(_name);
+  String get where => tr(_where);
 }
 
 const kMethods = [
@@ -92,19 +95,19 @@ String guessMethod(double lat, double lon) {
 
 String hm(DateTime t) {
   final h = t.hour % 12 == 0 ? 12 : t.hour % 12;
-  return '${h.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')} ${t.hour < 12 ? 'ص' : 'م'}';
+  return '${h.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')} ${t.hour < 12 ? tr('ص') : tr('م')}';
 }
 
 String hmsLeft(Duration d) {
   final h = d.inHours, m = d.inMinutes % 60;
-  if (h == 0 && m == 0) return 'أقل من دقيقة';
-  return '${h > 0 ? '${arabicDigits(h)} س ' : ''}${arabicDigits(m)} د';
+  if (h == 0 && m == 0) return tr('أقل من دقيقة');
+  return tr('${h > 0 ? '${arabicDigits(h)} س ' : ''}${arabicDigits(m)} د');
 }
 
 String hijriNow() {
   HijriCalendar.setLocal('ar');
   final h = HijriCalendar.now();
-  return '${arabicDigits(h.hDay)} ${h.longMonthName} ${arabicDigits(h.hYear)} هـ';
+  return tr('${arabicDigits(h.hDay)} ${h.longMonthName} ${arabicDigits(h.hYear)} هـ');
 }
 
 class PrayerService {
@@ -165,7 +168,7 @@ class PrayerService {
       try {
         final c = CityDb.nearest(await CityDb.load(), lat, lon);
         if (c != null) {
-          await Store.prefs.setString('pt_city', 'قرب ${c.label}');
+          await Store.prefs.setString('pt_city', tr('قرب ${c.label}'));
           await Store.prefs.setString('pt_cc', c.cc);
         } else {
           await Store.prefs.remove('pt_city');
@@ -202,13 +205,13 @@ class PrayerService {
     for (var k = 0; k <= 20; k++) { await a?.deleteNotificationChannel('adhan_c$k'); }
     for (var i = 0; i < kMuezzins.length; i++) {
       final id = (i + 1).toString().padLeft(2, '0');
-      await a?.createNotificationChannel(AndroidNotificationChannel('adhan_n$id', 'الأذان · ${kMuezzins[i]}',
-          description: 'أذان عند دخول وقت الصلاة', importance: Importance.max, playSound: true, audioAttributesUsage: AudioAttributesUsage.alarm, enableVibration: true, sound: RawResourceAndroidNotificationSound('a$id')));
+      await a?.createNotificationChannel(AndroidNotificationChannel('adhan_n$id', tr('الأذان · ${tr(kMuezzins[i])}'),
+          description: tr('أذان عند دخول وقت الصلاة'), importance: Importance.max, playSound: true, audioAttributesUsage: AudioAttributesUsage.alarm, enableVibration: true, sound: RawResourceAndroidNotificationSound('a$id')));
     }
     final cu = customUri;
     if (cu != null) {
-      await a?.createNotificationChannel(AndroidNotificationChannel('adhan_k$customVer', 'الأذان · $customName',
-          description: 'أذان بملف من الجهاز', importance: Importance.max, playSound: true, audioAttributesUsage: AudioAttributesUsage.alarm, enableVibration: true, sound: UriAndroidNotificationSound(cu)));
+      await a?.createNotificationChannel(AndroidNotificationChannel('adhan_k$customVer', tr('الأذان · $customName'),
+          description: tr('أذان بملف من الجهاز'), importance: Importance.max, playSound: true, audioAttributesUsage: AudioAttributesUsage.alarm, enableVibration: true, sound: UriAndroidNotificationSound(cu)));
     }
     ready = true;
   }
@@ -217,7 +220,7 @@ class PrayerService {
   static const nat = MethodChannel('mp/native');
   static String? get customUri => Store.prefs.getString('cs_uri');
   static int get customVer => Store.prefs.getInt('cs_ver') ?? 0;
-  static String get customName => Store.prefs.getString('cs_name') ?? 'أذان مخصص';
+  static String get customName => Store.prefs.getString('cs_name') ?? tr('أذان مخصص');
   static String? get customPath => Store.prefs.getString('cs_path');
   static bool get hasCustom => customUri != null && customUri!.isNotEmpty;
   static const customId = 100;
@@ -234,12 +237,12 @@ class PrayerService {
     await Store.prefs.setInt('cs_ver', ver);
     await Store.prefs.setString('cs_name', name);
     await Store.prefs.setString('cs_path', path);
-    await a?.createNotificationChannel(AndroidNotificationChannel('adhan_k$ver', 'الأذان · $name',
-        description: 'أذان بملف من الجهاز', importance: Importance.max, playSound: true, audioAttributesUsage: AudioAttributesUsage.alarm, enableVibration: true, sound: UriAndroidNotificationSound(uri)));
+    await a?.createNotificationChannel(AndroidNotificationChannel('adhan_k$ver', tr('الأذان · $name'),
+        description: tr('أذان بملف من الجهاز'), importance: Importance.max, playSound: true, audioAttributesUsage: AudioAttributesUsage.alarm, enableVibration: true, sound: UriAndroidNotificationSound(uri)));
     return true;
   }
 
-  static String nameOf(int m) => m == customId ? customName : kMuezzins[m.clamp(0, kMuezzins.length - 1)];
+  static String nameOf(int m) => m == customId ? customName : tr(kMuezzins[m.clamp(0, kMuezzins.length - 1)]);
 
   /// أذان الصلاة رقم i: اختيارها الخاص أو الأذان العام.
   static int muezzinFor(int i) {
@@ -263,7 +266,7 @@ class PrayerService {
             title: Text(title),
             content: Text(body),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('لاحقا')),
+              TextButton(onPressed: () => Navigator.pop(c, false), child: Text(tr('لاحقا'))),
               FilledButton(onPressed: () => Navigator.pop(c, true), child: Text(ok)),
             ],
           ),
@@ -271,11 +274,11 @@ class PrayerService {
         false;
     if (!(await a?.areNotificationsEnabled() ?? true)) {
       if (!context.mounted) return false;
-      if (await ask('السماح بالإشعارات', 'لكي يصلك الأذان في وقته يحتاج التطبيق إذن الإشعارات. اضغط «سماح» ثم وافق في النافذة التي ستظهر.', 'سماح')) {
+      if (await ask(tr('السماح بالإشعارات'), tr('لكي يصلك الأذان في وقته يحتاج التطبيق إذن الإشعارات. اضغط «سماح» ثم وافق في النافذة التي ستظهر.'), tr('سماح'))) {
         await a?.requestNotificationsPermission();
         if (!(await a?.areNotificationsEnabled() ?? true)) {
           if (!context.mounted) return false;
-          if (await ask('الإشعارات ما زالت مغلقة', 'الإذن مرفوض. افتح إعدادات الإشعارات للتطبيق وفعّلها يدويا.', 'فتح الإعدادات')) {
+          if (await ask(tr('الإشعارات ما زالت مغلقة'), tr('الإذن مرفوض. افتح إعدادات الإشعارات للتطبيق وفعّلها يدويا.'), tr('فتح الإعدادات'))) {
             await nat.invokeMethod('openSettings', {'kind': 'notif'});
           }
         }
@@ -283,14 +286,14 @@ class PrayerService {
     }
     if (!(await a?.canScheduleExactNotifications() ?? true)) {
       if (!context.mounted) return false;
-      if (await ask('المنبهات والتذكيرات', 'لضبط الأذان على الثانية يلزم السماح بـ«المنبهات والتذكيرات». ستفتح لك صفحة الإعدادات: فعّل الخيار للتطبيق.', 'فتح الإعدادات')) {
+      if (await ask(tr('المنبهات والتذكيرات'), tr('لضبط الأذان على الثانية يلزم السماح بـ«المنبهات والتذكيرات». ستفتح لك صفحة الإعدادات: فعّل الخيار للتطبيق.'), tr('فتح الإعدادات'))) {
         await nat.invokeMethod('openSettings', {'kind': 'exact'});
       }
     }
     final ign = await nat.invokeMethod<bool>('isIgnoringBattery') ?? true;
     if (!ign) {
       if (!context.mounted) return false;
-      if (await ask('توفير البطارية', 'بعض الهواتف توقف التطبيقات في الخلفية فيتأخر الأذان أو لا يصل. اسمح للتطبيق بتجاهل تحسين البطارية.', 'سماح')) {
+      if (await ask(tr('توفير البطارية'), tr('بعض الهواتف توقف التطبيقات في الخلفية فيتأخر الأذان أو لا يصل. اسمح للتطبيق بتجاهل تحسين البطارية.'), tr('سماح'))) {
         await nat.invokeMethod('openSettings', {'kind': 'battery'});
       }
     }
@@ -302,8 +305,8 @@ class PrayerService {
   static NotificationDetails detailsFor(int m) {
     if (m == customId && hasCustom) {
       return NotificationDetails(
-          android: AndroidNotificationDetails('adhan_k$customVer', 'الأذان · $customName',
-              channelDescription: 'أذان بملف من الجهاز',
+          android: AndroidNotificationDetails('adhan_k$customVer', tr('الأذان · $customName'),
+              channelDescription: tr('أذان بملف من الجهاز'),
               importance: Importance.max,
               priority: Priority.high,
               playSound: true,
@@ -316,8 +319,8 @@ class PrayerService {
     m = m.clamp(0, kMuezzins.length - 1);
     final id = (m + 1).toString().padLeft(2, '0');
     return NotificationDetails(
-        android: AndroidNotificationDetails('adhan_n$id', 'الأذان · ${kMuezzins[m]}',
-            channelDescription: 'أذان عند دخول وقت الصلاة',
+        android: AndroidNotificationDetails('adhan_n$id', tr('الأذان · ${tr(kMuezzins[m])}'),
+            channelDescription: tr('أذان عند دخول وقت الصلاة'),
             importance: Importance.max,
             priority: Priority.high,
             playSound: true,
@@ -352,7 +355,7 @@ class PrayerService {
     final when = tz.TZDateTime.from(DateTime.now().add(const Duration(seconds: 15)), tz.UTC);
     for (final mode in [AndroidScheduleMode.exactAllowWhileIdle, AndroidScheduleMode.inexactAllowWhileIdle]) {
       try {
-        await plugin.zonedSchedule(998, 'تجربة مجدولة · ${nameOf(mm)}', 'هكذا سيصلك الأذان في وقته', when, detailsFor(mm),
+        await plugin.zonedSchedule(998, tr('تجربة مجدولة · ${nameOf(mm)}'), tr('هكذا سيصلك الأذان في وقته'), when, detailsFor(mm),
             androidScheduleMode: mode, uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime);
         return true;
       } catch (_) {}
@@ -364,7 +367,7 @@ class PrayerService {
     await init();
     final mm = m ?? muezzin;
     await plugin.cancel(999);
-    await plugin.show(999, 'تجربة الأذان · ${nameOf(mm)}', 'اسحب الإشعار لإيقاف الصوت', detailsFor(mm));
+    await plugin.show(999, tr('تجربة الأذان · ${nameOf(mm)}'), tr('اسحب الإشعار لإيقاف الصوت'), detailsFor(mm));
   }
 
   /// يجدول أذان الأيام القادمة (٢١ يوما). يُستدعى عند كل فتح للتطبيق وعند تغيير الإعدادات.
@@ -393,7 +396,7 @@ class PrayerService {
         var ok = false;
         for (final mode in [AndroidScheduleMode.exactAllowWhileIdle, AndroidScheduleMode.inexactAllowWhileIdle]) {
           try {
-            await plugin.zonedSchedule(d * 10 + i, 'حان الآن وقت صلاة ${prayerNames[i]}', '${nameOf(m)} · ${method.name}', when, detailsFor(m),
+            await plugin.zonedSchedule(d * 10 + i, tr('حان الآن وقت صلاة ${trp(prayerNames[i])}'), '${nameOf(m)} · ${method.name}', when, detailsFor(m),
                 androidScheduleMode: mode, uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime);
             ok = true;
             if (mode == AndroidScheduleMode.inexactAllowWhileIdle) exactErr ??= 'exact refused';
@@ -461,22 +464,22 @@ class _HomeTabState extends State<HomeTab> {
     final onSurf = Theme.of(context).colorScheme.onSurface;
     final night = now.isBefore(pt.fajr) ? PrayerService.timesFor(now.subtract(const Duration(days: 1))) : pt;
     final sunna = SunnahTimes(night);
-    String two(int v) => arabicDigits(v).padLeft(2, '٠');
+    String two(int v) => arabicDigits(v).padLeft(2, tr('٠'));
     final cd = '${two(left.inHours)}:${two(left.inMinutes % 60)}:${two(left.inSeconds % 60)}';
     const colors = [Color(0xFF5C6BC0), Color(0xFFFFB300), Color(0xFF29B6F6), Color(0xFFFF7043), Color(0xFF7E57C2)];
     final features = <(IconData, String, Color, Widget)>[
-      (Icons.menu_book, 'المصحف', const Color(0xFF2E9E5B), const MushafTab()),
-      (Icons.favorite, 'الأذكار', const Color(0xFF1E88E5), const AdhkarTab()),
-      (Icons.radio_button_checked, 'السبحة', const Color(0xFF6A1B9A), const TasbihPage()),
-      (Icons.explore, 'القبلة', const Color(0xFF26A69A), const QiblaTab()),
-      (Icons.back_hand, 'الأدعية', const Color(0xFF0288D1), const AdhkarTab()),
-      (Icons.calculate, 'حاسبة الزكاة', const Color(0xFFF9A825), const ZakatPage()),
-      (Icons.flag, 'الختمة', const Color(0xFFEF6C00), const KhatmaPage()),
-      (Icons.headphones, 'التلاوات', const Color(0xFF00897B), const RecitersTab()),
-      (Icons.access_time, 'الساعة', const Color(0xFF5E35B1), const ClockPage()),
-      (Icons.auto_awesome, 'اسأل', const Color(0xFFD81B60), const AiTab()),
-      (Icons.notifications_active, 'الأذان', const Color(0xFFE53935), const PrayerSettings()),
-      (Icons.settings, 'الإعدادات', const Color(0xFF546E7A), const Settings()),
+      (Icons.menu_book, tr('المصحف'), const Color(0xFF2E9E5B), const MushafTab()),
+      (Icons.favorite, tr('الأذكار'), const Color(0xFF1E88E5), const AdhkarTab()),
+      (Icons.radio_button_checked, tr('السبحة'), const Color(0xFF6A1B9A), const TasbihPage()),
+      (Icons.explore, tr('القبلة'), const Color(0xFF26A69A), const QiblaTab()),
+      (Icons.back_hand, tr('الأدعية'), const Color(0xFF0288D1), const AdhkarTab()),
+      (Icons.calculate, tr('حاسبة الزكاة'), const Color(0xFFF9A825), const ZakatPage()),
+      (Icons.flag, tr('الختمة'), const Color(0xFFEF6C00), const KhatmaPage()),
+      (Icons.headphones, tr('التلاوات'), const Color(0xFF00897B), const RecitersTab()),
+      (Icons.access_time, tr('الساعة'), const Color(0xFF5E35B1), const ClockPage()),
+      (Icons.auto_awesome, tr('اسأل'), const Color(0xFFD81B60), const AiTab()),
+      (Icons.notifications_active, tr('الأذان'), const Color(0xFFE53935), const PrayerSettings()),
+      (Icons.settings, tr('الإعدادات'), const Color(0xFF546E7A), const Settings()),
     ];
     Widget pill(String label, DateTime t) => Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -498,7 +501,7 @@ class _HomeTabState extends State<HomeTab> {
                     const Spacer(),
                     Text(hijriNow(), style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
                   ]),
-                  Text('${prayerNames[ni]} بعد', style: const TextStyle(color: Colors.white, fontSize: 18)),
+                  Text(tr('${trp(prayerNames[ni])} بعد'), style: const TextStyle(color: Colors.white, fontSize: 18)),
                   Directionality(textDirection: TextDirection.ltr, child: Text(cd, style: const TextStyle(color: Colors.white, fontSize: 52, fontWeight: FontWeight.w300, letterSpacing: 1))),
                   Container(
                     margin: const EdgeInsets.only(top: 4),
@@ -507,7 +510,7 @@ class _HomeTabState extends State<HomeTab> {
                     child: Row(mainAxisSize: MainAxisSize.min, children: [
                       const Icon(Icons.location_on, color: Colors.orangeAccent, size: 16),
                       const SizedBox(width: 4),
-                      Text(PrayerService.located ? 'موقعك الحالي · ${PrayerService.method.name}' : 'القاهرة (افتراضي) · ${PrayerService.method.name}', style: const TextStyle(color: Colors.white, fontSize: 12)),
+                      Text(PrayerService.located ? tr('موقعك الحالي · ${PrayerService.method.name}') : tr('القاهرة (افتراضي) · ${PrayerService.method.name}'), style: const TextStyle(color: Colors.white, fontSize: 12)),
                     ]),
                   ),
                 ]),
@@ -519,7 +522,7 @@ class _HomeTabState extends State<HomeTab> {
             padding: const EdgeInsets.fromLTRB(8, 14, 8, 10),
             child: Column(children: [
               Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-                for (final e in [(0, 'الفجر', pt.fajr, Icons.nights_stay), (-1, 'الشروق', pt.sunrise, Icons.wb_twilight), (1, 'الظهر', pt.dhuhr, Icons.wb_sunny), (2, 'العصر', pt.asr, Icons.cloud), (3, 'المغرب', pt.maghrib, Icons.wb_twilight), (4, 'العشاء', pt.isha, Icons.nightlight_round)])
+                for (final e in [(0, tr('الفجر'), pt.fajr, Icons.nights_stay), (-1, tr('الشروق'), pt.sunrise, Icons.wb_twilight), (1, tr('الظهر'), pt.dhuhr, Icons.wb_sunny), (2, tr('العصر'), pt.asr, Icons.cloud), (3, tr('المغرب'), pt.maghrib, Icons.wb_twilight), (4, tr('العشاء'), pt.isha, Icons.nightlight_round)])
                   Builder(builder: (c) {
                     final isNext = e.$1 == ni;
                     final col = e.$1 < 0 ? Colors.orange : colors[e.$1];
@@ -533,13 +536,13 @@ class _HomeTabState extends State<HomeTab> {
                         Icon(e.$4, color: col, size: 26),
                         const SizedBox(height: 4),
                         Text(hm(e.$3).split(' ')[0], style: TextStyle(fontSize: 12, color: onSurf)),
-                        Text(e.$3.hour < 12 ? 'ص' : 'م', style: TextStyle(fontSize: 10, color: Theme.of(context).hintColor)),
+                        Text(e.$3.hour < 12 ? tr('ص') : tr('م'), style: TextStyle(fontSize: 10, color: Theme.of(context).hintColor)),
                       ]),
                     );
                   }),
               ]),
               const SizedBox(height: 10),
-              Wrap(alignment: WrapAlignment.center, spacing: 8, runSpacing: 6, children: [pill('منتصف الليل', sunna.middleOfTheNight), pill('الثلث الأخير', sunna.lastThirdOfTheNight)]),
+              Wrap(alignment: WrapAlignment.center, spacing: 8, runSpacing: 6, children: [pill(tr('منتصف الليل'), sunna.middleOfTheNight), pill(tr('الثلث الأخير'), sunna.lastThirdOfTheNight)]),
             ]),
           ),
           Container(
@@ -655,7 +658,7 @@ class _PrayerSettingsState extends State<PrayerSettings> {
 
   Future<void> resched() async {
     final n = await PrayerService.schedule();
-    if (mounted) setState(() => msg = 'تمت جدولة $n أذان للأيام القادمة');
+    if (mounted) setState(() => msg = tr('تمت جدولة $n أذان للأيام القادمة'));
   }
 
   @override
@@ -664,13 +667,13 @@ class _PrayerSettingsState extends State<PrayerSettings> {
     final p = Store.prefs;
     final today = PrayerService.five(PrayerService.timesFor(DateTime.now()));
     return Scaffold(
-      appBar: AppBar(title: const Text('الأذان والمواقيت')),
+      appBar: AppBar(title: Text(tr('الأذان والمواقيت'))),
       body: ListView(padding: const EdgeInsets.all(12), children: [
         Card(
           child: ListTile(
             leading: const Icon(Icons.my_location, color: gold),
-            title: Text(PrayerService.located ? 'الموقع: ${Store.prefs.getString('pt_city') ?? 'تم تحديد موقعك'}' : 'الموقع غير محدد (القاهرة افتراضيا)'),
-            subtitle: const Text('اضغط لتحديد موقعك بالـGPS (يبقى على جهازك). أو اختر مدينة يدويا بالأسفل'),
+            title: Text(PrayerService.located ? tr('الموقع: ${Store.prefs.getString('pt_city') ?? 'تم تحديد موقعك'}') : tr('الموقع غير محدد (القاهرة افتراضيا)')),
+            subtitle: Text(tr('اضغط لتحديد موقعك بالـGPS (يبقى على جهازك). أو اختر مدينة يدويا بالأسفل')),
             trailing: busy ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : null,
             onTap: () async {
               setState(() => busy = true);
@@ -678,13 +681,13 @@ class _PrayerSettingsState extends State<PrayerSettings> {
               final ok = await PrayerService.locate(force: true);
               if (ok && p.getString('pt_method') == null) { /* الطريقة تتبع الموقع تلقائيا */ }
               await PrayerService.schedule();
-              if (mounted) setState(() { busy = false; msg = ok ? 'تم تحديث الموقع' : 'تعذّر تحديد الموقع، فعّل GPS واسمح بالإذن'; });
+              if (mounted) setState(() { busy = false; msg = ok ? tr('تم تحديث الموقع') : tr('تعذّر تحديد الموقع، فعّل GPS واسمح بالإذن'); });
             },
           ),
         ),
-        CitySearchCard(onPicked: () => setState(() => msg = 'تم اعتماد المدينة وإعادة جدولة الأذان')),
-        const Padding(padding: EdgeInsets.fromLTRB(8, 12, 8, 4), child: Text('طريقة الحساب (التقويم المعتمد)', style: TextStyle(color: gold, fontWeight: FontWeight.bold))),
-        if (p.getString('pt_method') == null) Padding(padding: const EdgeInsets.symmetric(horizontal: 8), child: Text('مختارة تلقائيا حسب موقعك: ${cur.name}', style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor))),
+        CitySearchCard(onPicked: () => setState(() => msg = tr('تم اعتماد المدينة وإعادة جدولة الأذان'))),
+        Padding(padding: EdgeInsets.fromLTRB(8, 12, 8, 4), child: Text(tr('طريقة الحساب (التقويم المعتمد)'), style: TextStyle(color: gold, fontWeight: FontWeight.bold))),
+        if (p.getString('pt_method') == null) Padding(padding: const EdgeInsets.symmetric(horizontal: 8), child: Text(tr('مختارة تلقائيا حسب موقعك: ${cur.name}'), style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor))),
         for (final m in kMethods)
           RadioListTile<String>(
             value: m.id,
@@ -696,30 +699,30 @@ class _PrayerSettingsState extends State<PrayerSettings> {
           ),
         SwitchListTile(
           activeColor: gold,
-          title: const Text('العصر بالمذهب الحنفي'),
-          subtitle: const Text('الظل مثلان بدل مثل واحد'),
+          title: Text(tr('العصر بالمذهب الحنفي')),
+          subtitle: Text(tr('الظل مثلان بدل مثل واحد')),
           value: PrayerService.hanafi,
           onChanged: (v) async { await p.setBool('pt_hanafi', v); setState(() {}); await resched(); },
         ),
-        const Padding(padding: EdgeInsets.fromLTRB(8, 12, 8, 4), child: Text('الأذان لكل صلاة', style: TextStyle(color: gold, fontWeight: FontWeight.bold))),
+        Padding(padding: EdgeInsets.fromLTRB(8, 12, 8, 4), child: Text(tr('الأذان لكل صلاة'), style: TextStyle(color: gold, fontWeight: FontWeight.bold))),
         for (var i = 0; i < 5; i++)
           SwitchListTile(
             activeColor: gold,
-            title: Text('${prayerNames[i]}  ·  ${hm(today[i])}'),
+            title: Text('${trp(prayerNames[i])}  ·  ${hm(today[i])}'),
             value: PrayerService.adhanOn(i),
             onChanged: (v) async { await p.setBool('pt_adhan_$i', v); setState(() {}); await resched(); },
           ),
         Padding(
           padding: const EdgeInsets.all(8),
           child: Wrap(spacing: 8, children: [
-            FilledButton(style: FilledButton.styleFrom(backgroundColor: gold, foregroundColor: Colors.black), onPressed: () async { await PrayerService.askPermissions(); await PrayerService.test(); }, child: const Text('تجربة صوت الأذان')),
-            OutlinedButton(onPressed: () async { await PrayerService.askPermissions(); await resched(); }, child: const Text('السماح بالإشعارات والمنبهات')),
+            FilledButton(style: FilledButton.styleFrom(backgroundColor: gold, foregroundColor: Colors.black), onPressed: () async { await PrayerService.askPermissions(); await PrayerService.test(); }, child: Text(tr('تجربة صوت الأذان'))),
+            OutlinedButton(onPressed: () async { await PrayerService.askPermissions(); await resched(); }, child: Text(tr('السماح بالإشعارات والمنبهات'))),
           ]),
         ),
         if (msg != null) Padding(padding: const EdgeInsets.all(8), child: Text(msg!, style: TextStyle(color: Theme.of(context).hintColor))),
         Padding(
           padding: EdgeInsets.all(8),
-          child: Text('إذا لم يصلك الأذان في وقته: اسمح بالإشعارات والمنبهات الدقيقة، واستثنِ التطبيق من توفير البطارية من إعدادات الهاتف. صوت الأذان: تسجيل المسجد النبوي (archive.org).', style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor)),
+          child: Text(tr('إذا لم يصلك الأذان في وقته: اسمح بالإشعارات والمنبهات الدقيقة، واستثنِ التطبيق من توفير البطارية من إعدادات الهاتف. صوت الأذان: تسجيل المسجد النبوي (archive.org).'), style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor)),
         ),
       ]),
     );
@@ -773,23 +776,23 @@ class _TasbihPageState extends State<TasbihPage> {
   Widget build(BuildContext context) {
     final prog = target == 0 ? 0.0 : count / target;
     return Scaffold(
-      appBar: AppBar(title: const Text('التسبيح'), actions: [IconButton(icon: const Icon(Icons.refresh), onPressed: () { setState(() => count = 0); save(); })]),
+      appBar: AppBar(title: Text(tr('التسبيح')), actions: [IconButton(icon: const Icon(Icons.refresh), onPressed: () { setState(() => count = 0); save(); })]),
       body: Column(children: [
         SizedBox(
           height: 56,
           child: ListView(scrollDirection: Axis.horizontal, padding: const EdgeInsets.all(8), children: [
             for (var i = 0; i < phrases.length; i++)
-              Padding(padding: const EdgeInsets.only(left: 6), child: ChoiceChip(label: Text(phrases[i]), selected: i == phrase, selectedColor: gold.withValues(alpha: .3), onSelected: (_) { setState(() { phrase = i; count = 0; }); save(); })),
+              Padding(padding: const EdgeInsets.only(left: 6), child: ChoiceChip(label: Text(tr(phrases[i])), selected: i == phrase, selectedColor: gold.withValues(alpha: .3), onSelected: (_) { setState(() { phrase = i; count = 0; }); save(); })),
           ]),
         ),
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           for (final t in targets)
-            Padding(padding: const EdgeInsets.all(4), child: ChoiceChip(label: Text(t == 0 ? 'مفتوح' : arabicDigits(t)), selected: t == target, selectedColor: gold.withValues(alpha: .3), onSelected: (_) { setState(() { target = t; count = 0; }); save(); })),
+            Padding(padding: const EdgeInsets.all(4), child: ChoiceChip(label: Text(t == 0 ? tr('مفتوح') : arabicDigits(t)), selected: t == target, selectedColor: gold.withValues(alpha: .3), onSelected: (_) { setState(() { target = t; count = 0; }); save(); })),
         ]),
         Expanded(
           child: Center(
             child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Text(phrases[phrase], style: const TextStyle(fontSize: 26, color: gold, fontFamily: 'Amiri'), textAlign: TextAlign.center),
+              Text(tr(phrases[phrase]), style: const TextStyle(fontSize: 26, color: gold, fontFamily: 'Amiri'), textAlign: TextAlign.center),
               const SizedBox(height: 24),
               GestureDetector(
                 onTap: tap,
@@ -803,7 +806,7 @@ class _TasbihPageState extends State<TasbihPage> {
                 ),
               ),
               const SizedBox(height: 20),
-              Text('إجمالي اليوم: ${arabicDigits(total)}', style: TextStyle(color: Theme.of(context).hintColor)),
+              Text(tr('إجمالي اليوم: ${arabicDigits(total)}'), style: TextStyle(color: Theme.of(context).hintColor)),
             ]),
           ),
         ),
@@ -840,17 +843,17 @@ class _ClockPageState extends State<ClockPage> {
     final now = DateTime.now();
     final (ni, nt) = PrayerService.next();
     return Scaffold(
-      appBar: AppBar(title: const Text('الساعة')),
+      appBar: AppBar(title: Text(tr('الساعة'))),
       body: Center(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           SizedBox(width: 280, height: 280, child: CustomPaint(painter: ClockPainter(now))),
           const SizedBox(height: 20),
-          Text('${arabicDigits(now.hour % 12 == 0 ? 12 : now.hour % 12)}:${arabicDigits(now.minute).padLeft(2, '٠')}:${arabicDigits(now.second).padLeft(2, '٠')} ${now.hour < 12 ? 'ص' : 'م'}', style: TextStyle(fontSize: 34, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+          Text('${arabicDigits(now.hour % 12 == 0 ? 12 : now.hour % 12)}:${arabicDigits(now.minute).padLeft(2, tr('٠'))}:${arabicDigits(now.second).padLeft(2, tr('٠'))} ${now.hour < 12 ? tr('ص') : tr('م')}', style: TextStyle(fontSize: 34, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
           const SizedBox(height: 6),
-          Text('${days[now.weekday - 1]} ${arabicDigits(now.day)}/${arabicDigits(now.month)}/${arabicDigits(now.year)}', style: TextStyle(fontSize: 16, color: Theme.of(context).hintColor)),
+          Text('${tr(days[now.weekday - 1])} ${arabicDigits(now.day)}/${arabicDigits(now.month)}/${arabicDigits(now.year)}', style: TextStyle(fontSize: 16, color: Theme.of(context).hintColor)),
           Text(hijriNow(), style: const TextStyle(fontSize: 16, color: gold)),
           const SizedBox(height: 14),
-          Text('${prayerNames[ni]} بعد ${hmsLeft(nt.difference(now))}', style: const TextStyle(fontSize: 16)),
+          Text(tr('${trp(prayerNames[ni])} بعد ${hmsLeft(nt.difference(now))}'), style: const TextStyle(fontSize: 16)),
         ]),
       ),
     );

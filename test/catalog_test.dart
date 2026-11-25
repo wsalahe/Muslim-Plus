@@ -3,8 +3,18 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quran_app/main.dart';
 import 'package:quran_app/features.dart';
+import 'package:quran_app/l10n.dart';
 
 void main() {
+  setUp(() => langPref.value = 'ar');
+  test('english mode', () {
+    langPref.value = 'en';
+    expect(tr('الإعدادات'), 'Settings');
+    expect(arabicDigits(12), '12');
+    expect(trs('الإخلاص'), 'Al-Ikhlas');
+    langPref.value = 'ar';
+    expect(tr('الإعدادات'), 'الإعدادات');
+  });
   final cat = jsonDecode(File('assets/catalog.json').readAsStringSync());
   test('catalog valid', () {
     expect(surahs.length, 114);

@@ -11,9 +11,11 @@ import 'package:video_player/video_player.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'features.dart';
+import 'l10n.dart';
 import 'extras.dart';
 
-const int kAppBuild = 8;
+const int kAppBuild = 9;
+const String kAppVersion = '1.7';
 const String kRepo = 'wsalahe/Quran-kareem';
 const String kCatalogUrl = 'https://raw.githubusercontent.com/$kRepo/main/catalog.json';
 const String kApkUrl = 'https://github.com/$kRepo/releases/download/app-latest/QuranKareem.apk';
@@ -25,10 +27,11 @@ const surahs = ['الفاتحة','البقرة','آل عمران','النساء'
 
 String pad(int n) => n.toString().padLeft(3, '0');
 String keyOf(Map x) => '${pad(x['n'])}${(x['p'] ?? 0) > 0 ? '_p${x['p']}' : ''}';
-String titleOf(Map x) => 'سورة ${surahs[x['n'] - 1]}${(x['p'] ?? 0) > 0 ? ' - جزء ${x['p']}' : ''}';
+String titleOf(Map x) => tr('سورة ${trs(surahs[x['n'] - 1])}${(x['p'] ?? 0) > 0 ? ' - جزء ${x['p']}' : ''}');
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await loadLang();
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.wsalahe.quran_app.audio',
     androidNotificationChannelName: 'Muslim Plus',
@@ -104,13 +107,16 @@ ThemeData buildTheme(bool dark) {
 class QuranApp extends StatelessWidget {
   const QuranApp({super.key});
   @override
-  Widget build(BuildContext context) => ValueListenableBuilder<bool>(
+  Widget build(BuildContext context) => ValueListenableBuilder<String>(
+      valueListenable: langPref,
+      builder: (c, _, __) => ValueListenableBuilder<bool>(
         valueListenable: darkMode,
         builder: (c, dark, _) => MaterialApp(
+          key: ValueKey(lang),
           debugShowCheckedModeBanner: false,
           title: 'Muslim Plus',
-          locale: const Locale('ar'),
-          builder: (c, w) => Directionality(textDirection: TextDirection.rtl, child: UpdateGate(child: w!)),
+          locale: Locale(lang),
+          builder: (c, w) => Directionality(textDirection: isEn ? TextDirection.ltr : TextDirection.rtl, child: UpdateGate(child: w!)),
           theme: buildTheme(false),
           darkTheme: buildTheme(true),
           themeMode: dark ? ThemeMode.dark : ThemeMode.light,
@@ -119,7 +125,7 @@ class QuranApp extends StatelessWidget {
             builder: (c, s) => s.connectionState == ConnectionState.done ? const Shell() : const Splash(),
           ),
         ),
-      );
+      ));
 }
 
 class Splash extends StatelessWidget {
@@ -146,11 +152,11 @@ class _HomeState extends State<RecitersTab> {
     final list = Store.sheikhs;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('القرآن الكريم', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(tr('القرآن الكريم'), style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [IconButton(icon: const Icon(Icons.settings), onPressed: () async { await Navigator.push(context, MaterialPageRoute(builder: (_) => const Settings())); setState(() {}); })],
       ),
       body: list.isEmpty
-          ? const Center(child: Padding(padding: EdgeInsets.all(24), child: Text('لا توجد تلاوات بعد. افتح الإعدادات واضغط "التحقق من التحديثات".', textAlign: TextAlign.center)))
+          ? Center(child: Padding(padding: EdgeInsets.all(24), child: Text(tr('لا توجد تلاوات بعد. افتح الإعدادات واضغط "التحقق من التحديثات".'), textAlign: TextAlign.center)))
           : ListView.builder(
               padding: const EdgeInsets.all(12),
               itemCount: list.length,
@@ -163,7 +169,7 @@ class _HomeState extends State<RecitersTab> {
                     contentPadding: const EdgeInsets.all(14),
                     leading: const Icon(Icons.folder, color: gold, size: 38),
                     title: Text(s['name'], style: const TextStyle(fontSize: 18, color: gold)),
-                    subtitle: Text('$n سورة · محمّلة: $d'),
+                    subtitle: Text(tr('$n سورة · محمّلة: $d')),
                     trailing: const Icon(Icons.chevron_left),
                     onTap: () async { await Navigator.push(context, MaterialPageRoute(builder: (_) => SheikhPage(s))); setState(() {}); },
                   ),
@@ -206,7 +212,7 @@ class _SheikhPageState extends State<SheikhPage> {
       await sink.close();
       await tmp.rename(f.path);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('تعذّر التحميل: تأكد من الإنترنت')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(tr('تعذّر التحميل: تأكد من الإنترنت'))));
     }
     if (mounted) setState(() => progress.remove(n));
   }
@@ -226,7 +232,7 @@ class _SheikhPageState extends State<SheikhPage> {
     return Scaffold(
       appBar: AppBar(title: Text(widget.s['name'], style: const TextStyle(fontSize: 16)), actions: [
         IconButton(
-          tooltip: 'تحميل الكل',
+          tooltip: tr('تحميل الكل'),
           icon: Icon(allBusy ? Icons.stop_circle : Icons.download_for_offline),
           onPressed: () => allBusy ? setState(() => allBusy = false) : downloadAll(),
         )
@@ -241,7 +247,7 @@ class _SheikhPageState extends State<SheikhPage> {
           return ListTile(
             leading: CircleAvatar(backgroundColor: navy, child: Text('$n', style: const TextStyle(color: gold))),
             title: Text(titleOf(x)),
-            subtitle: p != null ? LinearProgressIndicator(value: p, color: gold) : Text(have ? 'محمّلة · تعمل بدون إنترنت' : 'غير محمّلة'),
+            subtitle: p != null ? LinearProgressIndicator(value: p, color: gold) : Text(have ? tr('محمّلة · تعمل بدون إنترنت') : tr('غير محمّلة')),
             trailing: have
                 ? IconButton(icon: const Icon(Icons.delete_outline), onPressed: () async { await Store.fileFor(widget.s['id'], x).delete(); setState(() {}); })
                 : IconButton(icon: const Icon(Icons.download, color: gold), onPressed: () => download(x)),
@@ -319,14 +325,14 @@ class _PlayerState extends State<Player> {
         await vc!.play();
       } else {
         await _disposeVideo();
-        final tag = MediaItem(id: '${widget.s['id']}-${keyOf(x)}', title: titleOf(x), artist: widget.s['name'], album: 'القرآن الكريم');
+        final tag = MediaItem(id: '${widget.s['id']}-${keyOf(x)}', title: titleOf(x), artist: widget.s['name'], album: tr('القرآن الكريم'));
         await ap.setAudioSource(local ? AudioSource.file(f.path, tag: tag) : AudioSource.uri(Uri.parse(x['url']), tag: tag));
         if (start > Duration.zero) await ap.seek(start);
         ap.play();
       }
       ready = true;
     } catch (e) {
-      err = 'تعذّر التشغيل. حمّل السورة أو تأكد من الإنترنت.';
+      err = tr('تعذّر التشغيل. حمّل السورة أو تأكد من الإنترنت.');
     }
     if (mounted) setState(() {});
   }
@@ -392,7 +398,7 @@ class _PlayerState extends State<Player> {
                             Text(titleOf(x), style: const TextStyle(fontSize: 26, color: gold)),
                             Text(widget.s['name'], textAlign: TextAlign.center),
                             const SizedBox(height: 6),
-                            Text('يستمر التشغيل في الخلفية', style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor)),
+                            Text(tr('يستمر التشغيل في الخلفية'), style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor)),
                           ]),
           ),
         ),
@@ -412,9 +418,9 @@ class _PlayerState extends State<Player> {
             IconButton(iconSize: 32, icon: const Icon(Icons.skip_previous), onPressed: idx > 0 ? _prev : null),
           ]),
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(12),
             child: SegmentedButton<bool>(
-              segments: const [ButtonSegment(value: false, label: Text('صوت'), icon: Icon(Icons.headphones)), ButtonSegment(value: true, label: Text('فيديو'), icon: Icon(Icons.videocam))],
+              segments: [ButtonSegment(value: false, label: Text(tr('صوت')), icon: Icon(Icons.headphones)), ButtonSegment(value: true, label: Text(tr('فيديو')), icon: Icon(Icons.videocam))],
               selected: {video},
               onSelectionChanged: (v) => _setMode(v.first),
             ),
@@ -433,58 +439,76 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-  String status = 'اضغط للتحقق من آخر تحديث على GitHub';
+  String status = tr('اضغط للتحقق من آخر تحديث على GitHub');
   bool busy = false;
   bool appUpdate = false;
+  int? remoteBuild;
 
   Future<void> check() async {
-    setState(() { busy = true; status = 'جاري التحقق...'; });
+    setState(() { busy = true; status = tr('جاري التحقق...'); });
     try {
-      final r = await http.get(Uri.parse(kCatalogUrl)).timeout(const Duration(seconds: 25));
+      final r = await http.get(Uri.parse('$kCatalogUrl?t=${DateTime.now().millisecondsSinceEpoch}'), headers: {'Cache-Control': 'no-cache', 'Pragma': 'no-cache'}).timeout(const Duration(seconds: 25));
       if (r.statusCode != 200) throw 'HTTP ${r.statusCode}';
       final remote = jsonDecode(utf8.decode(r.bodyBytes));
+      final rb = int.tryParse('${remote['app_build']}') ?? 0;
+      remoteBuild = rb;
       final newCat = (remote['catalog_version'] ?? 0) > (Store.catalog['catalog_version'] ?? 0);
-      appUpdate = (remote['app_build'] ?? 1) > kAppBuild;
+      appUpdate = rb > kAppBuild;
       if (newCat) {
         Store.catalog = remote;
         await Store.prefs.setString('catalog', utf8.decode(r.bodyBytes));
       }
       status = (newCat || appUpdate)
-          ? '${newCat ? 'تم تحديث قائمة التلاوات. ' : ''}${appUpdate ? 'يوجد تحديث جديد للتطبيق.' : ''}'
-          : 'أنت على آخر إصدار.';
+          ? tr('${newCat ? 'تم تحديث قائمة التلاوات. ' : ''}${appUpdate ? 'يوجد تحديث جديد للتطبيق.' : ''}')
+          : tr('أنت على آخر إصدار.');
+      status += '\n${tr('المثبّت: بناء')} $kAppBuild · ${tr('المتاح: بناء')} $rb';
     } catch (e) {
-      status = 'تعذّر التحقق. تأكد من الإنترنت.';
+      status = '${tr('تعذّر التحقق. تأكد من الإنترنت.')}\n$e';
     }
     if (mounted) setState(() => busy = false);
   }
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('الإعدادات')),
+        appBar: AppBar(title: Text(tr('الإعدادات'))),
         body: ListView(padding: const EdgeInsets.all(16), children: [
           Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(children: [
             const Icon(Icons.system_update, color: gold, size: 40),
             const SizedBox(height: 8),
             Text(status, textAlign: TextAlign.center),
             const SizedBox(height: 12),
-            FilledButton(style: FilledButton.styleFrom(backgroundColor: gold, foregroundColor: Colors.black), onPressed: busy ? null : check, child: const Text('التحقق من التحديثات')),
+            FilledButton(style: FilledButton.styleFrom(backgroundColor: gold, foregroundColor: Colors.black), onPressed: busy ? null : check, child: Text(tr('التحقق من التحديثات'))),
             if (appUpdate) ...[
               const SizedBox(height: 8),
-              OutlinedButton(onPressed: () => launchUrl(Uri.parse(kApkUrl), mode: LaunchMode.externalApplication), child: const Text('تحميل التحديث الجديد للتطبيق')),
+              OutlinedButton(onPressed: () => launchUrl(Uri.parse(kApkUrl), mode: LaunchMode.externalApplication), child: Text(tr('تحميل التحديث الجديد للتطبيق'))),
             ],
           ]))),
           const SizedBox(height: 12),
+          Card(child: ListTile(
+            leading: const Icon(Icons.language, color: gold),
+            title: Text(tr('اللغة')),
+            trailing: DropdownButton<String>(
+              value: langPref.value,
+              underline: const SizedBox(),
+              items: const [
+                DropdownMenuItem(value: 'system', child: Text('System / لغة الجهاز')),
+                DropdownMenuItem(value: 'ar', child: Text('العربية')),
+                DropdownMenuItem(value: 'en', child: Text('English')),
+              ],
+              onChanged: (v) { if (v != null) setLang(v); },
+            ),
+          )),
           Card(child: SwitchListTile(
             activeColor: gold,
             secondary: const Icon(Icons.dark_mode, color: gold),
-            title: const Text('الوضع الليلي'),
+            title: Text(tr('الوضع الليلي')),
             value: darkMode.value,
             onChanged: (v) { darkMode.value = v; Store.prefs.setBool('dark', v); setState(() {}); },
           )),
-          ListTile(leading: const Icon(Icons.calculate, color: gold), title: const Text('حاسبة الزكاة'), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ZakatPage()))),
-          ListTile(leading: const Icon(Icons.flag, color: gold), title: const Text('ختمة القرآن'), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const KhatmaPage()))),
-          ListTile(leading: const Icon(Icons.favorite, color: gold), title: const Text('حصن المسلم'), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdhkarTab()))),
-          const Card(child: Padding(padding: EdgeInsets.all(16), child: Text('Muslim Plus 1.3 · بدون تسجيل دخول. السور المحمّلة تعمل بدون إنترنت.'))),
+          ListTile(leading: const Icon(Icons.calculate, color: gold), title: Text(tr('حاسبة الزكاة')), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ZakatPage()))),
+          ListTile(leading: const Icon(Icons.flag, color: gold), title: Text(tr('ختمة القرآن')), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const KhatmaPage()))),
+          ListTile(leading: const Icon(Icons.favorite, color: gold), title: Text(tr('حصن المسلم')), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdhkarTab()))),
+          Card(child: Padding(padding: EdgeInsets.all(16), child: Text('Muslim Plus $kAppVersion (${tr('بناء')} $kAppBuild) · ${tr('بدون تسجيل دخول. السور المحمّلة تعمل بدون إنترنت.')}'))),
         ]),
       );
 }

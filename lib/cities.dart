@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'main.dart';
+import 'l10n.dart';
 import 'prayer.dart';
 
 class City {
@@ -136,15 +137,15 @@ class _CitySearchCardState extends State<CitySearchCard> {
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text('اختيار المدينة يدويا', style: TextStyle(color: gold, fontWeight: FontWeight.bold)),
-          if (cur != null) Text('المدينة الحالية: $cur', style: const TextStyle(fontSize: 13)),
+          Text(tr('اختيار المدينة يدويا'), style: TextStyle(color: gold, fontWeight: FontWeight.bold)),
+          if (cur != null) Text(tr('المدينة الحالية: $cur'), style: const TextStyle(fontSize: 13)),
           TextField(
             controller: ctl,
-            decoration: InputDecoration(hintText: all.isEmpty ? 'جارٍ تحميل قائمة المدن...' : 'اكتب اسم المدينة (عربي أو إنجليزي)', prefixIcon: const Icon(Icons.search)),
+            decoration: InputDecoration(hintText: all.isEmpty ? tr('جارٍ تحميل قائمة المدن...') : tr('اكتب اسم المدينة (عربي أو إنجليزي)'), prefixIcon: const Icon(Icons.search)),
             onChanged: (v) => setState(() => hits = CityDb.search(all, v)),
           ),
           for (final c in hits) ListTile(dense: true, title: Text(c.label), subtitle: Text('${c.cc} · ${c.lat.toStringAsFixed(2)}, ${c.lon.toStringAsFixed(2)}'), onTap: () => pick(c)),
-          const Padding(padding: EdgeInsets.only(top: 6), child: Text('قائمة المدن: GeoNames.org (CC BY 4.0)، مدن يزيد سكانها عن ١٥ ألفا، تعمل بدون إنترنت.', style: TextStyle(fontSize: 10))),
+          Padding(padding: EdgeInsets.only(top: 6), child: Text(tr('قائمة المدن: GeoNames.org (CC BY 4.0)، مدن يزيد سكانها عن ١٥ ألفا، تعمل بدون إنترنت.'), style: TextStyle(fontSize: 10))),
         ]),
       ),
     );

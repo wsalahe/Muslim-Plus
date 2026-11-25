@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'main.dart';
+import 'l10n.dart';
 
 const String kAiUrl = 'https://rlpfwpvdcvofcirmbkom.supabase.co/functions/v1/quran-ai';
 
@@ -30,9 +31,9 @@ class _AiTabState extends State<AiTab> {
           .post(Uri.parse(kAiUrl), headers: {'Content-Type': 'application/json'}, body: jsonEncode({'question': q, 'history': hist}))
           .timeout(const Duration(seconds: 40));
       final j = jsonDecode(utf8.decode(r.bodyBytes));
-      answer = r.statusCode == 200 ? (j['answer'] ?? 'لا توجد إجابة') : (j['error'] ?? 'حدث خطأ، حاول لاحقًا');
+      answer = r.statusCode == 200 ? (j['answer'] ?? tr('لا توجد إجابة')) : (j['error'] ?? tr('حدث خطأ، حاول لاحقًا'));
     } catch (_) {
-      answer = 'تعذّر الاتصال. تأكد من الإنترنت وحاول مرة أخرى.';
+      answer = tr('تعذّر الاتصال. تأكد من الإنترنت وحاول مرة أخرى.');
     }
     if (mounted) setState(() { msgs.add({'role': 'assistant', 'content': answer}); busy = false; });
     _down();
@@ -46,16 +47,16 @@ class _AiTabState extends State<AiTab> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('اسأل عن القرآن', style: TextStyle(fontWeight: FontWeight.bold))),
+        appBar: AppBar(title: Text(tr('اسأل عن القرآن'), style: TextStyle(fontWeight: FontWeight.bold))),
         body: Column(children: [
           Expanded(
             child: msgs.isEmpty
                 ? ListView(padding: const EdgeInsets.all(16), children: [
                     const Icon(Icons.auto_awesome, color: gold, size: 56),
                     const SizedBox(height: 12),
-                    const Text('مساعد ذكي مجاني للأسئلة العامة عن القرآن والأذكار. قد يخطئ الذكاء الاصطناعي: لا تعتمد عليه في الأحكام والأحاديث، وارجع للمصادر وأهل العلم.', textAlign: TextAlign.center),
+                    Text(tr('مساعد ذكي مجاني للأسئلة العامة عن القرآن والأذكار. قد يخطئ الذكاء الاصطناعي: لا تعتمد عليه في الأحكام والأحاديث، وارجع للمصادر وأهل العلم.'), textAlign: TextAlign.center),
                     const SizedBox(height: 16),
-                    for (final s in samples) Card(child: ListTile(title: Text(s), trailing: const Icon(Icons.north_west, color: gold), onTap: () => send(s))),
+                    for (final s in samples) Card(child: ListTile(title: Text(tr(s)), trailing: const Icon(Icons.north_west, color: gold), onTap: () => send(s))),
                   ])
                 : ListView.builder(
                     controller: scroll,
@@ -82,7 +83,7 @@ class _AiTabState extends State<AiTab> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(10, 4, 10, 8),
               child: Row(children: [
-                Expanded(child: TextField(controller: ctrl, minLines: 1, maxLines: 4, textInputAction: TextInputAction.send, onSubmitted: send, decoration: InputDecoration(hintText: 'اكتب سؤالك', border: OutlineInputBorder(borderRadius: BorderRadius.circular(22)), contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10)))),
+                Expanded(child: TextField(controller: ctrl, minLines: 1, maxLines: 4, textInputAction: TextInputAction.send, onSubmitted: send, decoration: InputDecoration(hintText: tr('اكتب سؤالك'), border: OutlineInputBorder(borderRadius: BorderRadius.circular(22)), contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10)))),
                 IconButton(icon: const Icon(Icons.send, color: gold), onPressed: busy ? null : () => send(ctrl.text)),
               ]),
             ),

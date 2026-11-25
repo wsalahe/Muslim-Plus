@@ -433,17 +433,17 @@ class _UpdateGateState extends State<UpdateGate> with WidgetsBindingObserver {
   }
 
   Future<void> check() async {
+    if (downloading) return;
+    var need = false;
     try {
       final bytes = await fetchCatalogBytes(seconds: 10);
-      {
-        final remote = jsonDecode(utf8.decode(bytes)) as Map;
-        final min = ((remote['min_build'] ?? 0) as num).toInt();
-        final p = await SharedPreferences.getInstance();
-        await p.setInt('min_build', min);
-      }
-    } catch (_) {}
-    final p = await SharedPreferences.getInstance();
-    final need = (p.getInt('min_build') ?? 0) > kAppBuild;
+      final remote = jsonDecode(utf8.decode(bytes)) as Map;
+      final latest = ((remote['app_build'] ?? 0) as num).toInt();
+      final min = ((remote['min_build'] ?? 0) as num).toInt();
+      need = (latest > kAppBuild) || (min > kAppBuild);
+    } catch (_) {
+      need = false; // فشل التحقق (بلا إنترنت): لا نقفل المستخدم
+    }
     if (mounted && need != blocked) setState(() => blocked = need);
   }
 

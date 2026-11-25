@@ -1,5 +1,9 @@
 // Generated English strings. Keys are the Arabic UI text; {} marks an interpolated value, {0} {1} in values refer to them.
 const Map<String, String> kEn = {
+  'تحميل وتثبيت التحديث': 'Download and install update',
+  'بعد التحميل سيفتح مثبّت أندرويد ويطلب تأكيدك. إن طلب السماح بالتثبيت من هذا التطبيق، فعّل الخيار ثم ارجع.': 'After the download, the Android installer opens and asks you to confirm. If it asks to allow installs from this app, turn that on and come back.',
+  'اكتمل التحميل. سيظهر مثبّت أندرويد: اضغط "تثبيت" لتأكيد التحديث (أندرويد يطلب منك التأكيد دائماً).': 'Download complete. The Android installer will appear: tap Install to confirm (Android always asks you to confirm).',
+
   'التلاوات الكاملة: مكتبة mp3quran.net الصوتية (بث وتحميل).': 'Full recitations: mp3quran.net audio library (streaming and download).',
   'تلاوة الآيات في المصحف: everyayah.com.': 'Ayah audio in the Mushaf: everyayah.com.',
   'ابحث عن قارئ': 'Search for a reciter',

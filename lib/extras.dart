@@ -401,6 +401,36 @@ class _KhatmaPageState extends State<KhatmaPage> {
 /// يفرض التحديث إذا كان min_build في catalog.json أكبر من رقم نسخة التطبيق.
 bool updateRequired(Map catalog, int myBuild) => ((catalog['min_build'] ?? 0) as num) > myBuild;
 
+/// يحمّل APK من الرابط الثابت (بلا تخزين مؤقت) ثم يفتح مثبّت أندرويد. أندرويد يطلب تأكيد المستخدم دائما.
+Future<String?> downloadAndInstallApk(void Function(double?) onProgress) async {
+  try {
+    final dir = await getTemporaryDirectory();
+    final file = File('${dir.path}/MuslimPlus-update.apk');
+    if (file.existsSync()) file.deleteSync();
+    final client = http.Client();
+    final req = http.Request('GET', Uri.parse('$kApkUrl?t=${DateTime.now().millisecondsSinceEpoch}'))..headers['Cache-Control'] = 'no-cache';
+    final resp = await client.send(req);
+    if (resp.statusCode != 200) throw 'HTTP ${resp.statusCode}';
+    final total = resp.contentLength ?? 0;
+    var got = 0;
+    final sink = file.openWrite();
+    await for (final chunk in resp.stream) {
+      sink.add(chunk);
+      got += chunk.length;
+      if (total > 0) onProgress(got / total);
+    }
+    await sink.close();
+    client.close();
+    if (got < 5 * 1024 * 1024) throw 'incomplete download ($got bytes)';
+    onProgress(1);
+    final r = await OpenFilex.open(file.path, type: 'application/vnd.android.package-archive');
+    if (r.type != ResultType.done) return tr('تعذّر فتح المثبّت: ${r.message}');
+    return null;
+  } catch (e) {
+    return '${tr('تعذّر التحميل. تأكد من الإنترنت وحاول مرة أخرى.')}\n$e';
+  }
+}
+
 class UpdateGate extends StatefulWidget {
   final Widget child;
   const UpdateGate({super.key, required this.child});
@@ -449,29 +479,8 @@ class _UpdateGateState extends State<UpdateGate> with WidgetsBindingObserver {
 
   Future<void> update() async {
     setState(() { downloading = true; progress = 0; msg = null; });
-    try {
-      final dir = await getTemporaryDirectory();
-      final file = File('${dir.path}/MuslimPlus-update.apk');
-      final client = http.Client();
-      final resp = await client.send(http.Request('GET', Uri.parse(kApkUrl)));
-      if (resp.statusCode != 200) throw 'HTTP ${resp.statusCode}';
-      final total = resp.contentLength ?? 0;
-      var got = 0;
-      final sink = file.openWrite();
-      await for (final chunk in resp.stream) {
-        sink.add(chunk);
-        got += chunk.length;
-        if (total > 0 && mounted) setState(() => progress = got / total);
-      }
-      await sink.close();
-      client.close();
-      if (mounted) setState(() { progress = 1; msg = tr('اكتمل التحميل. اضغط "تثبيت" في النافذة التي ستظهر. إذا طلب الهاتف السماح بالتثبيت من هذا التطبيق فاسمح له ثم ارجع.'); });
-      final r = await OpenFilex.open(file.path, type: 'application/vnd.android.package-archive');
-      if (r.type != ResultType.done && mounted) setState(() => msg = tr('تعذّر فتح المثبّت: ${r.message}'));
-    } catch (e) {
-      if (mounted) setState(() => msg = tr('تعذّر التحميل. تأكد من الإنترنت وحاول مرة أخرى.'));
-    }
-    if (mounted) setState(() => downloading = false);
+    final err = await downloadAndInstallApk((p) { if (mounted) setState(() => progress = p); });
+    if (mounted) setState(() { msg = err ?? tr('اكتمل التحميل. اضغط "تثبيت" في النافذة التي ستظهر. إذا طلب الهاتف السماح بالتثبيت من هذا التطبيق، فعّل الخيار ثم ارجع.'); downloading = false; });
   }
 
   @override

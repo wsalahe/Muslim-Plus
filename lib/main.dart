@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
@@ -486,6 +485,15 @@ class _SettingsState extends State<Settings> {
   bool busy = false;
   bool appUpdate = false;
   int? remoteBuild;
+  double? dlProgress;
+  bool dlBusy = false;
+  String? dlMsg;
+
+  Future<void> installNow() async {
+    setState(() { dlBusy = true; dlProgress = 0; dlMsg = null; });
+    final err = await downloadAndInstallApk((p) { if (mounted) setState(() => dlProgress = p); });
+    if (mounted) setState(() { dlBusy = false; dlMsg = err ?? tr('اكتمل التحميل. سيظهر مثبّت أندرويد: اضغط "تثبيت" لتأكيد التحديث (أندرويد يطلب منك التأكيد دائماً).'); });
+  }
 
   Future<void> check() async {
     setState(() { busy = true; status = tr('جاري التحقق...'); });
@@ -519,7 +527,10 @@ class _SettingsState extends State<Settings> {
             FilledButton(style: FilledButton.styleFrom(backgroundColor: gold, foregroundColor: Colors.black), onPressed: busy ? null : check, child: Text(tr('التحقق من التحديثات'))),
             if (appUpdate) ...[
               const SizedBox(height: 8),
-              OutlinedButton(onPressed: () => launchUrl(Uri.parse(kApkUrl), mode: LaunchMode.externalApplication), child: Text(tr('تحميل التحديث الجديد للتطبيق'))),
+              if (dlBusy || dlProgress != null) Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: LinearProgressIndicator(value: dlProgress, color: gold, minHeight: 8)),
+              FilledButton.icon(onPressed: dlBusy ? null : installNow, icon: const Icon(Icons.download), label: Text(dlBusy ? tr('جاري التحميل...') : tr('تحميل وتثبيت التحديث'))),
+              Padding(padding: const EdgeInsets.only(top: 6), child: Text(tr('بعد التحميل سيفتح مثبّت أندرويد ويطلب تأكيدك. إن طلب السماح بالتثبيت من هذا التطبيق، فعّل الخيار ثم ارجع.'), textAlign: TextAlign.center, style: const TextStyle(fontSize: 12))),
+              if (dlMsg != null) Padding(padding: const EdgeInsets.only(top: 6), child: Text(dlMsg!, textAlign: TextAlign.center)),
             ],
           ]))),
           const SizedBox(height: 12),

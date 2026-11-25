@@ -1,14 +1,27 @@
-import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'l10n_en.dart';
+import 'l10n_data.dart';
 
-/// تفضيل اللغة: system (لغة الجهاز) أو ar أو en.
-final ValueNotifier<String> langPref = ValueNotifier<String>('system');
+/// اللغات المدعومة: رمز اللغة واسمها بلغتها.
+const List<(String, String)> kLangs = [
+  ('ar', 'العربية'),
+  ('en', 'English'),
+  ('fr', 'Français'),
+  ('ru', 'Русский'),
+  ('it', 'Italiano'),
+  ('zh', '中文'),
+  ('ko', '한국어'),
+  ('ja', '日本語'),
+];
+
+/// تفضيل اللغة (الافتراضي العربية).
+final ValueNotifier<String> langPref = ValueNotifier<String>('ar');
 
 Future<void> loadLang() async {
   final p = await SharedPreferences.getInstance();
-  langPref.value = p.getString('lang') ?? 'system';
+  final v = p.getString('lang');
+  langPref.value = kLangs.any((e) => e.$1 == v) ? v! : 'ar';
 }
 
 Future<void> setLang(String v) async {
@@ -17,34 +30,33 @@ Future<void> setLang(String v) async {
   langPref.value = v;
 }
 
-/// اللغة الفعلية: ar أو en. «لغة الجهاز» تعطي en للإنجليزية وar لغيرها.
-String get lang {
-  final v = langPref.value;
-  if (v == 'ar' || v == 'en') return v;
-  return ui.PlatformDispatcher.instance.locale.languageCode == 'en' ? 'en' : 'ar';
-}
+/// اللغة الفعلية.
+String get lang => langPref.value;
 
-bool get isEn => lang == 'en';
+/// صحيح لأي لغة غير العربية: أرقام لاتينية واتجاه من اليسار لليمين.
+bool get isEn => lang != 'ar';
 
-List<(RegExp, String)>? _tpl;
+final Map<String, List<(RegExp, String)>> _tpl = {};
+
+String? _lookup(String s) => lang == 'en' ? kEn[s] : (kDict[lang]?[s] ?? kEn[s]);
 
 List<(RegExp, String)> _templates() {
-  return _tpl ??= [
-    for (final e in kEn.entries)
-      if (e.key.contains('{}'))
-        (RegExp('^${e.key.split('{}').map(RegExp.escape).join('(.*?)')}\$', dotAll: true), e.value),
+  return _tpl[lang] ??= [
+    for (final k in kEn.keys)
+      if (k.contains('{}'))
+        (RegExp('^${k.split('{}').map(RegExp.escape).join('(.*?)')}\$', dotAll: true), _lookup(k)!),
   ];
 }
 
 /// ترجمة نص واجهة (يعيد النص العربي كما هو إذا كانت اللغة عربية أو لا توجد ترجمة).
 String tr(String s) {
   if (!isEn) return s;
-  final d = kEn[s];
+  final d = _lookup(s);
   if (d != null) return d;
-  for (final (re, en) in _templates()) {
+  for (final (re, t) in _templates()) {
     final m = re.firstMatch(s);
     if (m != null) {
-      var out = en;
+      var out = t;
       for (var i = 0; i < m.groupCount; i++) {
         out = out.replaceAll('{$i}', tr(m.group(i + 1)!));
       }
@@ -55,7 +67,7 @@ String tr(String s) {
 }
 
 /// اسم سورة.
-String trs(String s) => isEn ? (kSurahEn[s] ?? s) : s;
+String trs(String s) => !isEn ? s : (kSurahL[lang]?[s] ?? kSurahEn[s] ?? s);
 
 /// اسم صلاة.
-String trp(String s) => isEn ? (kPrayerEn[s] ?? s) : s;
+String trp(String s) => !isEn ? s : (kPrayerL[lang]?[s] ?? kPrayerEn[s] ?? s);

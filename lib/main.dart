@@ -13,8 +13,8 @@ import 'features.dart';
 import 'l10n.dart';
 import 'extras.dart';
 
-const int kAppBuild = 11;
-const String kAppVersion = '1.9';
+const int kAppBuild = 12;
+const String kAppVersion = '1.10';
 const String kRepo = 'wsalahe/Quran-kareem';
 const String kCatalogApi = 'https://api.github.com/repos/$kRepo/contents/catalog.json?ref=main';
 const String kCatalogUrl = 'https://raw.githubusercontent.com/$kRepo/main/catalog.json';
@@ -540,26 +540,10 @@ class _SettingsState extends State<Settings> {
             trailing: DropdownButton<String>(
               value: langPref.value,
               underline: const SizedBox(),
-              items: const [
-                DropdownMenuItem(value: 'system', child: Text('System / لغة الجهاز')),
-                DropdownMenuItem(value: 'ar', child: Text('العربية')),
-                DropdownMenuItem(value: 'en', child: Text('English')),
-              ],
+              items: [for (final l in kLangs) DropdownMenuItem(value: l.$1, child: Text(l.$2))],
               onChanged: (v) { if (v != null) setLang(v); },
             ),
           )),
-          ListTile(
-            leading: const Icon(Icons.info_outline, color: gold),
-            title: Text(tr('عن التطبيق والمصادر')),
-            onTap: () => showDialog(
-              context: context,
-              builder: (c) => AlertDialog(
-                title: Text(tr('عن التطبيق والمصادر')),
-                content: SingleChildScrollView(child: Text('Muslim Plus $kAppVersion\n\n${tr('نص القرآن وبيانات الصفحات والأجزاء: Tanzil.net، رخصة Creative Commons Attribution 3.0 (النص دون تعديل).')}\n${tr('قائمة المدن: GeoNames.org (CC BY 4.0)، مدن يزيد سكانها عن ١٥ ألفا، تعمل بدون إنترنت.')}\n${tr('التلاوات الكاملة: مكتبة mp3quran.net الصوتية (بث وتحميل).')}\n${tr('تلاوة الآيات في المصحف: everyayah.com.')}\n${tr('الخط: Amiri (رخصة SIL OFL).')}\n${tr('أصوات الأذان: archive.org (Public Domain Mark).')}')),
-                actions: [TextButton(onPressed: () => Navigator.pop(c), child: Text(tr('حسنا')))],
-              ),
-            ),
-          ),
           Card(child: SwitchListTile(
             activeColor: gold,
             secondary: const Icon(Icons.dark_mode, color: gold),

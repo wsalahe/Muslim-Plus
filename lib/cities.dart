@@ -145,7 +145,6 @@ class _CitySearchCardState extends State<CitySearchCard> {
             onChanged: (v) => setState(() => hits = CityDb.search(all, v)),
           ),
           for (final c in hits) ListTile(dense: true, title: Text(c.label), subtitle: Text('${c.cc} · ${c.lat.toStringAsFixed(2)}, ${c.lon.toStringAsFixed(2)}'), onTap: () => pick(c)),
-          Padding(padding: EdgeInsets.only(top: 6), child: Text(tr('قائمة المدن: GeoNames.org (CC BY 4.0)، مدن يزيد سكانها عن ١٥ ألفا، تعمل بدون إنترنت.'), style: TextStyle(fontSize: 10))),
         ]),
       ),
     );

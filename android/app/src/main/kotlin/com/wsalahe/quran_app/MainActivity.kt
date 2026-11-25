@@ -73,6 +73,12 @@ class MainActivity : AudioServiceActivity() {
                         m["saved"] = try { org.json.JSONArray(pr.getString(AdhanNative.KEY_ITEMS, "[]")).length() } catch (e: Exception) { 0 }
                         result.success(m)
                     }
+                    "share" -> {
+                        val t = call.argument<String>("text") ?: ""
+                        val i = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, t)
+                        startActivity(Intent.createChooser(i, null).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                        result.success("ok")
+                    }
                     "installApk" -> {
                         val path = call.argument<String>("path")!!
                         if (Build.VERSION.SDK_INT >= 26 && !packageManager.canRequestPackageInstalls()) {

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -12,9 +13,12 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'features.dart';
 import 'l10n.dart';
 import 'extras.dart';
+import 'prayer.dart';
 
-const int kAppBuild = 20;
-const String kAppVersion = '1.18';
+const kSiteUrl = 'http://www.muslimplus.dpdns.org';
+const kYoutubeUrl = 'https://www.youtube.com/@QuranAlAdim';
+const int kAppBuild = 21;
+const String kAppVersion = '1.19';
 const String kRepo = 'wsalahe/Muslim-Plus';
 String cleanErr(Object e) => e.toString().replaceAll(RegExp(r'[\w.-]*github[\w.-]*', caseSensitive: false), '…');
 const String kCounterUrl = 'https://script.google.com/macros/s/AKfycbx7EKJ65Fz38klqHVy5pX3knWzJJfZpOO3WloR46C-wlalMOeVOTGe274SfdHZ679v1LA/exec';
@@ -574,6 +578,24 @@ class _SettingsState extends State<Settings> {
             value: darkMode.value,
             onChanged: (v) { darkMode.value = v; Store.prefs.setBool('dark', v); setState(() {}); },
           )),
+          Card(child: ListTile(
+            leading: const Icon(Icons.language_outlined, color: gold),
+            title: Text(tr('الموقع الرسمي')),
+            onTap: () async { try { await launchUrl(Uri.parse(kSiteUrl), mode: LaunchMode.externalApplication); } catch (_) {} },
+          )),
+          Card(child: ListTile(
+            leading: const Icon(Icons.smart_display, color: gold),
+            title: Text(tr('قناتنا على يوتيوب')),
+            onTap: () async { try { await launchUrl(Uri.parse(kYoutubeUrl), mode: LaunchMode.externalApplication); } catch (_) {} },
+          )),
+          Card(child: ListTile(
+            leading: const Icon(Icons.share, color: gold),
+            title: Text(tr('شارك التطبيق')),
+            onTap: () async { try { await PrayerService.nat.invokeMethod('share', {'text': '${tr('Muslim Plus: تطبيق القرآن الكريم بلا إنترنت')}\n$kSiteUrl'}); } catch (_) {} },
+          )),
+          const SizedBox(height: 28),
+          Center(child: Text(tr('تم التصميم بواسطة Waleed Salah'), style: const TextStyle(fontSize: 13, color: Colors.grey))),
+          const SizedBox(height: 12),
         ]),
       );
 }

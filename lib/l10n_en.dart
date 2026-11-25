@@ -34,6 +34,7 @@ const Map<String, String> kEn = {
   'فيديو': 'Video',
   'اضغط للتحقق من آخر تحديث': 'Tap to check for the latest update',
   'جاري التحقق...': 'Checking...',
+  'اختيار صوت الأذان': 'Choose the Adhan voice',
   'تعذّر فتح المثبّت. حمّل التطبيق من الموقع الرسمي ثم ثبّته.': 'Could not open the installer. Download the app from the official website and install it.',
   'قناتنا على يوتيوب': 'Our YouTube channel',
   'الموقع الرسمي': 'Official website',

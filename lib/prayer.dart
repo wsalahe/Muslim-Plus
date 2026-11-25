@@ -328,7 +328,7 @@ class PrayerService {
     return true;
   }
 
-  static int get muezzin => (Store.prefs.getInt('mz') ?? 0).clamp(0, kMuezzins.length - 1);
+  static int get muezzin => (Store.prefs.getInt('mz') ?? 4).clamp(0, kMuezzins.length - 1);
 
   static NotificationDetails detailsFor(int m) {
     if (m == customId && hasCustom) {

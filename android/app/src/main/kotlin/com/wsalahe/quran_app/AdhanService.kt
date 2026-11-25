@@ -28,6 +28,7 @@ class AdhanService : Service() {
 
     private var player: MediaPlayer? = null
     private var wake: PowerManager.WakeLock? = null
+    private var focusReq: Any? = null
 
     private fun ensureChannel() {
         if (Build.VERSION.SDK_INT >= 26) {
@@ -46,6 +47,7 @@ class AdhanService : Service() {
         try { player?.stop() } catch (e: Exception) {}
         try { player?.release() } catch (e: Exception) {}
         player = null
+        try { if (Build.VERSION.SDK_INT >= 26) (focusReq as? android.media.AudioFocusRequest)?.let { (getSystemService(AUDIO_SERVICE) as AudioManager).abandonAudioFocusRequest(it) } } catch (e: Exception) {}
         try { if (wake?.isHeld == true) wake?.release() } catch (e: Exception) {}
         if (Build.VERSION.SDK_INT >= 24) stopForeground(STOP_FOREGROUND_REMOVE) else stopForeground(true)
         stopSelf()
@@ -80,7 +82,7 @@ class AdhanService : Service() {
         }
         try {
             val pm = getSystemService(POWER_SERVICE) as PowerManager
-            wake = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "muslimplus:adhan").also { it.acquire(5 * 60 * 1000L) }
+            wake = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "muslimplus:adhan").also { it.acquire(10 * 60 * 1000L) }
         } catch (e: Exception) {}
         try { player?.release() } catch (e: Exception) {}
         val mp = MediaPlayer()
@@ -97,6 +99,16 @@ class AdhanService : Service() {
                 mp.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
                 afd.close()
             }
+            try {
+                val am = getSystemService(AUDIO_SERVICE) as AudioManager
+                if (Build.VERSION.SDK_INT >= 26) {
+                    val fr = android.media.AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE)
+                        .setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
+                        .setOnAudioFocusChangeListener { }.build()
+                    focusReq = fr
+                    am.requestAudioFocus(fr)
+                }
+            } catch (e: Exception) {}
             mp.setOnCompletionListener { stopNow() }
             mp.setOnErrorListener { _, w, e ->
                 getSharedPreferences(AdhanNative.PREFS, MODE_PRIVATE).edit().putString(AdhanNative.KEY_LAST_ERR, "mp: $w/$e").apply()

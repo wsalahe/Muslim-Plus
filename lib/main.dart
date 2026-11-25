@@ -498,6 +498,18 @@ class _SettingsState extends State<Settings> {
               onChanged: (v) { if (v != null) setLang(v); },
             ),
           )),
+          ListTile(
+            leading: const Icon(Icons.info_outline, color: gold),
+            title: Text(tr('عن التطبيق والمصادر')),
+            onTap: () => showDialog(
+              context: context,
+              builder: (c) => AlertDialog(
+                title: Text(tr('عن التطبيق والمصادر')),
+                content: SingleChildScrollView(child: Text('Muslim Plus $kAppVersion\n\n${tr('نص القرآن وبيانات الصفحات والأجزاء: Tanzil.net، رخصة Creative Commons Attribution 3.0 (النص دون تعديل).')}\n${tr('قائمة المدن: GeoNames.org (CC BY 4.0)، مدن يزيد سكانها عن ١٥ ألفا، تعمل بدون إنترنت.')}\n${tr('الصوت: everyayah.com.')}\n${tr('الخط: Amiri (رخصة SIL OFL).')}\n${tr('أصوات الأذان: archive.org (Public Domain Mark).')}')),
+                actions: [TextButton(onPressed: () => Navigator.pop(c), child: Text(tr('حسنا')))],
+              ),
+            ),
+          ),
           Card(child: SwitchListTile(
             activeColor: gold,
             secondary: const Icon(Icons.dark_mode, color: gold),

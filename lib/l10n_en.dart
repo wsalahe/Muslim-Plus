@@ -1,5 +1,11 @@
 // Generated English strings. Keys are the Arabic UI text; {} marks an interpolated value, {0} {1} in values refer to them.
 const Map<String, String> kEn = {
+  'عن التطبيق والمصادر': 'About & sources',
+  'الصوت: everyayah.com.': 'Audio: everyayah.com.',
+  'الخط: Amiri (رخصة SIL OFL).': 'Font: Amiri (SIL OFL licence).',
+  'أصوات الأذان: archive.org (Public Domain Mark).': 'Adhan audio: archive.org (Public Domain Mark).',
+  'نص القرآن وبيانات الصفحات والأجزاء: Tanzil.net، رخصة Creative Commons Attribution 3.0 (النص دون تعديل).': 'Quran text and page/juz data: Tanzil.net, Creative Commons Attribution 3.0 licence (text unmodified).',
+
   'المثبّت: بناء': 'Installed: build',
   'المتاح: بناء': 'Available: build',
   'بناء': 'build',

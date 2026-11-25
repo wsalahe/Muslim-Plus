@@ -170,7 +170,6 @@ class MushafPageFace extends StatelessWidget {
             ),
             Divider(color: gold.withValues(alpha: .5), height: 10),
             Text(arabicDigits(page), style: TextStyle(fontFamily: 'Amiri', fontSize: 15, color: ink.withValues(alpha: .8))),
-            Text('Quran text: Tanzil.net (CC BY 3.0)', style: TextStyle(fontSize: 8, color: ink.withValues(alpha: .45))),
           ]),
         ),
       ),
@@ -477,18 +476,6 @@ class _PageReaderState extends State<PageReader> with SingleTickerProviderStateM
       appBar: AppBar(
         title: Text(tr('صفحة ${arabicDigits(page)}')),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.info_outline),
-            tooltip: tr('المصادر والتراخيص'),
-            onPressed: () => showDialog(
-              context: context,
-              builder: (c) => AlertDialog(
-                title: Text(tr('المصادر والتراخيص')),
-                content: Text(tr('نص القرآن وبيانات الصفحات والأجزاء: Tanzil.net، رخصة Creative Commons Attribution 3.0 (النص دون تعديل).\nالصوت: everyayah.com.\nالخط: Amiri (رخصة SIL OFL).\nأصوات الأذان: archive.org (Public Domain Mark).')),
-                actions: [TextButton(onPressed: () => Navigator.pop(c), child: Text(tr('حسنا')))],
-              ),
-            ),
-          ),
           IconButton(icon: const Icon(Icons.list), tooltip: tr('السور'), onPressed: q == null ? null : goTo),
           IconButton(icon: const Icon(Icons.text_decrease), onPressed: () { setState(() => size = math.max(16, size - 2)); Store.prefs.setDouble('mushaf_pg_size', size); }),
           IconButton(icon: const Icon(Icons.text_increase), onPressed: () { setState(() => size = math.min(34, size + 2)); Store.prefs.setDouble('mushaf_pg_size', size); }),

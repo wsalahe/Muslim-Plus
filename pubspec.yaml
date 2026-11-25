@@ -1,7 +1,7 @@
 name: quran_app
 description: Muslim Plus
 publish_to: none
-version: 1.13.0+15
+version: 1.14.0+16
 environment:
   sdk: ">=3.0.0 <4.0.0"
 dependencies:

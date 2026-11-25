@@ -13,8 +13,8 @@ import 'features.dart';
 import 'l10n.dart';
 import 'extras.dart';
 
-const int kAppBuild = 15;
-const String kAppVersion = '1.13';
+const int kAppBuild = 16;
+const String kAppVersion = '1.14';
 const String kRepo = 'wsalahe/Muslim-Plus';
 String cleanErr(Object e) => e.toString().replaceAll(RegExp(r'[\w.-]*github[\w.-]*', caseSensitive: false), '…');
 const String kCatalogApi = 'https://api.github.com/repos/$kRepo/contents/catalog.json?ref=main';
@@ -35,8 +35,17 @@ Future<List<int>> fetchCatalogBytes({int seconds = 15}) async {
       return r.bodyBytes;
     }
   } catch (_) {}
-  final r = await http.get(Uri.parse('$kCatalogUrl?t=${DateTime.now().millisecondsSinceEpoch}'), headers: {'Cache-Control': 'no-cache'}).timeout(Duration(seconds: seconds));
+  try {
+    final r = await http.get(Uri.parse('$kCatalogUrl?t=${DateTime.now().millisecondsSinceEpoch}'), headers: {'Cache-Control': 'no-cache'}).timeout(Duration(seconds: seconds));
+    if (r.statusCode == 200) {
+      jsonDecode(utf8.decode(r.bodyBytes));
+      return r.bodyBytes;
+    }
+  } catch (_) {}
+  // احتياط ثالث على نطاق مختلف (CDN) إن كان النطاقان الأولان محجوبين على شبكة المستخدم
+  final r = await http.get(Uri.parse('https://cdn.jsdelivr.net/gh/$kRepo@main/catalog.json')).timeout(Duration(seconds: seconds));
   if (r.statusCode != 200) throw 'HTTP ${r.statusCode}';
+  jsonDecode(utf8.decode(r.bodyBytes));
   return r.bodyBytes;
 }
 
@@ -509,7 +518,7 @@ class _SettingsState extends State<Settings> {
           : tr('أنت على آخر إصدار.');
       status += '\n${tr('المثبّت: بناء')} $kAppBuild · ${tr('المتاح: بناء')} $rb';
     } catch (e) {
-      status = '${tr('تعذّر التحقق. تأكد من الإنترنت.')}\n${cleanErr(e)}';
+      status = tr('تعذّر التحقق. تأكد من الإنترنت.');
     }
     if (mounted) setState(() => busy = false);
   }

@@ -386,7 +386,7 @@ Future<String?> downloadAndInstallApk(void Function(double?) onProgress) async {
     if (r.type != ResultType.done) return tr('تعذّر فتح المثبّت: ${r.message}');
     return null;
   } catch (e) {
-    return '${tr('تعذّر التحميل. تأكد من الإنترنت وحاول مرة أخرى.')}\n${cleanErr(e)}';
+    return '${tr('تعذّر التحميل. تأكد من الإنترنت وحاول مرة أخرى.')}';
   }
 }
 

@@ -20,7 +20,9 @@ jobs:
           sed -i '/assets\/adhan\//d' pubspec.yaml
           rm -rf assets/adhan
       - run: flutter pub get
-      - run: flutter build apk --release --target-platform android-arm64
+      - run: |
+          for i in 1 2 3; do flutter build apk --release --target-platform android-arm64 && break; sleep 20; done
+          test -f build/app/outputs/flutter-apk/app-release.apk
       - run: |
           cp build/app/outputs/flutter-apk/app-release.apk QuranKareem-arm64.apk
           ls -l QuranKareem-arm64.apk

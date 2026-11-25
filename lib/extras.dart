@@ -361,18 +361,25 @@ bool updateRequired(Map catalog, int myBuild) => ((catalog['min_build'] ?? 0) as
 
 /// يحمّل APK من الرابط الثابت (بلا تخزين مؤقت) ثم يفتح مثبّت أندرويد. أندرويد يطلب تأكيد المستخدم دائما.
 Future<String?> downloadAndInstallApk(void Function(double?) onProgress) async {
+  var stage = 'start';
+  Future<void> logErr(Object err) async {
+    try { (await SharedPreferences.getInstance()).setString('upd_err', '$stage: $err'); } catch (_) {}
+  }
   try {
+    stage = 'dir';
     final dir = await getTemporaryDirectory();
     final file = File('${dir.path}/MuslimPlus-update.apk');
     if (file.existsSync()) file.deleteSync();
+    stage = 'http';
     final client = http.Client();
     final req = http.Request('GET', Uri.parse('$kApkUrl?t=${DateTime.now().millisecondsSinceEpoch}'))..headers['Cache-Control'] = 'no-cache';
-    final resp = await client.send(req);
+    final resp = await client.send(req).timeout(const Duration(seconds: 60));
     if (resp.statusCode != 200) throw 'HTTP ${resp.statusCode}';
+    stage = 'body';
     final total = resp.contentLength ?? 0;
     var got = 0;
     final sink = file.openWrite();
-    await for (final chunk in resp.stream) {
+    await for (final chunk in resp.stream.timeout(const Duration(seconds: 60))) {
       sink.add(chunk);
       got += chunk.length;
       if (total > 0) onProgress(got / total);
@@ -381,11 +388,16 @@ Future<String?> downloadAndInstallApk(void Function(double?) onProgress) async {
     client.close();
     if (got < 5 * 1024 * 1024) throw 'incomplete download ($got bytes)';
     onProgress(1);
+    stage = 'install';
     final r = await PrayerService.nat.invokeMethod<String>('installApk', {'path': file.path});
     if (r == 'perm') return tr('فعّل «السماح بالتثبيت» ثم اضغط تحميل مرة أخرى');
+    (await SharedPreferences.getInstance()).setString('upd_err', '');
     return null;
   } catch (e) {
-    return '${tr('تعذّر التحميل. تأكد من الإنترنت وحاول مرة أخرى.')}';
+    await logErr(e);
+    final code = {'dir': 'D', 'http': 'H', 'body': 'B', 'install': 'I'}[stage] ?? 'X';
+    final msg = stage == 'install' ? 'تعذّر فتح المثبّت. حمّل التطبيق من الموقع الرسمي ثم ثبّته.' : 'تعذّر التحميل. تأكد من الإنترنت وحاول مرة أخرى.';
+    return '${tr(msg)} [$code]';
   }
 }
 

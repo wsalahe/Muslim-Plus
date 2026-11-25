@@ -13,9 +13,9 @@ import 'features.dart';
 import 'l10n.dart';
 import 'extras.dart';
 
-const int kAppBuild = 13;
-const String kAppVersion = '1.11';
-const String kRepo = 'wsalahe/Quran-kareem';
+const int kAppBuild = 14;
+const String kAppVersion = '1.12';
+const String kRepo = 'wsalahe/Muslim-Plus';
 String cleanErr(Object e) => e.toString().replaceAll(RegExp(r'[\w.-]*github[\w.-]*', caseSensitive: false), '…');
 const String kCatalogApi = 'https://api.github.com/repos/$kRepo/contents/catalog.json?ref=main';
 const String kCatalogUrl = 'https://raw.githubusercontent.com/$kRepo/main/catalog.json';

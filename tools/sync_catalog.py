@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Rebuild catalog.json from the release assets (source of truth), push if changed.
 import json,re,subprocess,time,os,sys
-R='wsalahe/Quran-kareem'
+R='wsalahe/Muslim-Plus'
 names={'abdulbasit':'الشيخ عبد الباسط عبد الصمد','husary':'الشيخ محمود خليل الحصري','minshawi':'الشيخ محمد صديق المنشاوي','alafasy':'الشيخ مشاري بن راشد العفاسي','sudais':'الشيخ عبد الرحمن بن عبد العزيز السديس'}
 old=json.load(open('catalog.json')) if os.path.exists('catalog.json') else {'catalog_version':0,'app_build':1}
 sheikhs=[]

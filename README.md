@@ -2,7 +2,7 @@
 
 A free Android app: Quran recitations (streaming and offline download), a page-by-page Mushaf, prayer times and adhan, Qibla, adhkar. No sign-in. No ads.
 
-Download the latest APK: https://github.com/wsalahe/Quran-kareem/releases/download/app-latest/QuranKareem.apk
+Download the latest APK: https://github.com/wsalahe/Muslim-Plus/releases/download/app-latest/QuranKareem.apk
 
 ## Sources and credits
 

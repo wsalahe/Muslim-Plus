@@ -1,5 +1,5 @@
 import os,re,json,sys
-repo='wsalahe/Quran-kareem'
+repo='wsalahe/Muslim-Plus'
 names={'husary':'الشيخ محمود خليل الحصري','abdulbasit':'الشيخ عبد الباسط عبد الصمد','minshawi':'الشيخ محمد صديق المنشاوي','alafasy':'الشيخ مشاري بن راشد العفاسي','sudais':'الشيخ عبد الرحمن بن عبد العزيز السديس'}
 order=['abdulbasit','husary','minshawi','alafasy','sudais']
 ver=int(sys.argv[2]) if len(sys.argv)>2 else 1

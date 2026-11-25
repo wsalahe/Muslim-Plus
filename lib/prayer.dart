@@ -105,9 +105,9 @@ String hmsLeft(Duration d) {
 }
 
 String hijriNow() {
-  HijriCalendar.setLocal('ar');
+  HijriCalendar.setLocal(isEn ? 'en' : 'ar');
   final h = HijriCalendar.now();
-  return tr('${arabicDigits(h.hDay)} ${h.longMonthName} ${arabicDigits(h.hYear)} هـ');
+  return '${arabicDigits(h.hDay)} ${h.longMonthName} ${arabicDigits(h.hYear)} ${isEn ? 'AH' : 'هـ'}';
 }
 
 class PrayerService {

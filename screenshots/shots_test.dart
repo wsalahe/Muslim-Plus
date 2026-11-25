@@ -32,7 +32,7 @@ void main() {
     await loadFont('MaterialIcons', ['$sdk/MaterialIcons-Regular.otf']);
     await loadFont('Amiri', ['assets/fonts/Amiri-Regular.ttf', 'assets/fonts/Amiri-Bold.ttf']);
     await loadFont('AmiriQuran', ['assets/fonts/AmiriQuran-Regular.ttf']);
-    langPref.value = 'ar';
+    langPref.value = Platform.environment['L'] ?? 'ar';
     await Store.init();
   });
 
@@ -42,9 +42,9 @@ void main() {
     final key = GlobalKey();
     await t.pumpWidget(RepaintBoundary(key: key, child: MaterialApp(
       debugShowCheckedModeBanner: false,
-      locale: const Locale('ar'),
+      locale: Locale(lang),
       theme: buildTheme(false).copyWith(textTheme: buildTheme(false).textTheme.apply(fontFamily: 'Amiri')),
-      builder: (c, x) => Directionality(textDirection: TextDirection.rtl, child: x!),
+      builder: (c, x) => Directionality(textDirection: isEn ? TextDirection.ltr : TextDirection.rtl, child: x!),
       home: w,
     )));
     for (var i = 0; i < 4; i++) {
@@ -55,7 +55,7 @@ void main() {
       final b = key.currentContext!.findRenderObject() as RenderRepaintBoundary;
       final img = await b.toImage(pixelRatio: 3);
       final bytes = await img.toByteData(format: ui.ImageByteFormat.png);
-      File('/tmp/shots/$name.png').writeAsBytesSync(bytes!.buffer.asUint8List());
+      File('/tmp/shots/${Platform.environment['L'] ?? 'ar'}_$name.png').writeAsBytesSync(bytes!.buffer.asUint8List());
     });
   }
 

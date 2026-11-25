@@ -13,8 +13,8 @@ import 'features.dart';
 import 'l10n.dart';
 import 'extras.dart';
 
-const int kAppBuild = 17;
-const String kAppVersion = '1.15';
+const int kAppBuild = 18;
+const String kAppVersion = '1.16';
 const String kRepo = 'wsalahe/Muslim-Plus';
 String cleanErr(Object e) => e.toString().replaceAll(RegExp(r'[\w.-]*github[\w.-]*', caseSensitive: false), '…');
 const String kCounterUrl = 'https://script.google.com/macros/s/AKfycbx7EKJ65Fz38klqHVy5pX3knWzJJfZpOO3WloR46C-wlalMOeVOTGe274SfdHZ679v1LA/exec';
@@ -25,7 +25,7 @@ Future<void> pingCounter() async {
     final first = Store.prefs.getBool('cnt_installed') != true;
     if (first) {
       final r = await http.get(Uri.parse('$kCounterUrl?a=install')).timeout(const Duration(seconds: 15));
-      if (r.statusCode == 200) await Store.prefs.setBool('cnt_installed', true);
+      if (r.statusCode == 200 && r.body.contains('"users"')) await Store.prefs.setBool('cnt_installed', true);
     }
     await http.get(Uri.parse('$kCounterUrl?a=open')).timeout(const Duration(seconds: 15));
   } catch (_) {}

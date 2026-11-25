@@ -63,9 +63,10 @@ void main() {
   testWidgets('themes', (t) async {
     Directory('/tmp/shots').createSync(recursive: true);
     final q = (await t.runAsync(() async { await PageData.load(); return await QuranText.load(); }))!;
-    for (final id in ['ornate', 'green', 'clean', 'amoled', 'emerald']) {
+    for (final id in ['emerald', 'ornate']) {
       await Store.prefs.setString('mushaf_theme', id);
-      await shot(t, 'th_$id', PageReader(initialPage: 2));
+      await shot(t, 'th_$id', PageReader(initialPage: 50));
+      await shot(t, 'th_${id}_p2', PageReader(initialPage: 2));
     }
     await Store.prefs.setString('mushaf_theme', 'ornate');
     await shot(t, 'th_picker', MushafThemePage(quran: q));

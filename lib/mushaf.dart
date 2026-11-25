@@ -77,14 +77,70 @@ class PageData {
 }
 
 /// وجه صفحة المصحف: ورق كريمي، رأس السورة المزخرف، أرقام الآيات، رأس الصفحة والجزء.
+class _Grp {
+  final int surah;
+  final bool starts;
+  final List<(int, int, String)> v = [];
+  _Grp(this.surah, this.starts);
+}
+
 class MushafPageFace extends StatelessWidget {
   final int page;
   final List quran;
-  final double fontSize;
+  final double fontSize; // الحد الأعلى للخط؛ الصفحة تصغّره تلقائيا لتملأ العرض دون تصغير الكتلة
   final (int, int)? highlight;
   final void Function((int, int))? onTapAyah;
   final MushafTheme? theme;
-  const MushafPageFace({super.key, required this.page, required this.quran, this.fontSize = 24, this.highlight, this.onTapAyah, this.theme});
+  const MushafPageFace({super.key, required this.page, required this.quran, this.fontSize = 40, this.highlight, this.onTapAyah, this.theme});
+
+  /// آخر حجم خط مناسب حُسب (يستعمله زرا A+ و A-).
+  static double lastFit = 24;
+
+  static const _lh = 2.1;
+  static const _bannerH = 46.0 + 12.0;
+
+  List<InlineSpan> _spans(_Grp g, double fs, Color ink, MushafTheme th, {bool measure = false}) {
+    final out = <InlineSpan>[];
+    for (final (ss, aa, text) in g.v) {
+      final hl = !measure && highlight == (ss, aa);
+      out.add(TextSpan(
+        text: '$text ',
+        style: hl ? TextStyle(backgroundColor: th.accent.withValues(alpha: .35)) : null,
+        recognizer: (measure || onTapAyah == null) ? null : (TapGestureRecognizer()..onTap = () => onTapAyah!((ss, aa))),
+      ));
+      if (measure) {
+        out.add(const WidgetSpan(alignment: PlaceholderAlignment.middle, child: SizedBox()));
+      } else {
+        out.add(WidgetSpan(
+          alignment: PlaceholderAlignment.middle,
+          child: GestureDetector(onTap: onTapAyah == null ? null : () => onTapAyah!((ss, aa)), child: AyahMark(n: aa, ink: ink, size: fs * .95, accent: th.accent)),
+        ));
+      }
+      out.add(const TextSpan(text: ' '));
+    }
+    return out;
+  }
+
+  double _height(List<_Grp> gs, double fs, double w) {
+    var h = 0.0;
+    for (final g in gs) {
+      if (g.starts) {
+        h += _bannerH;
+        if (g.surah != 1 && g.surah != 9) h += (fs + 1) * _lh + 6;
+      }
+      final tp = TextPainter(
+        text: TextSpan(children: _spans(g, fs, Colors.black, MushafTheme.all.first, measure: true), style: TextStyle(fontFamily: 'AmiriQuran', fontFamilyFallback: const ['Amiri'], fontSize: fs, height: _lh)),
+        textDirection: TextDirection.rtl,
+        textAlign: TextAlign.justify,
+      );
+      final m = fs * .95 * 1.25;
+      tp.setPlaceholderDimensions(List.filled(g.v.length, PlaceholderDimensions(size: Size(m, m), alignment: PlaceholderAlignment.middle)));
+      tp.layout(maxWidth: w);
+      h += tp.height;
+      tp.dispose();
+    }
+    return h;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,48 +152,11 @@ class MushafPageFace extends StatelessWidget {
     final firstSurah = ays.isEmpty ? 1 : ays.first.$1;
     final juz = PageData.juzOf(page);
 
-    // نقسم الآيات إلى مقاطع حسب السورة
-    final blocks = <Widget>[];
-    var i = 0;
-    while (i < ays.length) {
-      final s = ays[i].$1;
-      if (ays[i].$2 == 1) {
-        blocks.add(SurahBanner(name: trs(surahs[s - 1]), ink: ink, th: th));
-        if (s != 1 && s != 9) {
-          blocks.add(Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: Text('بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ', textAlign: TextAlign.center, style: TextStyle(fontFamily: 'Amiri', fontSize: fontSize + 1, color: ink, height: 1.8)),
-          ));
-        }
-      }
-      final spans = <InlineSpan>[];
-      while (i < ays.length && ays[i].$1 == s) {
-        final (ss, aa) = ays[i];
-        final text = ((quran[ss - 1] as Map)['a'] as List)[aa - 1] as String;
-        final hl = highlight == (ss, aa);
-        spans.add(TextSpan(
-          text: '$text ',
-          style: hl ? TextStyle(backgroundColor: th.accent.withValues(alpha: .35)) : null,
-          recognizer: onTapAyah == null ? null : (TapGestureRecognizer()..onTap = () => onTapAyah!((ss, aa))),
-        ));
-        spans.add(WidgetSpan(
-          alignment: PlaceholderAlignment.middle,
-          child: GestureDetector(onTap: onTapAyah == null ? null : () => onTapAyah!((ss, aa)), child: AyahMark(n: aa, ink: ink, size: fontSize * .95, accent: th.accent)),
-        ));
-        spans.add(const TextSpan(text: ' '));
-        i++;
-        if (i < ays.length && ays[i].$1 == s && ays[i].$2 == 1) break;
-      }
-      blocks.add(GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTapUp: null,
-        child: Text.rich(
-          TextSpan(children: spans),
-          textAlign: TextAlign.justify,
-          textDirection: TextDirection.rtl,
-          style: TextStyle(fontFamily: 'AmiriQuran', fontFamilyFallback: const ['Amiri'], fontSize: fontSize, height: 2.1, color: ink),
-        ),
-      ));
+    final gs = <_Grp>[];
+    for (var i = 0; i < ays.length; i++) {
+      final (ss, aa) = ays[i];
+      if (gs.isEmpty || gs.last.surah != ss || aa == 1) gs.add(_Grp(ss, aa == 1));
+      gs.last.v.add((ss, aa, ((quran[ss - 1] as Map)['a'] as List)[aa - 1] as String));
     }
 
     final hdr = TextStyle(fontFamily: 'Amiri', fontSize: 14, color: plain ? th.accent : ink.withValues(alpha: .75), fontWeight: plain ? FontWeight.bold : FontWeight.normal);
@@ -153,13 +172,40 @@ class MushafPageFace extends StatelessWidget {
           Divider(color: th.accent.withValues(alpha: plain ? .9 : .5), height: 10, thickness: plain ? 2 : 1),
           Expanded(
             child: LayoutBuilder(builder: (c, box) {
-              return FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.topCenter,
-                child: SizedBox(
-                  width: math.max(300, box.maxWidth),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: blocks),
-                ),
+              // أكبر خط يملأ العرض كاملا ويتسع للصفحة كلها بلا تصغير للكتلة
+              var lo = 12.0, hi = math.max(12.0, fontSize);
+              final avail = box.maxHeight / 1.08; // هامش أمان لفروق القياس
+              if (_height(gs, hi, box.maxWidth) <= avail) {
+                lo = hi;
+              } else {
+                for (var k = 0; k < 9; k++) {
+                  final mid = (lo + hi) / 2;
+                  if (_height(gs, mid, box.maxWidth) <= avail) { lo = mid; } else { hi = mid; }
+                }
+              }
+              final fs = lo;
+              lastFit = fs;
+              final blocks = <Widget>[];
+              for (final g in gs) {
+                if (g.starts) {
+                  blocks.add(SurahBanner(name: trs(surahs[g.surah - 1]), ink: ink, th: th));
+                  if (g.surah != 1 && g.surah != 9) {
+                    blocks.add(Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Text('بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ', textAlign: TextAlign.center, style: TextStyle(fontFamily: 'Amiri', fontSize: fs + 1, color: ink, height: _lh)),
+                    ));
+                  }
+                }
+                blocks.add(Text.rich(
+                  TextSpan(children: _spans(g, fs, ink, th)),
+                  textAlign: TextAlign.justify,
+                  textDirection: TextDirection.rtl,
+                  style: TextStyle(fontFamily: 'AmiriQuran', fontFamilyFallback: const ['Amiri'], fontSize: fs, height: _lh, color: ink),
+                ));
+              }
+              return SingleChildScrollView(
+                physics: const NeverScrollableScrollPhysics(),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: blocks),
               );
             }),
           ),
@@ -286,7 +332,7 @@ class _PageReaderState extends State<PageReader> with SingleTickerProviderStateM
   int page = 1;
   double t = 0; // -1..1
   late AnimationController anim;
-  double size = 24;
+  double size = 40;
   final player = AudioPlayer();
   int reciter = 0;
   bool playing = false;
@@ -299,7 +345,7 @@ class _PageReaderState extends State<PageReader> with SingleTickerProviderStateM
   void initState() {
     super.initState();
     page = widget.initialPage.clamp(1, 604);
-    size = Store.prefs.getDouble('mushaf_pg_size') ?? 24;
+    size = Store.prefs.getDouble('mushaf_pg_size2') ?? 40;
     reciter = Store.prefs.getInt('mushaf_reciter') ?? 0;
     if (reciter >= kAyahReciters.length) reciter = 0;
     anim = AnimationController(vsync: this, duration: const Duration(milliseconds: 380))..addListener(() => setState(() {}));
@@ -476,9 +522,9 @@ class _PageReaderState extends State<PageReader> with SingleTickerProviderStateM
         title: Text(tr('صفحة ${arabicDigits(page)}')),
         actions: [
           IconButton(icon: const Icon(Icons.list), tooltip: tr('السور'), onPressed: q == null ? null : goTo),
-          IconButton(icon: const Icon(Icons.palette_outlined), tooltip: tr('مظهر المصحف'), onPressed: q == null ? null : () async { await Navigator.push(context, MaterialPageRoute(builder: (_) => MushafThemePage(quran: q))); if (mounted) setState(() => size = Store.prefs.getDouble('mushaf_pg_size') ?? size); }),
-          IconButton(icon: const Icon(Icons.text_decrease), onPressed: () { setState(() => size = math.max(16, size - 2)); Store.prefs.setDouble('mushaf_pg_size', size); }),
-          IconButton(icon: const Icon(Icons.text_increase), onPressed: () { setState(() => size = math.min(34, size + 2)); Store.prefs.setDouble('mushaf_pg_size', size); }),
+          IconButton(icon: const Icon(Icons.palette_outlined), tooltip: tr('مظهر المصحف'), onPressed: q == null ? null : () async { await Navigator.push(context, MaterialPageRoute(builder: (_) => MushafThemePage(quran: q))); if (mounted) setState(() => size = Store.prefs.getDouble('mushaf_pg_size2') ?? 40); }),
+          IconButton(icon: const Icon(Icons.text_decrease), onPressed: () { setState(() => size = math.max(14, math.min(size, MushafPageFace.lastFit) - 2)); Store.prefs.setDouble('mushaf_pg_size2', size); }),
+          IconButton(icon: const Icon(Icons.text_increase), onPressed: () { setState(() => size = math.min(40, math.min(size, MushafPageFace.lastFit) + 2)); Store.prefs.setDouble('mushaf_pg_size2', size); }),
         ],
       ),
       body: q == null

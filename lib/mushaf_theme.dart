@@ -159,7 +159,7 @@ class MushafThemePage extends StatefulWidget {
 
 class _MushafThemePageState extends State<MushafThemePage> {
   String id = MushafTheme.currentId;
-  double size = Store.prefs.getDouble('mushaf_pg_size') ?? 24;
+  double size = Store.prefs.getDouble('mushaf_pg_size2') ?? 40;
   int previewPage = 2;
 
   @override
@@ -174,7 +174,7 @@ class _MushafThemePageState extends State<MushafThemePage> {
             height: MediaQuery.of(context).size.height * .42,
             child: Padding(
               padding: const EdgeInsets.all(8),
-              child: ClipRRect(borderRadius: BorderRadius.circular(10), child: MushafPageFace(page: previewPage, quran: widget.quran, fontSize: size * .8, theme: th)),
+              child: ClipRRect(borderRadius: BorderRadius.circular(10), child: MushafPageFace(page: previewPage, quran: widget.quran, fontSize: size, theme: th)),
             ),
           ),
           Padding(
@@ -183,9 +183,9 @@ class _MushafThemePageState extends State<MushafThemePage> {
               Text(tr('حجم الخط')),
               Expanded(
                 child: Slider(
-                  value: size, min: 16, max: 34, divisions: 9, activeColor: gold,
+                  value: size.clamp(14, 40).toDouble(), min: 14, max: 40, divisions: 13, activeColor: gold,
                   onChanged: (v) => setState(() => size = v),
-                  onChangeEnd: (v) => Store.prefs.setDouble('mushaf_pg_size', v),
+                  onChangeEnd: (v) => Store.prefs.setDouble('mushaf_pg_size2', v),
                 ),
               ),
             ]),

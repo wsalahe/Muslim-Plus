@@ -28,7 +28,7 @@ jobs:
       - run: |
           cp build/app/outputs/flutter-apk/app-release.apk QuranKareem-arm64.apk
           ls -l QuranKareem-arm64.apk
-          gh release delete app-arm64 -y --cleanup-tag || true
-          gh release create app-arm64 QuranKareem-arm64.apk --title "Muslim Plus arm64" --notes "Slim arm64 build ${GITHUB_SHA::7}"
+          gh release delete app-arm64-unsigned -y --cleanup-tag || true
+          gh release create app-arm64-unsigned QuranKareem-arm64.apk --title "Muslim Plus arm64" --notes "Slim arm64 build ${GITHUB_SHA::7}"
         env:
           GH_TOKEN: ${{ github.token }}

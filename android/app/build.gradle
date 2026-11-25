@@ -21,12 +21,8 @@ android {
     }
 
     signingConfigs {
-        release {
-            storeFile file("muslimplus.jks")
-            storePassword "7d1cc0db3aa179bf5aae10cc"
-            keyAlias "muslimplus"
-            keyPassword "7d1cc0db3aa179bf5aae10cc"
-        }
+        // Release signing is done outside CI with a private key (never in this repo).
+        // CI output is debug-signed and is re-signed before publishing.
     }
 
     defaultConfig {
@@ -44,7 +40,7 @@ android {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.release
+            signingConfig = signingConfigs.debug
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'

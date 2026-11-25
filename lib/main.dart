@@ -17,8 +17,8 @@ import 'prayer.dart';
 
 const kSiteUrl = 'https://www.muslimplus.dpdns.org';
 const kYoutubeUrl = 'https://www.youtube.com/@QuranAlAdim';
-const int kAppBuild = 24;
-const String kAppVersion = '1.22';
+const int kAppBuild = 25;
+const String kAppVersion = '1.23';
 const String kRepo = 'wsalahe/Muslim-Plus';
 String cleanErr(Object e) => e.toString().replaceAll(RegExp(r'[\w.-]*github[\w.-]*', caseSensitive: false), '…');
 const String kCounterUrl = 'https://script.google.com/macros/s/AKfycbx7EKJ65Fz38klqHVy5pX3knWzJJfZpOO3WloR46C-wlalMOeVOTGe274SfdHZ679v1LA/exec';

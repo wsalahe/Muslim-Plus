@@ -10,6 +10,7 @@ import 'l10n.dart';
 import 'prayer.dart';
 import 'extras.dart';
 import 'mushaf.dart';
+import 'mushaf_theme.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 
@@ -239,7 +240,10 @@ class _SurahReaderState extends State<SurahReader> {
   @override
   Widget build(BuildContext context) {
     final a = ay;
+    final th = MushafTheme.byId(MushafTheme.currentId).resolve(context);
+    final themed = !(th.auto && th.id == 'gold');
     return Scaffold(
+      backgroundColor: themed ? th.paper : null,
       appBar: AppBar(title: Text(tr('سورة ${trs(surahs[n - 1])}')), actions: [
         IconButton(icon: const Icon(Icons.done_all), tooltip: tr('تعليم السورة كمقروءة في الختمة'), onPressed: () {
           final d = (jsonDecode(Store.prefs.getString('kh_done') ?? '[]') as List).cast<int>().toSet()..add(n);
@@ -270,12 +274,11 @@ class _SurahReaderState extends State<SurahReader> {
                   child: Text.rich(
                     TextSpan(children: [TextSpan(text: '${a[i]} '), TextSpan(text: '\u06DD${arabicDigits(i + 1)}', style: const TextStyle(color: gold))]),
                     textAlign: TextAlign.justify,
-                    style: TextStyle(fontFamily: 'Amiri', fontSize: size, height: 2.1),
+                    style: TextStyle(fontFamily: 'Amiri', fontSize: size, height: 2.1, color: themed ? th.ink : null),
                   ),
                 ),
               ),
             const SizedBox(height: 16),
-            Center(child: Text(tr('النص: المصحف العثماني (Tanzil / alquran.cloud) · الصوت: everyayah.com'), style: TextStyle(fontSize: 11, color: Theme.of(context).hintColor))),
           ]),
         ),
       ),

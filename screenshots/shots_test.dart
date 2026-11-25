@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:quran_app/main.dart';
 import 'package:quran_app/prayer.dart';
 import 'package:quran_app/mushaf.dart';
+import 'package:quran_app/mushaf_theme.dart';
 import 'package:quran_app/features.dart';
 import 'package:quran_app/extras.dart';
 import 'package:quran_app/l10n.dart';
@@ -58,6 +59,17 @@ void main() {
       File('/tmp/shots/${Platform.environment['L'] ?? 'ar'}_$name.png').writeAsBytesSync(bytes!.buffer.asUint8List());
     });
   }
+
+  testWidgets('themes', (t) async {
+    Directory('/tmp/shots').createSync(recursive: true);
+    final q = (await t.runAsync(() async { await PageData.load(); return await QuranText.load(); }))!;
+    for (final id in ['ornate', 'green', 'clean', 'amoled', 'emerald']) {
+      await Store.prefs.setString('mushaf_theme', id);
+      await shot(t, 'th_$id', PageReader(initialPage: 2));
+    }
+    await Store.prefs.setString('mushaf_theme', 'ornate');
+    await shot(t, 'th_picker', MushafThemePage(quran: q));
+  });
 
   testWidgets('shots', (t) async {
     Directory('/tmp/shots').createSync(recursive: true);

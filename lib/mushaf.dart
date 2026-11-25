@@ -7,13 +7,10 @@ import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'main.dart';
+import 'mushaf_theme.dart';
 import 'l10n.dart';
 import 'features.dart';
 
-const _paperLight = Color(0xFFFBF3DD);
-const _paperDark = Color(0xFF1F1B14);
-const _inkLight = Color(0xFF2B2118);
-const _inkDark = Color(0xFFEADFC3);
 
 /// بيانات الصفحات: بداية كل صفحة من 604 صفحة (سورة، آية) من Tanzil، وبداية الأجزاء.
 class PageData {
@@ -86,13 +83,15 @@ class MushafPageFace extends StatelessWidget {
   final double fontSize;
   final (int, int)? highlight;
   final void Function((int, int))? onTapAyah;
-  const MushafPageFace({super.key, required this.page, required this.quran, this.fontSize = 24, this.highlight, this.onTapAyah});
+  final MushafTheme? theme;
+  const MushafPageFace({super.key, required this.page, required this.quran, this.fontSize = 24, this.highlight, this.onTapAyah, this.theme});
 
   @override
   Widget build(BuildContext context) {
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    final paper = dark ? _paperDark : _paperLight;
-    final ink = dark ? _inkDark : _inkLight;
+    final th = (theme ?? MushafTheme.byId(MushafTheme.currentId)).resolve(context);
+    final paper = th.paper;
+    final ink = th.ink;
+    final plain = th.kind == FrameKind.plain;
     final ays = PageData.ayahsOf(page, quran);
     final firstSurah = ays.isEmpty ? 1 : ays.first.$1;
     final juz = PageData.juzOf(page);
@@ -103,7 +102,7 @@ class MushafPageFace extends StatelessWidget {
     while (i < ays.length) {
       final s = ays[i].$1;
       if (ays[i].$2 == 1) {
-        blocks.add(SurahBanner(name: trs(surahs[s - 1]), ink: ink));
+        blocks.add(SurahBanner(name: trs(surahs[s - 1]), ink: ink, th: th));
         if (s != 1 && s != 9) {
           blocks.add(Padding(
             padding: const EdgeInsets.only(bottom: 6),
@@ -118,12 +117,12 @@ class MushafPageFace extends StatelessWidget {
         final hl = highlight == (ss, aa);
         spans.add(TextSpan(
           text: '$text ',
-          style: hl ? TextStyle(backgroundColor: gold.withValues(alpha: .35)) : null,
+          style: hl ? TextStyle(backgroundColor: th.accent.withValues(alpha: .35)) : null,
           recognizer: onTapAyah == null ? null : (TapGestureRecognizer()..onTap = () => onTapAyah!((ss, aa))),
         ));
         spans.add(WidgetSpan(
           alignment: PlaceholderAlignment.middle,
-          child: GestureDetector(onTap: onTapAyah == null ? null : () => onTapAyah!((ss, aa)), child: AyahMark(n: aa, ink: ink, size: fontSize * .95)),
+          child: GestureDetector(onTap: onTapAyah == null ? null : () => onTapAyah!((ss, aa)), child: AyahMark(n: aa, ink: ink, size: fontSize * .95, accent: th.accent)),
         ));
         spans.add(const TextSpan(text: ' '));
         i++;
@@ -141,37 +140,32 @@ class MushafPageFace extends StatelessWidget {
       ));
     }
 
+    final hdr = TextStyle(fontFamily: 'Amiri', fontSize: 14, color: plain ? th.accent : ink.withValues(alpha: .75), fontWeight: plain ? FontWeight.bold : FontWeight.normal);
     return Container(
       color: paper,
-      padding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
-      child: Container(
-        decoration: BoxDecoration(border: Border.all(color: gold.withValues(alpha: .8), width: 1.6), borderRadius: BorderRadius.circular(6)),
-        padding: const EdgeInsets.all(3),
-        child: Container(
-          decoration: BoxDecoration(border: Border.all(color: gold.withValues(alpha: .45), width: .8)),
-          padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
-          child: Column(children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text(tr('الجزء ${arabicDigits(juz)}'), style: TextStyle(fontFamily: 'Amiri', fontSize: 14, color: ink.withValues(alpha: .75))),
-              Text(tr('سورة ${trs(surahs[firstSurah - 1])}'), style: TextStyle(fontFamily: 'Amiri', fontSize: 14, color: ink.withValues(alpha: .75))),
-            ]),
-            Divider(color: gold.withValues(alpha: .5), height: 10),
-            Expanded(
-              child: LayoutBuilder(builder: (c, box) {
-                return FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.topCenter,
-                  child: SizedBox(
-                    width: math.max(300, box.maxWidth),
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: blocks),
-                  ),
-                );
-              }),
-            ),
-            Divider(color: gold.withValues(alpha: .5), height: 10),
-            Text(arabicDigits(page), style: TextStyle(fontFamily: 'Amiri', fontSize: 15, color: ink.withValues(alpha: .8))),
+      child: MushafFrame(
+        th: th,
+        child: Column(children: [
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Text(tr('الجزء ${arabicDigits(juz)}'), style: hdr),
+            Text(tr('سورة ${trs(surahs[firstSurah - 1])}'), style: hdr),
           ]),
-        ),
+          Divider(color: th.accent.withValues(alpha: plain ? .9 : .5), height: 10, thickness: plain ? 2 : 1),
+          Expanded(
+            child: LayoutBuilder(builder: (c, box) {
+              return FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.topCenter,
+                child: SizedBox(
+                  width: math.max(300, box.maxWidth),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: blocks),
+                ),
+              );
+            }),
+          ),
+          if (!plain) Divider(color: th.accent.withValues(alpha: .5), height: 10),
+          Text(arabicDigits(page), style: TextStyle(fontFamily: 'Amiri', fontSize: 15, color: ink.withValues(alpha: .8))),
+        ]),
       ),
     );
   }
@@ -181,14 +175,15 @@ class AyahMark extends StatelessWidget {
   final int n;
   final Color ink;
   final double size;
-  const AyahMark({super.key, required this.n, required this.ink, required this.size});
+  final Color accent;
+  const AyahMark({super.key, required this.n, required this.ink, required this.size, this.accent = gold});
   @override
   Widget build(BuildContext context) {
     return Container(
       width: size * 1.25,
       height: size * 1.25,
       alignment: Alignment.center,
-      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: gold, width: 1.4)),
+      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: accent, width: 1.4)),
       child: Text(arabicDigits(n), style: TextStyle(fontFamily: 'Amiri', fontSize: size * (n > 99 ? .45 : .58), color: ink, height: 1.0)),
     );
   }
@@ -197,17 +192,18 @@ class AyahMark extends StatelessWidget {
 class SurahBanner extends StatelessWidget {
   final String name;
   final Color ink;
-  const SurahBanner({super.key, required this.name, required this.ink});
+  final MushafTheme th;
+  const SurahBanner({super.key, required this.name, required this.ink, required this.th});
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: CustomPaint(
-        painter: _BannerPainter(),
+        painter: _BannerPainter(th),
         child: Container(
           height: 46,
           alignment: Alignment.center,
-          child: Text(tr('سورة $name'), style: TextStyle(fontFamily: 'Amiri', fontWeight: FontWeight.bold, fontSize: 24, color: ink)),
+          child: Text(tr('سورة $name'), style: TextStyle(fontFamily: 'Amiri', fontWeight: FontWeight.bold, fontSize: 24, color: th.solidBanner ? th.bannerInk : ink)),
         ),
       ),
     );
@@ -215,10 +211,13 @@ class SurahBanner extends StatelessWidget {
 }
 
 class _BannerPainter extends CustomPainter {
+  final MushafTheme th;
+  _BannerPainter(this.th);
   @override
   void paint(Canvas c, Size s) {
+    final gold = th.accent;
     final r = RRect.fromRectAndRadius(Rect.fromLTWH(26, 2, s.width - 52, s.height - 4), const Radius.circular(8));
-    c.drawRRect(r, Paint()..color = gold.withValues(alpha: .13));
+    c.drawRRect(r, Paint()..color = th.solidBanner ? th.accent2 : gold.withValues(alpha: .13));
     c.drawRRect(r, Paint()..color = gold..style = PaintingStyle.stroke..strokeWidth = 2);
     c.drawRRect(r.deflate(4), Paint()..color = gold.withValues(alpha: .6)..style = PaintingStyle.stroke..strokeWidth = .9);
     for (final left in [true, false]) {
@@ -239,7 +238,7 @@ class _BannerPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter old) => false;
+  bool shouldRepaint(covariant _BannerPainter old) => old.th.id != th.id;
 }
 
 /// قلب الصفحة: صفحة تدور حول حافتها اليمنى مع ظل، والصفحة التالية تظهر تحتها.
@@ -477,6 +476,7 @@ class _PageReaderState extends State<PageReader> with SingleTickerProviderStateM
         title: Text(tr('صفحة ${arabicDigits(page)}')),
         actions: [
           IconButton(icon: const Icon(Icons.list), tooltip: tr('السور'), onPressed: q == null ? null : goTo),
+          IconButton(icon: const Icon(Icons.palette_outlined), tooltip: tr('مظهر المصحف'), onPressed: q == null ? null : () async { await Navigator.push(context, MaterialPageRoute(builder: (_) => MushafThemePage(quran: q))); if (mounted) setState(() => size = Store.prefs.getDouble('mushaf_pg_size') ?? size); }),
           IconButton(icon: const Icon(Icons.text_decrease), onPressed: () { setState(() => size = math.max(16, size - 2)); Store.prefs.setDouble('mushaf_pg_size', size); }),
           IconButton(icon: const Icon(Icons.text_increase), onPressed: () { setState(() => size = math.min(34, size + 2)); Store.prefs.setDouble('mushaf_pg_size', size); }),
         ],

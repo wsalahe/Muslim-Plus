@@ -15,7 +15,7 @@ import 'l10n.dart';
 import 'extras.dart';
 import 'prayer.dart';
 
-const kSiteUrl = 'http://www.muslimplus.dpdns.org';
+const kSiteUrl = 'https://www.muslimplus.dpdns.org';
 const kYoutubeUrl = 'https://www.youtube.com/@QuranAlAdim';
 const int kAppBuild = 21;
 const String kAppVersion = '1.19';

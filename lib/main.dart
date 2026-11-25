@@ -494,14 +494,9 @@ class _SettingsState extends State<Settings> {
       final remote = jsonDecode(utf8.decode(bytes));
       final rb = int.tryParse('${remote['app_build']}') ?? 0;
       remoteBuild = rb;
-      const newCat = false; // v1.8: التلاوات مدمجة في التطبيق، التحديث للتطبيق فقط
       appUpdate = rb > kAppBuild;
-      if (newCat) {
-        Store.catalog = remote;
-        await Store.prefs.setString('catalog', utf8.decode(bytes));
-      }
-      status = (newCat || appUpdate)
-          ? tr('${newCat ? 'تم تحديث قائمة التلاوات. ' : ''}${appUpdate ? 'يوجد تحديث جديد للتطبيق.' : ''}')
+      status = appUpdate
+          ? tr('يوجد تحديث جديد للتطبيق.')
           : tr('أنت على آخر إصدار.');
       status += '\n${tr('المثبّت: بناء')} $kAppBuild · ${tr('المتاح: بناء')} $rb';
     } catch (e) {

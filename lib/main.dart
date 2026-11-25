@@ -13,10 +13,23 @@ import 'features.dart';
 import 'l10n.dart';
 import 'extras.dart';
 
-const int kAppBuild = 16;
-const String kAppVersion = '1.14';
+const int kAppBuild = 17;
+const String kAppVersion = '1.15';
 const String kRepo = 'wsalahe/Muslim-Plus';
 String cleanErr(Object e) => e.toString().replaceAll(RegExp(r'[\w.-]*github[\w.-]*', caseSensitive: false), '…');
+const String kCounterUrl = 'https://script.google.com/macros/s/AKfycbx7EKJ65Fz38klqHVy5pX3knWzJJfZpOO3WloR46C-wlalMOeVOTGe274SfdHZ679v1LA/exec';
+
+/// عدّاد مجهول: ضربة واحدة عند أول تشغيل (مستخدم جديد) وضربة لكل فتح. بلا معرّف جهاز ولا بيانات.
+Future<void> pingCounter() async {
+  try {
+    final first = Store.prefs.getBool('cnt_installed') != true;
+    if (first) {
+      final r = await http.get(Uri.parse('$kCounterUrl?a=install')).timeout(const Duration(seconds: 15));
+      if (r.statusCode == 200) await Store.prefs.setBool('cnt_installed', true);
+    }
+    await http.get(Uri.parse('$kCounterUrl?a=open')).timeout(const Duration(seconds: 15));
+  } catch (_) {}
+}
 const String kCatalogApi = 'https://api.github.com/repos/$kRepo/contents/catalog.json?ref=main';
 const String kCatalogUrl = 'https://raw.githubusercontent.com/$kRepo/main/catalog.json';
 const String kApkUrl = 'https://github.com/$kRepo/releases/download/app-latest/QuranKareem.apk';
@@ -165,7 +178,7 @@ class QuranApp extends StatelessWidget {
           darkTheme: buildTheme(true),
           themeMode: dark ? ThemeMode.dark : ThemeMode.light,
           home: FutureBuilder(
-            future: Store.init().then((_) => darkMode.value = Store.prefs.getBool('dark') ?? false),
+            future: Store.init().then((_) { darkMode.value = Store.prefs.getBool('dark') ?? false; pingCounter(); }),
             builder: (c, s) => s.connectionState == ConnectionState.done ? const Shell() : const Splash(),
           ),
         ),

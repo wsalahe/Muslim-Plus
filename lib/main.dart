@@ -475,6 +475,8 @@ class _SettingsState extends State<Settings> {
           Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(children: [
             const Icon(Icons.system_update, color: gold, size: 40),
             const SizedBox(height: 8),
+            Text('Muslim Plus $kAppVersion · ${tr('بناء')} $kAppBuild', style: const TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 6),
             Text(status, textAlign: TextAlign.center),
             const SizedBox(height: 12),
             FilledButton(style: FilledButton.styleFrom(backgroundColor: gold, foregroundColor: Colors.black), onPressed: busy ? null : check, child: Text(tr('التحقق من التحديثات'))),
@@ -517,10 +519,6 @@ class _SettingsState extends State<Settings> {
             value: darkMode.value,
             onChanged: (v) { darkMode.value = v; Store.prefs.setBool('dark', v); setState(() {}); },
           )),
-          ListTile(leading: const Icon(Icons.calculate, color: gold), title: Text(tr('حاسبة الزكاة')), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ZakatPage()))),
-          ListTile(leading: const Icon(Icons.flag, color: gold), title: Text(tr('ختمة القرآن')), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const KhatmaPage()))),
-          ListTile(leading: const Icon(Icons.favorite, color: gold), title: Text(tr('حصن المسلم')), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdhkarTab()))),
-          Card(child: Padding(padding: EdgeInsets.all(16), child: Text('Muslim Plus $kAppVersion (${tr('بناء')} $kAppBuild) · ${tr('بدون تسجيل دخول. السور المحمّلة تعمل بدون إنترنت.')}'))),
         ]),
       );
 }

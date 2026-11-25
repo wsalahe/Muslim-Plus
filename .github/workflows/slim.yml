@@ -19,9 +19,8 @@ jobs:
           # slim variant: drop the duplicate in-app Adhan preview files (the native alarm keeps its own copies in res/raw)
           sed -i '/assets\/adhan\//d' pubspec.yaml
           rm -rf assets/adhan
+          cp slim_raw/a??.mp3 android/app/src/main/res/raw/
           # slim: re-encode the full-length adhan files at a lower bitrate to stay under the 25 MB store cap
-          sudo apt-get install -y -qq ffmpeg > /dev/null
-          for f in android/app/src/main/res/raw/a??.mp3; do ffmpeg -v error -y -i $f -ac 1 -ar 16000 -c:a libmp3lame -b:a 12k /tmp/s.mp3 && mv /tmp/s.mp3 $f; done
       - run: flutter pub get
       - run: |
           for i in 1 2 3; do flutter build apk --release --target-platform android-arm64 && break; sleep 20; done

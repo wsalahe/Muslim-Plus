@@ -14,9 +14,10 @@ import 'features.dart';
 import 'l10n.dart';
 import 'extras.dart';
 
-const int kAppBuild = 10;
-const String kAppVersion = '1.8';
+const int kAppBuild = 11;
+const String kAppVersion = '1.9';
 const String kRepo = 'wsalahe/Quran-kareem';
+const String kCatalogApi = 'https://api.github.com/repos/$kRepo/contents/catalog.json?ref=main';
 const String kCatalogUrl = 'https://raw.githubusercontent.com/$kRepo/main/catalog.json';
 const String kApkUrl = 'https://github.com/$kRepo/releases/download/app-latest/QuranKareem.apk';
 const gold = Color(0xFFD4AF37);
@@ -24,6 +25,20 @@ const navy = Color(0xFF0C5C5E);
 const navyDark = Color(0xFF083F44);
 
 const surahs = ['الفاتحة','البقرة','آل عمران','النساء','المائدة','الأنعام','الأعراف','الأنفال','التوبة','يونس','هود','يوسف','الرعد','إبراهيم','الحجر','النحل','الإسراء','الكهف','مريم','طه','الأنبياء','الحج','المؤمنون','النور','الفرقان','الشعراء','النمل','القصص','العنكبوت','الروم','لقمان','السجدة','الأحزاب','سبأ','فاطر','يس','الصافات','ص','الزمر','غافر','فصلت','الشورى','الزخرف','الدخان','الجاثية','الأحقاف','محمد','الفتح','الحجرات','ق','الذاريات','الطور','النجم','القمر','الرحمن','الواقعة','الحديد','المجادلة','الحشر','الممتحنة','الصف','الجمعة','المنافقون','التغابن','الطلاق','التحريم','الملك','القلم','الحاقة','المعارج','نوح','الجن','المزمل','المدثر','القيامة','الإنسان','المرسلات','النبأ','النازعات','عبس','التكوير','الانفطار','المطففين','الانشقاق','البروج','الطارق','الأعلى','الغاشية','الفجر','البلد','الشمس','الليل','الضحى','الشرح','التين','العلق','القدر','البينة','الزلزلة','العاديات','القارعة','التكاثر','العصر','الهمزة','الفيل','قريش','الماعون','الكوثر','الكافرون','النصر','المسد','الإخلاص','الفلق','الناس'];
+
+/// يجلب catalog.json. raw.githubusercontent يُخزَّن ٥ دقائق ويتجاهل الباراميتر، فنقرأ واجهة GitHub API أولاً (تخزين ≤ دقيقة) ثم raw كاحتياط.
+Future<List<int>> fetchCatalogBytes({int seconds = 15}) async {
+  try {
+    final r = await http.get(Uri.parse('$kCatalogApi&t=${DateTime.now().millisecondsSinceEpoch}'), headers: {'Accept': 'application/vnd.github.raw+json', 'Cache-Control': 'no-cache'}).timeout(Duration(seconds: seconds));
+    if (r.statusCode == 200) {
+      jsonDecode(utf8.decode(r.bodyBytes));
+      return r.bodyBytes;
+    }
+  } catch (_) {}
+  final r = await http.get(Uri.parse('$kCatalogUrl?t=${DateTime.now().millisecondsSinceEpoch}'), headers: {'Cache-Control': 'no-cache'}).timeout(Duration(seconds: seconds));
+  if (r.statusCode != 200) throw 'HTTP ${r.statusCode}';
+  return r.bodyBytes;
+}
 
 String pad(int n) => n.toString().padLeft(3, '0');
 String keyOf(Map x) => '${pad(x['n'])}${(x['p'] ?? 0) > 0 ? '_p${x['p']}' : ''}';
@@ -475,16 +490,15 @@ class _SettingsState extends State<Settings> {
   Future<void> check() async {
     setState(() { busy = true; status = tr('جاري التحقق...'); });
     try {
-      final r = await http.get(Uri.parse('$kCatalogUrl?t=${DateTime.now().millisecondsSinceEpoch}'), headers: {'Cache-Control': 'no-cache', 'Pragma': 'no-cache'}).timeout(const Duration(seconds: 25));
-      if (r.statusCode != 200) throw 'HTTP ${r.statusCode}';
-      final remote = jsonDecode(utf8.decode(r.bodyBytes));
+      final bytes = await fetchCatalogBytes(seconds: 25);
+      final remote = jsonDecode(utf8.decode(bytes));
       final rb = int.tryParse('${remote['app_build']}') ?? 0;
       remoteBuild = rb;
-      final newCat = (remote['catalog_version'] ?? 0) > (Store.catalog['catalog_version'] ?? 0);
+      const newCat = false; // v1.8: التلاوات مدمجة في التطبيق، التحديث للتطبيق فقط
       appUpdate = rb > kAppBuild;
       if (newCat) {
         Store.catalog = remote;
-        await Store.prefs.setString('catalog', utf8.decode(r.bodyBytes));
+        await Store.prefs.setString('catalog', utf8.decode(bytes));
       }
       status = (newCat || appUpdate)
           ? tr('${newCat ? 'تم تحديث قائمة التلاوات. ' : ''}${appUpdate ? 'يوجد تحديث جديد للتطبيق.' : ''}')

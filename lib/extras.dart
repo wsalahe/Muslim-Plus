@@ -434,9 +434,9 @@ class _UpdateGateState extends State<UpdateGate> with WidgetsBindingObserver {
 
   Future<void> check() async {
     try {
-      final r = await http.get(Uri.parse('$kCatalogUrl?t=${DateTime.now().millisecondsSinceEpoch}')).timeout(const Duration(seconds: 10));
-      if (r.statusCode == 200) {
-        final remote = jsonDecode(utf8.decode(r.bodyBytes)) as Map;
+      final bytes = await fetchCatalogBytes(seconds: 10);
+      {
+        final remote = jsonDecode(utf8.decode(bytes)) as Map;
         final min = ((remote['min_build'] ?? 0) as num).toInt();
         final p = await SharedPreferences.getInstance();
         await p.setInt('min_build', min);

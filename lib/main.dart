@@ -14,8 +14,8 @@ import 'features.dart';
 import 'l10n.dart';
 import 'extras.dart';
 
-const int kAppBuild = 9;
-const String kAppVersion = '1.7';
+const int kAppBuild = 10;
+const String kAppVersion = '1.8';
 const String kRepo = 'wsalahe/Quran-kareem';
 const String kCatalogUrl = 'https://raw.githubusercontent.com/$kRepo/main/catalog.json';
 const String kApkUrl = 'https://github.com/$kRepo/releases/download/app-latest/QuranKareem.apk';
@@ -56,8 +56,28 @@ class Store {
     // asset catalog may be newer after an app update
     final asset = jsonDecode(await rootBundle.loadString('assets/catalog.json'));
     if ((asset['catalog_version'] ?? 0) > (catalog['catalog_version'] ?? 0)) catalog = asset;
+    // v1.8: القراء من مكتبة mp3quran.net (100 قارئ، بث وتحميل). تُحذف تلاوات الإصدارات القديمة.
+    final raw = jsonDecode(await rootBundle.loadString('assets/reciters.json')) as List;
+    reciters = [
+      for (final e in raw)
+        {
+          'id': e['id'],
+          'name': e['name'],
+          'surahs': [for (var n = 1; n <= 114; n++) {'n': n, 'url': '${e['server']}${pad(n)}.mp3'}],
+        }
+    ];
+    if (!(prefs.getBool('old_recs_cleaned') ?? false)) {
+      for (final sh in (asset['sheikhs'] ?? []) as List) {
+        final d = Directory('${dir.path}/${sh['id']}');
+        try { if (d.existsSync()) d.deleteSync(recursive: true); } catch (_) {}
+      }
+      await prefs.setBool('old_recs_cleaned', true);
+    }
   }
+  static List reciters = [];
   static Future<bool> refresh() async {
+    return false;
+    // ignore: dead_code
     try {
       final r = await http.get(Uri.parse(kCatalogUrl)).timeout(const Duration(seconds: 15));
       if (r.statusCode != 200) return false;
@@ -70,8 +90,8 @@ class Store {
     } catch (_) {}
     return false;
   }
-  static List get sheikhs => (catalog['sheikhs'] ?? []) as List;
-  static File fileFor(String sheikhId, Map x) => File('${dir.path}/$sheikhId/${keyOf(x)}.mp4');
+  static List get sheikhs => reciters;
+  static File fileFor(String sheikhId, Map x) => File('${dir.path}/$sheikhId/${keyOf(x)}.mp3');
   static bool has(String sheikhId, Map x) => fileFor(sheikhId, x).existsSync();
 }
 
@@ -141,6 +161,7 @@ class RecitersTab extends StatefulWidget {
 }
 
 class _HomeState extends State<RecitersTab> {
+  String q = '';
   @override
   void initState() {
     super.initState();
@@ -149,7 +170,8 @@ class _HomeState extends State<RecitersTab> {
 
   @override
   Widget build(BuildContext context) {
-    final list = Store.sheikhs;
+    final all = Store.sheikhs;
+    final list = q.isEmpty ? all : all.where((e) => (e['name'] as String).contains(q)).toList();
     return Scaffold(
       appBar: AppBar(
         title: Text(tr('القرآن الكريم'), style: TextStyle(fontWeight: FontWeight.bold)),
@@ -159,9 +181,15 @@ class _HomeState extends State<RecitersTab> {
           ? Center(child: Padding(padding: EdgeInsets.all(24), child: Text(tr('لا توجد تلاوات بعد. افتح الإعدادات واضغط "التحقق من التحديثات".'), textAlign: TextAlign.center)))
           : ListView.builder(
               padding: const EdgeInsets.all(12),
-              itemCount: list.length,
+              itemCount: list.length + 1,
               itemBuilder: (c, i) {
-                final s = list[i];
+                if (i == 0) {
+                  return Padding(padding: const EdgeInsets.only(bottom: 8), child: TextField(
+                    decoration: InputDecoration(prefixIcon: const Icon(Icons.search), hintText: tr('ابحث عن قارئ'), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14))),
+                    onChanged: (v) => setState(() => q = v.trim()),
+                  ));
+                }
+                final s = list[i - 1];
                 final n = (s['surahs'] as List).length;
                 final d = (s['surahs'] as List).where((x) => Store.has(s['id'], x)).length;
                 return Card(
@@ -285,7 +313,7 @@ class _PlayerState extends State<Player> {
   void initState() {
     super.initState();
     idx = widget.index;
-    video = Store.prefs.getBool('video') ?? false;
+    video = false;
     subs.add(ap.positionStream.listen((p) { if (!video && mounted) setState(() => pos = p); }));
     subs.add(ap.durationStream.listen((d) { if (!video && d != null && mounted) setState(() => dur = d); }));
     subs.add(ap.playerStateStream.listen((st) {
@@ -417,7 +445,7 @@ class _PlayerState extends State<Player> {
             IconButton(iconSize: 30, icon: const Icon(Icons.forward_10), onPressed: () => _seek(pos + const Duration(seconds: 10))),
             IconButton(iconSize: 32, icon: const Icon(Icons.skip_previous), onPressed: idx > 0 ? _prev : null),
           ]),
-          Padding(
+          if (x['url'].toString().endsWith('.mp4')) Padding(
             padding: EdgeInsets.all(12),
             child: SegmentedButton<bool>(
               segments: [ButtonSegment(value: false, label: Text(tr('صوت')), icon: Icon(Icons.headphones)), ButtonSegment(value: true, label: Text(tr('فيديو')), icon: Icon(Icons.videocam))],
@@ -507,7 +535,7 @@ class _SettingsState extends State<Settings> {
               context: context,
               builder: (c) => AlertDialog(
                 title: Text(tr('عن التطبيق والمصادر')),
-                content: SingleChildScrollView(child: Text('Muslim Plus $kAppVersion\n\n${tr('نص القرآن وبيانات الصفحات والأجزاء: Tanzil.net، رخصة Creative Commons Attribution 3.0 (النص دون تعديل).')}\n${tr('قائمة المدن: GeoNames.org (CC BY 4.0)، مدن يزيد سكانها عن ١٥ ألفا، تعمل بدون إنترنت.')}\n${tr('الصوت: everyayah.com.')}\n${tr('الخط: Amiri (رخصة SIL OFL).')}\n${tr('أصوات الأذان: archive.org (Public Domain Mark).')}')),
+                content: SingleChildScrollView(child: Text('Muslim Plus $kAppVersion\n\n${tr('نص القرآن وبيانات الصفحات والأجزاء: Tanzil.net، رخصة Creative Commons Attribution 3.0 (النص دون تعديل).')}\n${tr('قائمة المدن: GeoNames.org (CC BY 4.0)، مدن يزيد سكانها عن ١٥ ألفا، تعمل بدون إنترنت.')}\n${tr('التلاوات الكاملة: مكتبة mp3quran.net الصوتية (بث وتحميل).')}\n${tr('تلاوة الآيات في المصحف: everyayah.com.')}\n${tr('الخط: Amiri (رخصة SIL OFL).')}\n${tr('أصوات الأذان: archive.org (Public Domain Mark).')}')),
                 actions: [TextButton(onPressed: () => Navigator.pop(c), child: Text(tr('حسنا')))],
               ),
             ),

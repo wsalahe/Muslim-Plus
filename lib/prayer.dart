@@ -10,6 +10,7 @@ import 'package:hijri/hijri_calendar.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'main.dart';
 import 'l10n.dart';
+import 'tasbih_garden.dart';
 import 'features.dart';
 import 'ai.dart';
 import 'extras.dart';
@@ -742,7 +743,8 @@ class TasbihPage extends StatefulWidget {
 class _TasbihPageState extends State<TasbihPage> {
   static const phrases = ['سبحان الله', 'الحمد لله', 'الله أكبر', 'لا إله إلا الله', 'أستغفر الله', 'اللهم صل وسلم على نبينا محمد', 'سبحان الله وبحمده'];
   static const targets = [33, 99, 100, 0];
-  int phrase = 0, target = 33, count = 0, total = 0;
+  int phrase = 0, target = 33, count = 0, total = 0, lifetime = 0;
+  final GlobalKey<TasbihGardenState> gardenKey = GlobalKey<TasbihGardenState>();
 
   @override
   void initState() {
@@ -751,6 +753,7 @@ class _TasbihPageState extends State<TasbihPage> {
     phrase = p.getInt('tz_phrase') ?? 0;
     target = p.getInt('tz_target') ?? 33;
     count = p.getInt('tz_count') ?? 0;
+    lifetime = p.getInt('tz_lifetime') ?? 0;
     final day = DateTime.now().toIso8601String().substring(0, 10);
     total = p.getString('tz_day') == day ? (p.getInt('tz_total') ?? 0) : 0;
   }
@@ -762,10 +765,12 @@ class _TasbihPageState extends State<TasbihPage> {
     p.setInt('tz_count', count);
     p.setString('tz_day', DateTime.now().toIso8601String().substring(0, 10));
     p.setInt('tz_total', total);
+    p.setInt('tz_lifetime', lifetime);
   }
 
   void tap() {
-    setState(() { count++; total++; });
+    setState(() { count++; total++; lifetime++; });
+    gardenKey.currentState?.drop();
     if (target > 0 && count >= target) {
       HapticFeedback.heavyImpact();
       setState(() => count = 0);
@@ -794,7 +799,8 @@ class _TasbihPageState extends State<TasbihPage> {
         ]),
         Expanded(
           child: Center(
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
+            child: SingleChildScrollView(
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
               Text(tr(phrases[phrase]), style: const TextStyle(fontSize: 26, color: gold, fontFamily: 'Amiri'), textAlign: TextAlign.center),
               const SizedBox(height: 24),
               GestureDetector(
@@ -810,7 +816,10 @@ class _TasbihPageState extends State<TasbihPage> {
               ),
               const SizedBox(height: 20),
               Text(tr('إجمالي اليوم: ${arabicDigits(total)}'), style: TextStyle(color: Theme.of(context).hintColor)),
-            ]),
+              const SizedBox(height: 6),
+              TasbihGarden(key: gardenKey, lifetime: lifetime),
+              ]),
+            ),
           ),
         ),
       ]),

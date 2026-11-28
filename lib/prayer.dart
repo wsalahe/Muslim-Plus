@@ -10,7 +10,7 @@ import 'package:hijri/hijri_calendar.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'main.dart';
 import 'l10n.dart';
-import 'tasbih_garden.dart';
+import 'tasbih_heart.dart';
 import 'features.dart';
 import 'ai.dart';
 import 'extras.dart';
@@ -744,7 +744,7 @@ class _TasbihPageState extends State<TasbihPage> {
   static const phrases = ['سبحان الله', 'الحمد لله', 'الله أكبر', 'لا إله إلا الله', 'أستغفر الله', 'اللهم صل وسلم على نبينا محمد', 'سبحان الله وبحمده'];
   static const targets = [33, 99, 100, 0];
   int phrase = 0, target = 33, count = 0, total = 0, lifetime = 0;
-  final GlobalKey<TasbihGardenState> gardenKey = GlobalKey<TasbihGardenState>();
+  final GlobalKey<TasbihHeartState> heartKey = GlobalKey<TasbihHeartState>();
 
   @override
   void initState() {
@@ -770,7 +770,7 @@ class _TasbihPageState extends State<TasbihPage> {
 
   void tap() {
     setState(() { count++; total++; lifetime++; });
-    gardenKey.currentState?.drop();
+    heartKey.currentState?.beat();
     if (target > 0 && count >= target) {
       HapticFeedback.heavyImpact();
       setState(() => count = 0);
@@ -782,9 +782,15 @@ class _TasbihPageState extends State<TasbihPage> {
 
   @override
   Widget build(BuildContext context) {
-    final prog = target == 0 ? 0.0 : count / target;
+    // التقدّم مربوط بالهدف المختار: ٣٣ أو ٩٩ أو ١٠٠، والمفتوح دورة من ٩٩.
+    final prog = target == 0 ? (count % 99) / 99.0 : (count / target).clamp(0.0, 1.0);
     return Scaffold(
-      appBar: AppBar(title: Text(tr('التسبيح')), actions: [IconButton(icon: const Icon(Icons.refresh), onPressed: () { setState(() => count = 0); save(); })]),
+      appBar: AppBar(
+        title: Text(tr('التسبيح')),
+        actions: [
+          IconButton(icon: const Icon(Icons.refresh), tooltip: tr('تصفير العدد'), onPressed: () { setState(() => count = 0); save(); }),
+        ],
+      ),
       body: Column(children: [
         SizedBox(
           height: 56,
@@ -800,25 +806,24 @@ class _TasbihPageState extends State<TasbihPage> {
         Expanded(
           child: Center(
             child: SingleChildScrollView(
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Text(tr(phrases[phrase]), style: const TextStyle(fontSize: 26, color: gold, fontFamily: 'Amiri'), textAlign: TextAlign.center),
-              const SizedBox(height: 24),
-              GestureDetector(
-                onTap: tap,
-                child: SizedBox(
-                  width: 250,
-                  height: 250,
-                  child: Stack(alignment: Alignment.center, children: [
-                    SizedBox(width: 250, height: 250, child: CircularProgressIndicator(value: target == 0 ? 1 : prog, strokeWidth: 10, color: gold, backgroundColor: Colors.white12)),
-                    Container(width: 214, height: 214, decoration: const BoxDecoration(shape: BoxShape.circle, color: mint), alignment: Alignment.center, child: AnimatedScale(scale: 1.0 + (count % 2) * .06, duration: const Duration(milliseconds: 90), child: Text(arabicDigits(count), style: const TextStyle(fontSize: 76, color: Colors.white, fontWeight: FontWeight.bold)))),
-                  ]),
-                ),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  TasbihHeart(
+                    key: heartKey,
+                    progress: prog,
+                    dhikr: tr(phrases[phrase]),
+                    count: count,
+                    target: target,
+                    onTap: tap,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(tr('إجمالي اليوم: ${arabicDigits(total)}'), style: TextStyle(color: Theme.of(context).hintColor)),
+                  const SizedBox(height: 2),
+                  Text(tr('اضغط على القلب للتسبيح'), style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor)),
+                ]),
               ),
-              const SizedBox(height: 20),
-              Text(tr('إجمالي اليوم: ${arabicDigits(total)}'), style: TextStyle(color: Theme.of(context).hintColor)),
-              const SizedBox(height: 6),
-              TasbihGarden(key: gardenKey, lifetime: lifetime),
-              ]),
             ),
           ),
         ),

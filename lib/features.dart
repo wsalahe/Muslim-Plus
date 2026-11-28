@@ -8,6 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import 'main.dart';
 import 'l10n.dart';
 import 'prayer.dart';
+import 'tasbih_heart.dart';
 import 'extras.dart';
 import 'mushaf.dart';
 import 'mushaf_theme.dart';
@@ -382,10 +383,12 @@ class AdhkarPage extends StatefulWidget {
 
 class _AdhkarPageState extends State<AdhkarPage> {
   late List<int> left;
+  late List<int> totals;
   @override
   void initState() {
     super.initState();
     left = (widget.cat['items'] as List).map((e) => countOf(e['c'])).toList();
+    totals = (widget.cat['items'] as List).map((e) => countOf(e['c'])).toList();
   }
 
   @override
@@ -395,7 +398,23 @@ class _AdhkarPageState extends State<AdhkarPage> {
       appBar: AppBar(title: Text(widget.cat['name'], style: const TextStyle(fontSize: 16)), actions: [
         IconButton(icon: const Icon(Icons.restart_alt), tooltip: tr('إعادة العد'), onPressed: () => setState(() => left = items.map((e) => countOf(e['c'])).toList())),
       ]),
-      body: ListView.builder(
+      body: Column(children: [
+        Container(
+          margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(16)),
+          child: Row(children: [
+            HeartBadge(progress: items.isEmpty ? 0 : left.where((v) => v == 0).length / items.length, size: 30),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(tr('قلبك يحيى بالذكر'), style: const TextStyle(fontFamily: 'Amiri', fontSize: 18, color: gold)),
+                Text(tr('أكملت ${arabicDigits(left.where((v) => v == 0).length)} من ${arabicDigits(items.length)}'), style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor)),
+              ]),
+            ),
+          ]),
+        ),
+        Expanded(child: ListView.builder(
         padding: const EdgeInsets.all(10),
         itemCount: items.length,
         itemBuilder: (c, i) {
@@ -411,16 +430,18 @@ class _AdhkarPageState extends State<AdhkarPage> {
                   Text(items[i]['t'], style: const TextStyle(fontFamily: 'Amiri', fontSize: 22, height: 1.9)),
                   const SizedBox(height: 10),
                   Row(children: [
-                    Icon(done ? Icons.check_circle : Icons.touch_app, color: gold, size: 20),
+                    HeartBadge(progress: totals[i] == 0 ? 1 : 1 - left[i] / totals[i], size: 24),
                     const SizedBox(width: 8),
-                    Text(done ? tr('تم') : tr('اضغط للعد · المتبقي ${arabicDigits(left[i])}'), style: const TextStyle(color: gold)),
+                    Expanded(child: Text(done ? tr('تم') : tr('اضغط للعد · المتبقي ${arabicDigits(left[i])}'), style: const TextStyle(color: gold))),
+                    if (done) const Icon(Icons.check_circle, color: gold, size: 18),
                   ]),
                 ]),
               ),
             ),
           );
         },
-      ),
+      )),
+      ]),
     );
   }
 }

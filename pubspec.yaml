@@ -1,7 +1,7 @@
 name: quran_app
 description: Muslim Plus
 publish_to: none
-version: 1.24.0+26
+version: 1.25.0+27
 environment:
   sdk: ">=3.0.0 <4.0.0"
 dependencies:
@@ -29,6 +29,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+    - assets/heart/
     - assets/logo.jpg
     - assets/catalog.json
     - assets/reciters.json
